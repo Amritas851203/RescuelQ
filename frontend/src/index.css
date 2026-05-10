@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #020617;
+  --color-surface: #0f172a;
+  --color-primary: #3b82f6;
+  --color-critical: #ef4444;
+  --color-warning: #f59e0b;
+  --color-safe: #22c55e;
+}
+
+
+@layer base {
+  body {
+    @apply bg-background text-white antialiased;
+  }
+}
+
+.glass-panel {
+  @apply bg-surface/80 backdrop-blur-md border border-white/10 rounded-xl shadow-lg;
+}
+
+.neon-text {
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.neon-border {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.pulse-critical {
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
