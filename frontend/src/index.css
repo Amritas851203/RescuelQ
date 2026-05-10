@@ -9,10 +9,19 @@
   --color-safe: #22c55e;
 }
 
+:root {
+  --cyan-rgb: 0, 242, 255;
+  --red-rgb: 239, 68, 68;
+  --emerald-rgb: 16, 185, 129;
+  --purple-rgb: 168, 85, 247;
+  --orange-rgb: 249, 115, 22;
+  --blue-rgb: 59, 130, 246;
+}
 
 @layer base {
   body {
-    @apply bg-background text-white antialiased;
+    @apply bg-background text-white antialiased overflow-hidden;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
 }
 
@@ -28,18 +37,75 @@
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
 }
 
-.pulse-critical {
-  animation: pulse-red 2s infinite;
+/* Tactical Map Overrides */
+.tactical-popup .leaflet-popup-content-wrapper {
+  @apply !bg-gray-950 !text-white !rounded-2xl !border !border-white/10 !p-0 !overflow-hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
 }
 
+.tactical-popup .leaflet-popup-tip {
+  @apply !bg-gray-950;
+}
+
+.leaflet-container {
+  font-family: inherit !important;
+  cursor: crosshair !important;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Cinematic Animations */
 @keyframes pulse-red {
-  0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-  }
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes route-glow {
+  0% { stroke-dashoffset: 200; opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.4; }
+}
+
+.animate-route-glow {
+  animation: route-glow 3s linear infinite;
+}
+
+.tactical-radar-sweep {
+  background: conic-gradient(from 0deg, rgba(var(--cyan-rgb), 0.2), transparent 90deg);
+}
+
+/* Holographic Noise Effect */
+.holographic-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
 }
