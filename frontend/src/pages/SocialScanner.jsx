@@ -15,7 +15,8 @@ import {
   Activity,
   ArrowUpRight,
   MoreVertical,
-  MessageSquare
+  MessageSquare,
+  AlertCircle
 } from 'lucide-react';
 import useSocialStore from '../store/useSocialStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -103,72 +104,109 @@ const SocialScanner = () => {
           </div>
 
           <div className="space-y-3 max-h-[700px] overflow-y-auto pr-2 custom-scrollbar">
-            <AnimatePresence mode="popLayout">
-              {filteredAlerts.map((alert) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  key={alert.id}
-                  className={`glass-panel p-4 border-l-4 transition-all hover:bg-white/5 cursor-pointer ${
-                    alert.priority === 'Critical' ? 'border-l-critical shadow-lg shadow-critical/5' : 'border-l-white/10'
-                  }`}
-                  onClick={() => setSelectedAlert(alert)}
-                >
-                  <div className="flex justify-between items-start mb-3">
+            {loading && alerts.length === 0 ? (
+              // Loading Skeleton
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="glass-panel p-4 animate-pulse space-y-4">
+                  <div className="flex justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full bg-surface border border-white/10 flex items-center justify-center text-primary font-bold overflow-hidden">
-                        {alert.platform === 'Twitter/X' && <span className="text-xl">𝕏</span>}
-                        {alert.platform === 'Instagram' && <span className="text-xl">📸</span>}
-                        {alert.platform === 'News' && <span className="text-xl">📰</span>}
-                        {alert.platform === 'Public Alert' && <span className="text-xl">📢</span>}
+                      <div className="w-10 h-10 bg-white/5 rounded-full" />
+                      <div className="space-y-2">
+                        <div className="h-3 w-24 bg-white/5 rounded" />
+                        <div className="h-2 w-32 bg-white/5 rounded" />
                       </div>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-bold text-white">{alert.source}</span>
-                          {alert.isVerified && <CheckCircle2 className="w-3 h-3 text-safe" />}
-                          <span className="text-[10px] text-slate-500 uppercase font-black tracking-tighter bg-white/5 px-1.5 rounded">
-                            {alert.platform}
+                    </div>
+                    <div className="h-4 w-16 bg-white/5 rounded" />
+                  </div>
+                  <div className="h-12 w-full bg-white/5 rounded-xl" />
+                </div>
+              ))
+            ) : error ? (
+              <div className="glass-panel p-12 text-center space-y-4 border-critical/20 bg-critical/5">
+                <AlertCircle className="w-12 h-12 text-critical mx-auto" />
+                <div>
+                  <h3 className="text-lg font-bold text-white uppercase tracking-tighter">Live Feed Interrupted</h3>
+                  <p className="text-xs text-slate-500 mt-1">{error}</p>
+                </div>
+                <button 
+                  onClick={fetchAlerts}
+                  className="px-6 py-2 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase rounded-lg border border-white/10 transition-all"
+                >
+                  Retry Connection
+                </button>
+              </div>
+            ) : filteredAlerts.length === 0 ? (
+              <div className="glass-panel p-12 text-center opacity-50">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">No matching alerts detected in this sector.</p>
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {filteredAlerts.map((alert) => (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    key={alert.id}
+                    className={`glass-panel p-4 border-l-4 transition-all hover:bg-white/5 cursor-pointer ${
+                      alert.priority === 'Critical' ? 'border-l-critical shadow-lg shadow-critical/5' : 'border-l-white/10'
+                    }`}
+                    onClick={() => setSelectedAlert(alert)}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 rounded-full bg-surface border border-white/10 flex items-center justify-center text-primary font-bold overflow-hidden">
+                          {alert.platform === 'Twitter/X' && <span className="text-xl">𝕏</span>}
+                          {alert.platform === 'Instagram' && <span className="text-xl">📸</span>}
+                          {alert.platform === 'News' && <span className="text-xl">📰</span>}
+                          {alert.platform === 'Public Alert' && <span className="text-xl">📢</span>}
+                        </div>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-bold text-white">{alert.source}</span>
+                            {alert.isVerified && <CheckCircle2 className="w-3 h-3 text-safe" />}
+                            <span className="text-[10px] text-slate-500 uppercase font-black tracking-tighter bg-white/5 px-1.5 rounded">
+                              {alert.platform}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-[10px] text-slate-400 mt-0.5">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {new Date(alert.timestamp).toLocaleTimeString()} • {alert.location}
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest border ${getPriorityColor(alert.priority)}`}>
+                        {alert.priority}
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-slate-300 leading-relaxed mb-4 line-clamp-2">
+                      {alert.content}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-1.5">
+                          <Cpu className="w-3 h-3 text-primary" />
+                          <span className="text-[10px] font-bold text-slate-500">AI Confidence:</span>
+                          <span className="text-[10px] font-black text-white">{alert.confidence}%</span>
+                        </div>
+                        <div className="flex items-center space-x-1.5">
+                          <Shield className="w-3 h-3 text-accent" />
+                          <span className="text-[10px] font-bold text-slate-500">Sentiment:</span>
+                          <span className={`text-[10px] font-black ${alert.sentiment === 'Urgent' ? 'text-primary' : 'text-orange-400'}`}>
+                            {alert.sentiment}
                           </span>
                         </div>
-                        <div className="flex items-center text-[10px] text-slate-400 mt-0.5">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {new Date(alert.timestamp).toLocaleTimeString()} • {alert.location}
-                        </div>
                       </div>
+                      <button className="p-1.5 bg-white/5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-all">
+                        <ArrowUpRight className="w-4 h-4" />
+                      </button>
                     </div>
-                    <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest border ${getPriorityColor(alert.priority)}`}>
-                      {alert.priority}
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-slate-300 leading-relaxed mb-4 line-clamp-2">
-                    {alert.content}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-white/5">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1.5">
-                        <Cpu className="w-3 h-3 text-primary" />
-                        <span className="text-[10px] font-bold text-slate-500">AI Confidence:</span>
-                        <span className="text-[10px] font-black text-white">{alert.confidence}%</span>
-                      </div>
-                      <div className="flex items-center space-x-1.5">
-                        <Shield className="w-3 h-3 text-accent" />
-                        <span className="text-[10px] font-bold text-slate-500">Sentiment:</span>
-                        <span className={`text-[10px] font-black ${alert.sentiment === 'Urgent' ? 'text-primary' : 'text-orange-400'}`}>
-                          {alert.sentiment}
-                        </span>
-                      </div>
-                    </div>
-                    <button className="p-1.5 bg-white/5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-all">
-                      <ArrowUpRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
           </div>
         </div>
 

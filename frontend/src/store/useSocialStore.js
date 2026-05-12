@@ -15,7 +15,7 @@ const useSocialStore = create((set, get) => ({
   },
 
   fetchAlerts: async () => {
-    set({ loading: true });
+    set({ loading: true, error: null });
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API_URL}/api/social/alerts`, {
@@ -32,7 +32,11 @@ const useSocialStore = create((set, get) => ({
 
       set({ alerts, stats, loading: false });
     } catch (error) {
-      set({ error: error.message, loading: false });
+      console.error('Fetch Alerts Error:', error);
+      set({ 
+        error: error.response?.data?.message || 'Failed to fetch live intelligence data. Check network connectivity.', 
+        loading: false 
+      });
     }
   },
 
