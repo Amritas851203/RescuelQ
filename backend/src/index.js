@@ -40,8 +40,8 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'RescueIQ Backend is running' });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5999;
 
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 RescueIQ Backend operational on IPv4 port ${PORT}`);
 });
