@@ -76,7 +76,6 @@ function App() {
             <CommandCenter />
           </ProtectedLayout>
         } />
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

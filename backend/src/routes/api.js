@@ -5,6 +5,8 @@ import DispatchController from '../controllers/DispatchController.js';
 import { signup, login, verifyOtp, forgotPassword, resetPassword } from '../controllers/authController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
+import { getSocialAlerts, analyzePost, convertToIncident } from '../controllers/socialController.js';
+
 const router = express.Router();
 
 // Auth Routes
@@ -24,12 +26,12 @@ router.get('/missions', DispatchController.getActiveMissions);
 router.post('/dispatch/assign', DispatchController.assignMission);
 router.post('/dispatch/auto', DispatchController.autoAssignAI);
 
+// Social Scanner endpoints
+router.get('/social/alerts', authMiddleware, getSocialAlerts);
+router.post('/social/analyze', authMiddleware, analyzePost);
+router.post('/social/convert', authMiddleware, convertToIncident);
+
 // Twilio Webhook
 router.post('/webhook/twilio', handleTwilioWebhook);
-
-// Social Media Scanner Mock
-router.post('/social/scan', (req, res) => {
-  res.json({ message: 'Social scanner initiated', scanned: 12 });
-});
 
 export default router;
