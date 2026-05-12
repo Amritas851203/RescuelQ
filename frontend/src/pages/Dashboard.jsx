@@ -1,6 +1,8 @@
+import React, { useEffect } from 'react';
 import { AlertCircle, Users, Shield, Map as MapIcon, TrendingUp, Clock } from 'lucide-react';
 import useSosStore from '../store/useSosStore';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import TriageQueue from '../components/TriageQueue';
 
 const data = [
   { name: '00:00', reports: 4 },
@@ -28,15 +30,19 @@ const StatCard = ({ icon: Icon, label, value, color, trend }) => (
 );
 
 const Dashboard = () => {
-  const reports = useSosStore((state) => state.reports);
+  const { reports, fetchReports } = useSosStore();
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
 
   return (
-    <div className="space-y-6">
+    <div className="h-full flex flex-col space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Mission Overview</h2>
+        <h2 className="text-2xl font-bold tracking-tight neon-text">Mission Command Dashboard</h2>
         <div className="flex items-center space-x-2 text-sm text-slate-400">
           <Clock className="w-4 h-4" />
-          <span>Last Updated: {new Date().toLocaleTimeString()}</span>
+          <span>System Status: <span className="text-safe">Operational</span> • {new Date().toLocaleTimeString()}</span>
         </div>
       </div>
 
@@ -44,7 +50,7 @@ const Dashboard = () => {
         <StatCard 
           icon={AlertCircle} 
           label="Active SOS" 
-          value={reports.length || "12"} 
+          value={reports.length} 
           color="bg-critical" 
           trend="+2 in last hour"
         />
@@ -68,44 +74,51 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 glass-panel p-6">
-          <h3 className="text-lg font-semibold mb-4">Emergency Incident Trend</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
-                <defs>
-                  <linearGradient id="colorReports" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b' }}
-                  itemStyle={{ color: '#3b82f6' }}
-                />
-                <Area type="monotone" dataKey="reports" stroke="#3b82f6" fillOpacity={1} fill="url(#colorReports)" />
-              </AreaChart>
-            </ResponsiveContainer>
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
+        <div className="lg:col-span-8 space-y-6 flex flex-col">
+          <div className="glass-panel p-6">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-primary" />
+              Emergency Incident Trend
+            </h3>
+            <div className="h-[250px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data}>
+                  <defs>
+                    <linearGradient id="colorReports" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <XAxis dataKey="name" stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#64748b" fontSize={12} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
+                    itemStyle={{ color: '#3b82f6' }}
+                  />
+                  <Area type="monotone" dataKey="reports" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorReports)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="glass-panel p-6 flex flex-col items-center justify-center text-center space-y-2 border-dashed">
+              <Shield className="w-10 h-10 text-primary opacity-50" />
+              <h4 className="font-medium text-slate-300">Resource Allocation</h4>
+              <p className="text-xs text-slate-500">Global fleet optimization active</p>
+            </div>
+            <div className="glass-panel p-6 flex flex-col items-center justify-center text-center space-y-2 border-dashed">
+              <MapIcon className="w-10 h-10 text-safe opacity-50" />
+              <h4 className="font-medium text-slate-300">Live Map Overlay</h4>
+              <p className="text-xs text-slate-500">12 drones currently patrolling</p>
+            </div>
           </div>
         </div>
 
-        <div className="glass-panel p-6 overflow-hidden flex flex-col">
-          <h3 className="text-lg font-semibold mb-4">Live Activity Feed</h3>
-          <div className="flex-1 space-y-4 overflow-y-auto pr-2 custom-scrollbar">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-start space-x-3 border-l-2 border-primary/30 pl-3 py-1">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">New SOS report from Chembur</p>
-                  <p className="text-xs text-slate-400">2 minutes ago • Urgency: 85%</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <button className="mt-4 text-xs text-primary hover:underline self-start">View All Alerts →</button>
+        <div className="lg:col-span-4 flex flex-col min-h-0">
+          <TriageQueue />
         </div>
       </div>
     </div>
