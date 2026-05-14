@@ -96,7 +96,7 @@ const AuthPage = () => {
         <img 
           src={tacticalBg} 
           alt="Tactical Command" 
-          className="w-full h-full object-cover opacity-80 mix-blend-normal scale-100"
+          className="w-full h-full object-cover opacity-80 mix-blend-normal scale-95"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/20 to-[#020617]" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-transparent to-[#020617]" />
@@ -109,12 +109,12 @@ const AuthPage = () => {
         <div className="flex justify-between items-start">
            <div className="space-y-4">
               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-red-600/30 border border-red-500/50 rounded-2xl backdrop-blur-xl shadow-[0_0_20px_rgba(239,68,68,0.2)]">
-                    <AlertTriangle className="text-red-500" size={24} />
+                 <div className="p-2 bg-red-600/30 border border-red-500/50 rounded-xl backdrop-blur-xl shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                    <AlertTriangle className="text-red-500" size={20} />
                  </div>
                  <div>
-                    <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">RESCUE<span className="text-red-500">IQ</span></h1>
-                    <p className="text-[10px] text-white/60 font-bold uppercase tracking-[0.4em] mt-1">Tactical Command System</p>
+                    <h1 className="text-xl font-black text-white italic tracking-tighter uppercase leading-none">RESCUE<span className="text-red-500">IQ</span></h1>
+                    <p className="text-[8px] text-white/60 font-bold uppercase tracking-[0.4em] mt-1">Tactical Command System</p>
                  </div>
               </div>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/20 border border-blue-500/40 rounded-full backdrop-blur-md">
@@ -136,7 +136,7 @@ const AuthPage = () => {
         {/* Floating HUD Panels - Visible on Large Screens (Laptops) */}
         <div className="hidden lg:block">
            {/* Left Info */}
-           <div className="absolute top-44 left-10 w-64 space-y-6">
+           <div className="absolute top-40 left-10 w-52 space-y-4">
               <div className="p-4 bg-slate-900/60 border border-white/10 rounded-2xl backdrop-blur-2xl shadow-2xl">
                  <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-4">Live Incidents</h4>
                  <div className="space-y-3">
@@ -177,7 +177,7 @@ const AuthPage = () => {
            </div>
 
            {/* Right Info */}
-           <div className="absolute top-44 right-10 w-64 space-y-6">
+           <div className="absolute top-40 right-10 w-52 space-y-4">
               <div className="p-5 bg-slate-900/60 border border-white/10 rounded-2xl backdrop-blur-2xl shadow-2xl">
                  <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-4">Active Rescue Units</h4>
                  <div className="space-y-4">
