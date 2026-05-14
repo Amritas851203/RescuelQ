@@ -1074,8 +1074,6 @@ const Shelters = () => {
                     </div>
                   </div>
                 </div>
-                  </div>
-                </div>
               </>
             ) : (
               <div className="h-[800px] flex flex-col items-center justify-center text-center">
