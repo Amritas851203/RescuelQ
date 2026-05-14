@@ -1005,6 +1005,7 @@ const Shelters = () => {
                         ))}
                       </div>
                     </div>
+                  </div>
                   <div className="mt-16 pt-10 border-t border-white/5 flex flex-wrap gap-8 items-center justify-between">
                      <div className="flex gap-12">
                         <div>
