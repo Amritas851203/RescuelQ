@@ -752,54 +752,92 @@ const Shelters = () => {
                </div>
             </div>
 
-            {/* MISSION-CRITICAL PULSE - BALANCING WIDGET */}
-            <div className="bg-gradient-to-br from-blue-600/10 to-emerald-600/10 border border-white/5 rounded-[2.5rem] p-8 space-y-6 relative overflow-hidden group">
-               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.1)_0%,transparent_70%)]" />
-               <div className="flex items-center justify-between relative z-10">
-                 <div className="flex items-center gap-3">
-                   <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_#ef4444]" />
-                   <span className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Mission_Critical_Pulse</span>
-                 </div>
-                 <Activity size={16} className="text-blue-400 opacity-30" />
-               </div>
+            {/* NEURAL COMMAND CORE - REDESIGNED FOR HIGH-FIDELITY */}
+            <div className="bg-[#0a0f1c]/80 border border-white/10 rounded-[3rem] p-10 relative overflow-hidden group shadow-2xl backdrop-blur-3xl">
+               {/* Background Glow */}
+               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08)_0%,transparent_70%)]" />
                
-               <div className="h-24 flex items-center justify-center relative z-10 overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-between px-2 opacity-10">
-                     {[...Array(20)].map((_, i) => (
-                       <div key={i} className="w-px h-full bg-white/20" />
-                     ))}
+               <div className="relative z-10 flex flex-col gap-10">
+                  {/* Status Panel (Top Left) */}
+                  <div className="flex justify-between items-start">
+                    <div className="bg-black/60 border border-white/10 p-5 rounded-2xl backdrop-blur-xl shadow-xl flex gap-10">
+                        <div className="space-y-1">
+                          <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Neural Link</div>
+                          <div className="flex items-center gap-2">
+                             <span className="text-sm font-black text-emerald-400 uppercase tracking-tighter italic">Verified</span>
+                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+                          </div>
+                        </div>
+                        <div className="w-px h-8 bg-white/10" />
+                        <div className="space-y-1">
+                          <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Sync Strength</div>
+                          <div className="text-sm font-black text-blue-400 tabular-nums italic">99.98%</div>
+                        </div>
+                    </div>
+                    <Activity size={20} className="text-blue-500/40 animate-pulse" />
                   </div>
-                  <svg viewBox="0 0 400 100" className="w-full h-full">
-                    <motion.path
-                      d="M0 50 Q 50 10, 100 50 T 200 50 T 300 50 T 400 50"
-                      fill="none"
-                      stroke="url(#pulseGradient)"
-                      strokeWidth="3"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    />
-                    <defs>
-                      <linearGradient id="pulseGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#3b82f6" />
-                        <stop offset="50%" stopColor="#10b981" />
-                        <stop offset="100%" stopColor="#3b82f6" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-               </div>
 
-               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5 relative z-10">
-                  <div className="space-y-1">
-                     <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Neural Link</div>
-                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-emerald-400 uppercase tracking-tighter">Verified</span>
-                        <div className="w-1 h-1 rounded-full bg-emerald-500" />
-                     </div>
+                  {/* Central Neural Display */}
+                  <div className="relative h-64 flex items-center justify-center">
+                    {/* Concentric Tactical Rings */}
+                    {[...Array(4)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ 
+                          scale: [1, 1.05, 1],
+                          opacity: [0.1, 0.2, 0.1],
+                        }}
+                        transition={{ duration: 4, repeat: Infinity, delay: i * 0.5 }}
+                        className="absolute border border-white/5 rounded-full"
+                        style={{ 
+                          width: `${140 + i * 40}px`, 
+                          height: `${140 + i * 40}px` 
+                        }}
+                      />
+                    ))}
+                    
+                    {/* Glowing Brain Core */}
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-blue-500/20 blur-[40px] rounded-full animate-pulse" />
+                      <motion.div
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="relative z-10 p-8 bg-white/[0.02] border border-white/10 rounded-full backdrop-blur-md"
+                      >
+                        <BrainCircuit size={80} className="text-white/20" />
+                        {/* Animated Data Nodes */}
+                        <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }} className="absolute top-4 right-4 w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_10px_#ef4444]" />
+                        <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity, delay: 0.5 }} className="absolute bottom-6 left-2 w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+                      </motion.div>
+                    </div>
                   </div>
-                  <div className="space-y-1 text-right">
-                     <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Sync Strength</div>
-                     <div className="text-xs font-black text-blue-400 tabular-nums">99.98%</div>
+
+                  {/* Telemetry Waveform */}
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center text-[9px] font-black text-white/20 uppercase tracking-[0.4em]">
+                      <span>Real-time Neural Stream</span>
+                      <span className="text-blue-500">Encrypted</span>
+                    </div>
+                    <div className="h-12 w-full opacity-40">
+                      <svg viewBox="0 0 400 100" className="w-full h-full">
+                        <motion.path
+                          d="M0 50 Q 25 10, 50 50 T 100 50 T 150 50 T 200 50 T 250 50 T 300 50 T 350 50 T 400 50"
+                          fill="none"
+                          stroke="url(#pulseGradientNew)"
+                          strokeWidth="2"
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        />
+                        <defs>
+                          <linearGradient id="pulseGradientNew" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#3b82f6" />
+                            <stop offset="50%" stopColor="#10b981" />
+                            <stop offset="100%" stopColor="#3b82f6" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
                   </div>
                </div>
             </div>
