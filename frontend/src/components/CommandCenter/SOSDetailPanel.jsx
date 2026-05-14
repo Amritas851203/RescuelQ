@@ -74,6 +74,28 @@ const SOSDetailPanel = ({ sos, onClose, onDispatch }) => {
           </div>
         </section>
 
+        {/* Tactical View / Image */}
+        {sos.type && (sos.type.toLowerCase().includes('flood') || sos.type.toLowerCase().includes('volcano')) && (
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 text-[9px] text-white/40 font-bold uppercase tracking-widest">
+              <MapIcon size={12} />
+              Tactical Intel View
+            </div>
+            <div className="h-40 w-full rounded-xl overflow-hidden border border-white/10 relative group">
+              <img 
+                src={sos.type.toLowerCase().includes('flood') ? '/src/assets/flood.png' : '/src/assets/volcano.png'} 
+                alt="Tactical Intel"
+                className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                <span className="text-[8px] font-black text-white uppercase tracking-tighter">Live Satellite Feed: {sos.type}</span>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Tactical Metrics Grid */}
         <section className="grid grid-cols-2 gap-2">
           <TacticalMetric label="Flood Depth" value={sos.waterLevel || '1.2m'} icon={Waves} color="blue" />

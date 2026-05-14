@@ -28,20 +28,31 @@ const Sidebar = () => {
   };
 
   const handleActivateMock = () => {
+    const types = [
+      { name: 'Flood Response', strategy: 'Rapid water extraction.', desc: 'Severe waterlogging and entrapment in low-lying residential sectors.' },
+      { name: 'Earthquake Alert', strategy: 'Structural stabilization.', desc: 'High-magnitude tremors detected. Multiple structural collapses reported.' },
+      { name: 'Cyclone Warning', strategy: 'Coastal evacuation.', desc: 'High-speed winds and heavy surge threatening coastal infrastructure.' },
+      { name: 'Landslide Crisis', strategy: 'Terrain clearance.', desc: 'Major terrain collapse blocking critical mountain transit routes.' },
+      { name: 'Structure Fire', strategy: 'Thermal suppression.', desc: 'Large-scale structural fire with potential for chemical escalation.' },
+      { name: 'Tsunami Alert', strategy: 'Deep-sea rescue.', desc: 'Massive wave impact confirmed in Sector-4 coastal hub.' }
+    ];
+
+    const selected = types[Math.floor(Math.random() * types.length)];
+
     const mockReport = {
       id: `SOS-${Math.floor(Math.random() * 9000) + 1000}`,
-      type: 'Flood Response',
-      location: { lat: 28.6139 + (Math.random() - 0.5) * 0.1, lng: 77.2090 + (Math.random() - 0.5) * 0.1 },
+      type: selected.name,
+      location: { lat: 28.6139 + (Math.random() - 0.5) * 0.2, lng: 77.2090 + (Math.random() - 0.5) * 0.2 },
       address: `Sector ${Math.floor(Math.random() * 100)}, Delhi`,
       callerName: 'Mock Operator',
-      victimsCount: Math.floor(Math.random() * 5) + 1,
-      severity: Math.random() > 0.5 ? 'CRITICAL' : 'INJURED',
+      victimsCount: Math.floor(Math.random() * 15) + 5,
+      severity: Math.random() > 0.4 ? 'CRITICAL' : 'HIGH',
       aiTrustScore: 98,
       isMedical: true,
       timeSinceRequest: 'Now',
-      aiSummary: 'Mock distress signal for testing tactical dispatch flows.',
+      aiSummary: selected.desc,
       transcript: 'This is a mock signal. Simulation active.',
-      recommendedStrategy: 'Rapid land extraction.'
+      recommendedStrategy: selected.strategy
     };
     addReport(mockReport);
   };

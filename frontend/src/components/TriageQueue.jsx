@@ -75,13 +75,34 @@ const calculateAIScore = (report) => {
   else if (totalScore > 60) priority = 'High';
   else if (totalScore > 30) priority = 'Medium';
 
+  const typeLower = report.type?.toLowerCase() || '';
+  const images = {
+    flood: '/src/assets/flood.png',
+    earthquake: '/src/assets/earthquake.png',
+    cyclone: '/src/assets/cyclone.png',
+    landslide: '/src/assets/landslide.png',
+    fire: '/src/assets/fire.png',
+    volcano: '/src/assets/volcano.png',
+    tsunami: '/src/assets/tsunami.png',
+    swinami: '/src/assets/tsunami.png'
+  };
+  
+  let missionImage = null;
+  for (const [key, path] of Object.entries(images)) {
+    if (typeLower.includes(key)) {
+      missionImage = path;
+      break;
+    }
+  }
+
   return { 
     score: Math.round(totalScore), 
     priority,
     casualties: Math.floor(affected * 0.1),
     weather: { temp: '28°C', wind: '12km/h', condition: 'Stormy' },
     eta: Math.floor(Math.random() * 15) + 5 + 'm',
-    evacPriority: totalScore > 70 ? 'IMMEDIATE' : (totalScore > 40 ? 'ELEVATED' : 'STABLE')
+    evacPriority: totalScore > 70 ? 'IMMEDIATE' : (totalScore > 40 ? 'ELEVATED' : 'STABLE'),
+    image: missionImage
   };
 };
 
@@ -245,14 +266,27 @@ const TriageCard = ({ report, onUpdateStatus, onClick }) => {
     <motion.div 
       layout
       whileHover={{ scale: 1.01 }}
-      className={`glass-panel p-4 border-l-4 group cursor-pointer ${
+      className={`glass-panel border-l-4 group cursor-pointer overflow-hidden ${
         priority === 'Critical' ? 'border-l-critical' : 
         priority === 'High' ? 'border-l-warning' : 
         priority === 'Medium' ? 'border-l-yellow-400' : 'border-l-safe'
       }`}
       onClick={() => onClick(report)}
     >
-      <div className="flex justify-between items-start mb-3">
+      {/* Incident Image Header */}
+      {useMemo(() => calculateAIScore(report).image, [report]) && (
+        <div className="h-24 w-full relative overflow-hidden mb-3">
+          <img 
+            src={calculateAIScore(report).image} 
+            alt={report.type}
+            className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
+        </div>
+      )}
+      
+      <div className="px-4 pb-4 pt-2">
+        <div className="flex justify-between items-start mb-2">
         <div className="flex items-center space-x-3">
           <div className={`p-2 rounded-lg ${priorityColors[priority]} ${priority === 'Critical' ? 'animate-pulse' : ''}`}>
             <Icon className="w-5 h-5" />
@@ -331,6 +365,7 @@ const TriageCard = ({ report, onUpdateStatus, onClick }) => {
           )}
         </div>
       </div>
+    </div>
     </motion.div>
   );
 };

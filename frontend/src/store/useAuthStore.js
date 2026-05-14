@@ -40,6 +40,17 @@ const useAuthStore = create((set) => ({
 
   login: async (email, password) => {
     set({ loading: true, error: null });
+    
+    // SYSTEM OVERRIDE FOR DEVELOPMENT
+    if (email === 'amritasingh38381@gmail.com' && password === 'rescueiq') {
+      const mockUser = { id: 'admin-override', email, fullName: 'System Commander' };
+      const mockToken = 'mock-jwt-token-for-rescueiq-demo';
+      localStorage.setItem('rescueiq_token', mockToken);
+      localStorage.setItem('rescueiq_user', JSON.stringify(mockUser));
+      set({ token: mockToken, user: mockUser, loading: false });
+      return { token: mockToken, user: mockUser };
+    }
+
     try {
       const response = await axios.post(`${API_URL}/login`, { email, password });
       const { token, user } = response.data;
