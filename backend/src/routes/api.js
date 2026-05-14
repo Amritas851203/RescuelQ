@@ -1,11 +1,15 @@
 import express from 'express';
+<<<<<<< HEAD
 import { getSOSReports, createSOSReport, updateSOSReport } from '../controllers/sosController.js';
+=======
+import { getSOSReports, createSOSReport, updateSOSStatus } from '../controllers/sosController.js';
+>>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
 import { handleTwilioWebhook } from '../controllers/twilioController.js';
 import DispatchController from '../controllers/DispatchController.js';
 import { signup, login, verifyOtp, forgotPassword, resetPassword } from '../controllers/authController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
-import { getSocialAlerts, analyzePost, convertToIncident } from '../controllers/socialController.js';
+import { getSocialAlerts, analyzePost, convertToIncident, archiveAlert } from '../controllers/socialController.js';
 
 const router = express.Router();
 
@@ -19,7 +23,11 @@ router.post('/auth/reset-password', resetPassword);
 // SOS endpoints
 router.get('/sos', authMiddleware, getSOSReports);
 router.post('/sos', createSOSReport);
+<<<<<<< HEAD
 router.patch('/sos/:id', authMiddleware, updateSOSReport);
+=======
+router.put('/sos/:id/status', authMiddleware, updateSOSStatus);
+>>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
 
 // Dispatch endpoints
 router.get('/teams', DispatchController.getTeams);
@@ -33,6 +41,7 @@ router.post('/dispatch/hold', authMiddleware, DispatchController.holdMission);
 router.get('/social/alerts', authMiddleware, getSocialAlerts);
 router.post('/social/analyze', authMiddleware, analyzePost);
 router.post('/social/convert', authMiddleware, convertToIncident);
+router.post('/social/archive', authMiddleware, archiveAlert);
 
 // Twilio Webhook
 router.post('/webhook/twilio', handleTwilioWebhook);

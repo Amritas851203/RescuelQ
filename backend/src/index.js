@@ -40,8 +40,77 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'RescueIQ Backend is running' });
 });
 
+<<<<<<< HEAD
 const PORT = process.env.PORT || 5001;
+=======
+// CRITICAL: Prevent server from crashing on unhandled errors
+process.on('unhandledRejection', (reason) => {
+  console.error('--- UNHANDLED REJECTION ---');
+  console.error('Reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('--- UNCAUGHT EXCEPTION ---');
+  console.error(err);
+});
+
+const PORT = process.env.PORT || 5999;
+>>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 RescueIQ Backend operational on port ${PORT}`);
 });
+
+// Set timeout for long-running external API fetches
+server.keepAliveTimeout = 65000; 
+server.headersTimeout = 66000;
+
+// --- REAL-TIME DISASTER INTELLIGENCE POLLER ---
+// This simulates a connected system that automatically detects disasters and pushes them to the UI
+import { fetchEarthquakes, fetchGlobalDisasters } from './services/disasterService.js';
+import { randomUUID } from 'crypto';
+
+const pollIntelligence = async () => {
+  try {
+    console.log('📡 Scanning Global Intelligence Feeds...');
+    const [quakes, disasters] = await Promise.all([
+      fetchEarthquakes(),
+      fetchGlobalDisasters()
+    ]);
+
+    const allEvents = [...quakes, ...disasters];
+    
+    // Emit the raw intel feed to the Social Scanner
+    io.emit('INTEL_FEED_UPDATE', allEvents);
+
+    // Auto-Promote CRITICAL events to the Triage Queue (Simulation of connected system)
+    const criticalEvents = allEvents.filter(e => e.severity === 'CRITICAL');
+    for (const event of criticalEvents) {
+      // We only "auto-promote" a small percentage to avoid flooding the DB
+      if (Math.random() > 0.7) {
+        const report = {
+          id: randomUUID(),
+          reporter_name: `AI_AUTO_DETECT: ${event.callerName}`,
+          location_lat: event.location.lat,
+          location_lng: event.location.lng,
+          message: `[AUTO-DETECTED] ${event.aiSummary}`,
+          severity: event.severity.toLowerCase(),
+          affected_people: event.affected_people,
+          risk_level: event.risk_level,
+          status: 'Pending',
+          created_at: new Date().toISOString()
+        };
+        
+        io.emit('NEW_SOS_REPORT', report);
+        console.log(`📢 AUTO-PROMOTED: ${event.type} in ${event.address}`);
+      }
+    }
+  } catch (err) {
+    console.error('Poller Error:', err.message);
+  }
+};
+
+// Start polling every 60 seconds (realistic for real-world APIs)
+setInterval(pollIntelligence, 60000);
+// Initial poll on startup
+setTimeout(pollIntelligence, 5000);
