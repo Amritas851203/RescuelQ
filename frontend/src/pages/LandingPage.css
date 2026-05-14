@@ -3,6 +3,7 @@
    PREMIUM CINEMATIC CSS DIRECTION
 ========================================================= */
 
+:root {
   /* COLORS */
   --bg-primary: #020617;
   --bg-secondary: #050816;
@@ -38,6 +39,11 @@
 /* =========================================================
    GLOBAL RESET
 ========================================================= */
+
+h1, h2, h3, h4, h5, h6, .font-space {
+  font-family: 'Space Grotesk', sans-serif !important;
+  letter-spacing: -0.04em !important;
+}
 
 .landing-body {
   background:
