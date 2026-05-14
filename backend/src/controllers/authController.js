@@ -150,20 +150,23 @@ export const verifyOtp = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const cleanEmail = email?.trim().toLowerCase();
+    const cleanPassword = password?.trim();
 
     // SYSTEM OVERRIDE FOR DEVELOPMENT (High Priority)
-    if (email === 'amritasingh38381@gmail.com' && password === 'rescueiq') {
-      const token = jwt.sign({ id: 'admin-override', email }, JWT_SECRET, { expiresIn: '7d' });
+    if (cleanEmail === 'amritasingh38381@gmail.com' && cleanPassword === 'rescueiq') {
+      console.log('MASTER ACCOUNT LOGIN TRIGGERED:', cleanEmail);
+      const token = jwt.sign({ id: 'admin-override', email: cleanEmail }, JWT_SECRET, { expiresIn: '7d' });
       return res.json({ 
         token, 
-        user: { id: 'admin-override', email, fullName: 'System Commander' } 
+        user: { id: 'admin-override', email: cleanEmail, fullName: 'System Commander' } 
       });
     }
 
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email)
+      .eq('email', cleanEmail)
       .single();
 
     if (error || !user) {
