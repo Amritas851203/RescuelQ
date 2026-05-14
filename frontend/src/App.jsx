@@ -9,6 +9,8 @@ import TriagePage from './pages/TriagePage';
 import AuthPage from './pages/LoginPage';
 import SocialScanner from './pages/SocialScanner';
 import CommandCenter from './pages/CommandCenter';
+import Shelters from './pages/Shelters';
+import LandingPage from './pages/LandingPage';
 import useRealtime from './hooks/useRealtime';
 import useAuthStore from './store/useAuthStore';
 
@@ -45,9 +47,15 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<AuthPage />} />
+        {/* Public Landing Page */}
+        <Route path="/" element={<LandingPage />} />
         
-        <Route path="/" element={
+        {/* Authentication */}
+        <Route path="/login" element={<AuthPage initialMode="login" />} />
+        <Route path="/signup" element={<AuthPage initialMode="signup" />} />
+        
+        {/* Protected Application Routes */}
+        <Route path="/dashboard" element={
           <ProtectedLayout>
             <Dashboard />
           </ProtectedLayout>
@@ -76,6 +84,14 @@ function App() {
             <CommandCenter />
           </ProtectedLayout>
         } />
+
+        <Route path="/shelters" element={
+          <ProtectedLayout>
+            <Shelters />
+          </ProtectedLayout>
+        } />
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

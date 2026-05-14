@@ -9,7 +9,8 @@ import TeamIntel from '../components/CommandCenter/TeamIntel';
 import LiveActivityFeed from '../components/CommandCenter/LiveActivityFeed';
 import TacticalStatusBar from '../components/CommandCenter/TacticalStatusBar';
 import SOSDetailPanel from '../components/CommandCenter/SOSDetailPanel';
-import { Shield, BrainCircuit, Activity, Loader2, ArrowLeft, Zap, Target, Search, Maximize2 } from 'lucide-react';
+import FleetOverview from '../components/CommandCenter/FleetOverview';
+import { Shield, BrainCircuit, Activity, Loader2, ArrowLeft, Zap, Target, Search, Maximize2, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Terminal, AlertCircle as AlertIcon } from 'lucide-react';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
@@ -23,6 +24,12 @@ const CommandCenter = () => {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedSos, setSelectedSos] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeLeftTab, setActiveLeftTab] = useState('sos'); // 'sos' or 'fleet'
+  const [isTacticalAILive, setIsTacticalAILive] = useState(false);
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
+  const [isRightCollapsed, setIsRightCollapsed] = useState(false);
+  const [isFeedCollapsed, setIsFeedCollapsed] = useState(false);
+  const [isAutonomousMode, setIsAutonomousMode] = useState(false);
 
   const addLog = useCallback((message, type = 'info') => {
     const newLog = {
@@ -113,17 +120,63 @@ const CommandCenter = () => {
   };
 
   const handleAutoDispatch = async () => {
-    if (!selectedSos) {
-      addLog('AI ERR: Target SOS required for automated optimization', 'alert');
-      return;
-    }
-
     try {
-      addLog('AI Neural Net: Optimizing extraction route and unit selection...', 'info');
-      await axios.post(`${API_URL}/dispatch/auto`, { sosId: selectedSos.id });
-      setSelectedSos(null);
+      setIsTacticalAILive(true);
+      if (selectedSos) {
+        addLog('AI Neural Net: Optimizing extraction route and unit selection for target...', 'info');
+        await axios.post(`${API_URL}/dispatch/auto`, { sosId: selectedSos.id });
+        setSelectedSos(null);
+      } else {
+        if (!isAutonomousMode) addLog('AI GLOBAL_SCAN: Analyzing all unassigned incidents and unit proximity...', 'info');
+        const response = await axios.post(`${API_URL}/dispatch/auto`, {});
+        if (!isAutonomousMode) addLog(`AI SUCCESS: ${response.data.message}`, 'success');
+      }
     } catch (error) {
-      addLog(`AI OPTIMIZATION FAILED: ${error.response?.data?.message || error.message}`, 'alert');
+      if (!isAutonomousMode) addLog(`AI OPTIMIZATION FAILED: ${error.response?.data?.message || error.message}`, 'alert');
+    }
+  };
+
+  // Autonomous Mode Effect
+  useEffect(() => {
+    let interval;
+    if (isAutonomousMode) {
+      setIsTacticalAILive(true);
+      addLog('CRITICAL: AI AUTONOMOUS MODE ACTIVATED // DEPLOYMENT AUTHORIZED', 'alert');
+      // Auto-dispatch every 15 seconds
+      interval = setInterval(() => {
+        handleAutoDispatch();
+      }, 15000);
+    } else {
+      if (interval) addLog('INFO: AI AUTONOMOUS MODE DEACTIVATED // MANUAL CONTROL RESTORED', 'info');
+    }
+    return () => clearInterval(interval);
+  }, [isAutonomousMode]);
+
+  const toggleAutonomous = () => {
+    setIsAutonomousMode(prev => {
+      const newState = !prev;
+      if (!newState) setIsTacticalAILive(false);
+      return newState;
+    });
+  };
+
+  const handleRecall = async (teamId) => {
+    try {
+      addLog(`RECALL_INITIATED: Commanding Unit ${teamId} to return to base...`, 'info');
+      await axios.post(`${API_URL}/dispatch/recall`, { teamId });
+      addLog(`UNIT_SYNC: Unit ${teamId} is returning. Sector cleared.`, 'success');
+    } catch (error) {
+      addLog(`RECALL_FAILED: ${error.response?.data?.message || error.message}`, 'alert');
+    }
+  };
+
+  const handleHold = async (teamId) => {
+    try {
+      addLog(`HOLD_COMMAND: Signaling Unit ${teamId} to maintain current position...`, 'info');
+      await axios.post(`${API_URL}/dispatch/hold`, { teamId });
+      addLog(`UNIT_STATUS: Unit ${teamId} is on STAND-BY. Telemetry locked.`, 'warning');
+    } catch (error) {
+      addLog(`HOLD_FAILED: ${error.response?.data?.message || error.message}`, 'alert');
     }
   };
 
@@ -159,111 +212,263 @@ const CommandCenter = () => {
       <TacticalStatusBar stats={stats} />
 
       {/* Main Operational Interface */}
-      <main className="flex-1 flex overflow-hidden relative">
-        {/* Left Panel: Enhanced SOS Queue */}
-        <aside className="w-[420px] h-full flex flex-col shrink-0 z-20">
-          <SOSQueue 
-            sosReports={sosReports} 
-            selectedSos={selectedSos}
-            onSelect={setSelectedSos} 
+      <main className="flex-1 relative overflow-hidden">
+        {/* BACKGROUND: Tactical Map (Takes full screen) */}
+        <div className="absolute inset-0 z-0">
+          <TacticalMap 
+            teams={teams}
+            missions={missions}
+            sosReports={sosReports}
+            selectedTeam={selectedTeam}
+            onTeamSelect={setSelectedTeam}
+            isAIActive={isTacticalAILive}
           />
-        </aside>
+        </div>
 
-        {/* Center Panel: Cinematic Map & Floating Intel */}
-        <section className="flex-1 flex flex-col relative min-w-0">
-          <div className="flex-1 relative">
-            <TacticalMap 
-              teams={teams}
-              missions={missions}
-              sosReports={sosReports}
-              selectedTeam={selectedTeam}
-              onTeamSelect={setSelectedTeam}
-            />
+        {/* HUD OVERLAY: Left Panel (SOS Intelligence) */}
+        <motion.aside 
+          initial={false}
+          animate={{ 
+            x: isLeftCollapsed ? -380 : 0,
+            opacity: 1
+          }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="absolute top-6 bottom-6 left-6 w-[400px] z-30 flex flex-col pointer-events-none"
+        >
+          <div className="pointer-events-auto h-full flex flex-col relative">
+            {/* Collapse Button - Left */}
+            <button 
+              onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+              className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-gray-950 border border-white/10 rounded-r-lg flex items-center justify-center text-white/40 hover:text-cyan-400 hover:border-cyan-500/50 transition-all z-50 shadow-xl backdrop-blur-xl"
+            >
+              {isLeftCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            </button>
 
-            {/* Floating Analytics Widgets */}
-            <div className="absolute top-6 left-6 z-[1000] space-y-4">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl min-w-[200px]"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">Active Coverage</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                </div>
-                <div className="flex items-end justify-between gap-4">
-                  <div>
-                    <div className="text-2xl font-black text-white leading-none">94.2%</div>
-                    <div className="text-[9px] text-white/20 uppercase font-bold mt-1">Satellite Lock</div>
-                  </div>
-                  <div className="flex-1 h-8 flex items-end gap-0.5">
-                    {[...Array(10)].map((_, i) => (
-                      <div key={i} className="flex-1 bg-cyan-500/20 rounded-t-sm" style={{ height: `${Math.random() * 100}%` }} />
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
+            <div className={isLeftCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full transition-all'}>
+              <div className="flex gap-2 mb-6">
+                <button 
+                  onClick={() => setActiveLeftTab('sos')}
+                  className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeLeftTab === 'sos' ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.3)]' : 'bg-white/5 text-white/30'}`}
+                >
+                  SOS Intel
+                </button>
+                <button 
+                  onClick={() => setActiveLeftTab('fleet')}
+                  className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeLeftTab === 'fleet' ? 'bg-cyan-500 text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'bg-white/5 text-white/30'}`}
+                >
+                  Fleet Ops
+                </button>
+              </div>
 
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <BrainCircuit className="text-purple-400" size={16} />
-                  <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">AI Prediction</span>
-                </div>
-                <div className="text-xs font-mono text-purple-100/70 italic">
-                  "Flood surge expected +0.4m in Sector 14 in approx 12 mins."
-                </div>
-              </motion.div>
+              <div className="flex-1 overflow-hidden">
+                <AnimatePresence mode="wait">
+                  {activeLeftTab === 'sos' ? (
+                    <motion.div 
+                      key="sos"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="h-full"
+                    >
+                      <SOSQueue 
+                        sosReports={sosReports} 
+                        selectedSos={selectedSos}
+                        onSelect={setSelectedSos} 
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      key="fleet"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="h-full"
+                    >
+                      <FleetOverview teams={teams} missions={missions} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
-            {/* Map Interaction Tools */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000]">
-              <div className="bg-black/40 backdrop-blur-2xl border border-white/10 px-8 py-3 rounded-2xl flex items-center gap-8 shadow-2xl">
-                <button className="flex flex-col items-center gap-1 group">
-                  <Search size={18} className="text-white/40 group-hover:text-cyan-400 transition-colors" />
-                  <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">Scan</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 group">
-                  <Target size={18} className="text-white/40 group-hover:text-cyan-400 transition-colors" />
-                  <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">Lock</span>
-                </button>
-                <div className="w-px h-6 bg-white/10" />
-                <button className="flex flex-col items-center gap-1 group">
-                  <Maximize2 size={18} className="text-white/40 group-hover:text-cyan-400 transition-colors" />
-                  <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">Expand</span>
-                </button>
+            {/* Minimized Tab - Left */}
+            <AnimatePresence>
+              {isLeftCollapsed && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  onClick={() => setIsLeftCollapsed(false)}
+                  className="absolute left-0 top-0 bottom-0 w-12 bg-gray-950/80 border border-white/10 rounded-2xl flex flex-col items-center py-6 gap-8 cursor-pointer hover:bg-gray-900 transition-colors pointer-events-auto shadow-2xl backdrop-blur-xl"
+                >
+                  <div className="p-2 bg-red-500/20 rounded-lg text-red-500">
+                    <AlertIcon size={16} />
+                  </div>
+                  <div className="h-px w-6 bg-white/10" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 [writing-mode:vertical-lr] rotate-180">SOS INTEL</span>
+                  <div className="mt-auto p-2 text-cyan-400 animate-pulse">
+                    <ChevronRight size={16} />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.aside>
+
+        {/* HUD OVERLAY: Right Panel (Team Intelligence) */}
+        <motion.aside 
+          initial={false}
+          animate={{ 
+            x: isRightCollapsed ? 380 : 0,
+            opacity: 1
+          }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="absolute top-6 bottom-6 right-6 w-[400px] z-30 flex flex-col pointer-events-none"
+        >
+          <div className="pointer-events-auto h-full flex flex-col relative">
+            {/* Collapse Button - Right */}
+            <button 
+              onClick={() => setIsRightCollapsed(!isRightCollapsed)}
+              className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-gray-950 border border-white/10 rounded-l-lg flex items-center justify-center text-white/40 hover:text-cyan-400 hover:border-cyan-500/50 transition-all z-50 shadow-xl backdrop-blur-xl"
+            >
+              {isRightCollapsed ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+            </button>
+
+            <div className={isRightCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full transition-all'}>
+              <TeamIntel 
+                selectedTeam={selectedTeam}
+                onDispatch={() => selectedSos ? handleDispatch(selectedSos.id) : addLog('ERR: SELECT_TARGET_SOS_FIRST', 'alert')}
+                onAutoDispatch={handleAutoDispatch}
+                isAutonomous={isAutonomousMode}
+                onToggleAutonomous={toggleAutonomous}
+                onRecall={handleRecall}
+                onHold={handleHold}
+              />
+            </div>
+
+            {/* Minimized Tab - Right */}
+            <AnimatePresence>
+              {isRightCollapsed && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  onClick={() => setIsRightCollapsed(false)}
+                  className="absolute right-0 top-0 bottom-0 w-12 bg-gray-950/80 border border-white/10 rounded-2xl flex flex-col items-center py-6 gap-8 cursor-pointer hover:bg-gray-900 transition-colors pointer-events-auto shadow-2xl backdrop-blur-xl"
+                >
+                  <div className="p-2 bg-purple-500/20 rounded-lg text-purple-500">
+                    <BrainCircuit size={16} />
+                  </div>
+                  <div className="h-px w-6 bg-white/10" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 [writing-mode:vertical-lr]">AI TACTICAL</span>
+                  <div className="mt-auto p-2 text-cyan-400 animate-pulse">
+                    <ChevronLeft size={16} />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.aside>
+
+        {/* HUD OVERLAY: Bottom Center (Live Activity Feed) */}
+        <div className="absolute bottom-6 left-[430px] right-[430px] z-20 flex justify-center pointer-events-none overflow-hidden">
+          <motion.div 
+            initial={false}
+            animate={{ 
+              y: isFeedCollapsed ? 220 : 0,
+              opacity: isFeedCollapsed ? 0 : 1
+            }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="pointer-events-auto w-full max-w-[800px] relative"
+          >
+            {/* Collapse Button - Feed */}
+            <button 
+              onClick={() => setIsFeedCollapsed(true)}
+              className="absolute top-3 right-3 p-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/20 hover:text-white transition-all z-30"
+              title="Minimize Feed"
+            >
+              <ChevronDown size={14} />
+            </button>
+
+            <LiveActivityFeed logs={logs} />
+          </motion.div>
+
+          {/* Minimized Tab - Feed */}
+          <AnimatePresence>
+            {isFeedCollapsed && (
+              <motion.div 
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                onClick={() => setIsFeedCollapsed(false)}
+                className="pointer-events-auto absolute bottom-0 left-1/2 -translate-x-1/2 px-6 py-2 bg-black/80 backdrop-blur-2xl border border-white/10 rounded-full flex items-center gap-3 cursor-pointer hover:bg-gray-900 transition-all shadow-2xl z-30 group"
+              >
+                <Terminal size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">Live Ops Feed</span>
+                <ChevronUp size={14} className="text-cyan-400 animate-bounce" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* HUD OVERLAY: Center Top (Global Analytics) */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 pointer-events-none">
+           <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="pointer-events-auto bg-black/60 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-8"
+          >
+            <div className="flex items-center gap-3 border-r border-white/10 pr-8">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <div>
+                <div className="text-[9px] text-white/30 uppercase font-black tracking-widest">Network Coverage</div>
+                <div className="text-sm font-black text-white">94.2% ACTIVE</div>
               </div>
             </div>
             
-            {/* Expandable Detail Panel */}
-            <AnimatePresence>
-              {selectedSos && (
+            <div className="flex items-center gap-3">
+              <BrainCircuit className={isAutonomousMode ? 'text-emerald-400' : 'text-purple-400'} size={18} />
+              <div>
+                <div className="text-[9px] text-white/30 uppercase font-black tracking-widest">AI Status</div>
+                <div className="text-sm font-black text-white">{isAutonomousMode ? 'AUTONOMOUS ACTIVE' : 'PREDICTIVE STABLE'}</div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Map Interaction Tools (Bottom Dock) */}
+        <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <div className="pointer-events-auto bg-black/40 backdrop-blur-2xl border border-white/10 px-8 py-3 rounded-2xl flex items-center gap-8 shadow-2xl scale-90">
+            <button className="flex flex-col items-center gap-1 group">
+              <Search size={18} className="text-white/40 group-hover:text-cyan-400 transition-colors" />
+              <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">Scan</span>
+            </button>
+            <button className="flex flex-col items-center gap-1 group">
+              <Target size={18} className="text-white/40 group-hover:text-cyan-400 transition-colors" />
+              <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">Lock</span>
+            </button>
+            <div className="w-px h-6 bg-white/10" />
+            <button className="flex flex-col items-center gap-1 group">
+              <Maximize2 size={18} className="text-white/40 group-hover:text-cyan-400 transition-colors" />
+              <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">Expand</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* SOS Detail Overlay (Centered) */}
+        <AnimatePresence>
+          {selectedSos && (
+            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none">
+              <div className="pointer-events-auto">
                 <SOSDetailPanel 
                   sos={selectedSos} 
                   onClose={() => setSelectedSos(null)}
                   onDispatch={handleDispatch}
                 />
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="absolute bottom-6 left-6 right-6 z-[1000] max-w-[600px]">
-            <LiveActivityFeed logs={logs} />
-          </div>
-        </section>
-
-        {/* Right Panel: Intelligence Center */}
-        <aside className="w-[420px] h-full shrink-0 z-20">
-          <TeamIntel 
-            selectedTeam={selectedTeam}
-            onDispatch={handleDispatch}
-            onAutoDispatch={handleAutoDispatch}
-          />
-        </aside>
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Futuristic Tactical Footer */}

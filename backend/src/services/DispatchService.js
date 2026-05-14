@@ -121,20 +121,63 @@ class DispatchService {
     const availableTeams = teams.filter(t => t.status === 'AVAILABLE');
     if (availableTeams.length === 0) return null;
 
+    // In a real app, you'd fetch this from the SOS DB
     const sosLocation = [28.6500, 77.2500];
     
-    let nearestTeam = availableTeams[0];
-    let minDistance = this.calculateDistance(nearestTeam.location, sosLocation);
-
-    for (let i = 1; i < availableTeams.length; i++) {
-      const dist = this.calculateDistance(availableTeams[i].location, sosLocation);
-      if (dist < minDistance) {
-        minDistance = dist;
-        nearestTeam = availableTeams[i];
-      }
-    }
+    const nearestTeam = this.findBestTeamForSOS({ location: sosLocation }, availableTeams);
+    if (!nearestTeam) return null;
 
     return await this.assignMission(nearestTeam.id, sosId);
+  }
+
+  async globalAutoAssign() {
+    const availableTeams = [...teams.filter(t => t.status === 'AVAILABLE')];
+    // In a real app, fetch from DB. For now, simulate finding unassigned SOS
+    const unassignedSOS = [
+      { id: 'sos-1', location: [28.65, 77.25], severity: 'CRITICAL', isMedical: true },
+      { id: 'sos-2', location: [28.60, 77.22], severity: 'INJURED', isMedical: true },
+      { id: 'sos-3', location: [28.63, 77.28], severity: 'STRANDED', isMedical: false }
+    ];
+
+    const results = [];
+    for (const sos of unassignedSOS) {
+      if (availableTeams.length === 0) break;
+      
+      const bestTeam = this.findBestTeamForSOS(sos, availableTeams);
+      if (bestTeam) {
+        const mission = await this.assignMission(bestTeam.id, sos.id);
+        results.push(mission);
+        // Remove team from available list for this loop
+        const idx = availableTeams.findIndex(t => t.id === bestTeam.id);
+        availableTeams.splice(idx, 1);
+      }
+    }
+    return results;
+  }
+
+  findBestTeamForSOS(sos, availableTeams) {
+    let bestTeam = null;
+    let highestScore = -1;
+
+    availableTeams.forEach(team => {
+      let score = 100;
+      const dist = this.calculateDistance(team.location, sos.location);
+      
+      // Proximity score (0-50 points)
+      score -= Math.min(dist * 100, 50); 
+
+      // Suitability score (50 points)
+      if (sos.isMedical && team.type === 'ambulance') score += 50;
+      if (sos.severity === 'CRITICAL' && team.type === 'helicopter') score += 40;
+      if (sos.waterLevel > 1.5 && team.type === 'rescue_boat') score += 50;
+
+      if (score > highestScore) {
+        highestScore = score;
+        bestTeam = team;
+      }
+    });
+
+    return bestTeam;
   }
 
   calculateDistance(p1, p2) {
@@ -187,6 +230,35 @@ class DispatchService {
       }
       return mission;
     }
+  }
+
+  async recallTeam(teamId) {
+    const team = teams.find(t => t.id === teamId);
+    if (!team) throw new Error('Team not found');
+    
+    team.status = 'AVAILABLE';
+    team.speed = 0;
+    
+    // Remove associated mission
+    missions = missions.filter(m => m.teamId !== teamId);
+    
+    return { teamId, status: 'AVAILABLE', message: 'Team recalled successfully' };
+  }
+
+  async holdTeam(teamId) {
+    const team = teams.find(t => t.id === teamId);
+    if (!team) throw new Error('Team not found');
+    
+    team.status = 'ON_HOLD';
+    team.speed = 0;
+    
+    // Update mission status if exists
+    const mission = missions.find(m => m.teamId === teamId);
+    if (mission) {
+      mission.status = 'ON_HOLD';
+    }
+    
+    return { teamId, status: 'ON_HOLD', message: 'Team placed on hold' };
   }
 }
 

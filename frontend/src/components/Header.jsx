@@ -9,7 +9,7 @@ const Header = () => {
   const handleLogout = () => {
     if (window.confirm('Terminate current session and logout?')) {
       logout();
-      window.location.href = '/login';
+      window.location.href = '/';
     }
   };
 

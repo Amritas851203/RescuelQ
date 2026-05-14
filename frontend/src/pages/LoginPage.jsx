@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
   AlertTriangle, 
   Mail, 
@@ -18,9 +19,9 @@ import {
 import useAuthStore from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 
-const AuthPage = () => {
+const AuthPage = ({ initialMode = 'login' }) => {
   // Modes: login, signup, verify, forgot, reset
-  const [mode, setMode] = useState('login'); 
+  const [mode, setMode] = useState(initialMode); 
   const [showPassword, setShowPassword] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   
@@ -33,6 +34,11 @@ const AuthPage = () => {
 
   const { login, signup, verifyOtp, forgotPassword, resetPassword, loading, error, clearError } = useAuthStore();
   const navigate = useNavigate();
+
+  // Reset error when mode changes
+  useEffect(() => {
+    clearError?.();
+  }, [mode]);
 
   // Handle Resend Timer
   useEffect(() => {
@@ -48,14 +54,14 @@ const AuthPage = () => {
     try {
       if (mode === 'login') {
         await login(email, password);
-        navigate('/');
+        navigate('/dashboard');
       } else if (mode === 'signup') {
         await signup(fullName, email, password);
         setMode('verify');
         setResendTimer(60);
       } else if (mode === 'verify') {
         await verifyOtp(email, otp);
-        navigate('/');
+        navigate('/dashboard');
       } else if (mode === 'forgot') {
         await forgotPassword(email);
         setMode('reset');
@@ -98,7 +104,7 @@ const AuthPage = () => {
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-background/20 via-transparent to-background/60"></div>
         
         <img 
-          src="/assets/command-bg.png" 
+          src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" 
           alt="Rescue Command Center" 
           className="absolute inset-0 w-full h-full object-cover opacity-60 scale-105 animate-pulse-slow"
         />
@@ -154,6 +160,22 @@ const AuthPage = () => {
         <div className="absolute inset-0 bg-primary/5 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none"></div>
         
         <div className="max-w-md w-full space-y-8 animate-in fade-in slide-in-from-right-8 duration-700">
+          {/* Redesigned Hub Button */}
+          <div className="flex justify-start">
+            <motion.button 
+              whileHover={{ x: -5 }}
+              onClick={() => navigate('/')}
+              className="group flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-primary/50 hover:bg-primary/5 transition-all duration-500 backdrop-blur-xl shadow-xl"
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                <ChevronLeft size={16} />
+              </div>
+              <div className="text-left">
+                <span className="block text-[9px] font-black uppercase tracking-[0.25em] text-white/30 group-hover:text-primary transition-colors">Abort Access</span>
+                <span className="block text-[11px] font-bold text-white/60 group-hover:text-white transition-colors">Tactical Hub</span>
+              </div>
+            </motion.button>
+          </div>
           <div className="lg:hidden text-center mb-12">
              <div className="flex justify-center mb-4">
                 <AlertTriangle className="w-12 h-12 text-critical" />

@@ -12,7 +12,7 @@ const LiveActivityFeed = ({ logs }) => {
   }, [logs]);
 
   return (
-    <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden flex flex-col h-[200px]">
+    <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden flex flex-col h-[200px] shadow-2xl">
       <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal size={14} className="text-cyan-400" />

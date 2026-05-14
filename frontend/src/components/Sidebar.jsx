@@ -5,7 +5,7 @@ import useSosStore from '../store/useSosStore';
 import useAuthStore from '../store/useAuthStore';
 
 const navItems = [
-  { icon: Home, label: 'Dashboard', path: '/' },
+  { icon: Home, label: 'Dashboard', path: '/dashboard' },
   { icon: Map, label: 'Live Map', path: '/map' },
   { icon: Activity, label: 'Triage Queue', path: '/triage' },
   { icon: Users, label: 'Team Dispatch', path: '/teams' },
@@ -22,7 +22,7 @@ const Sidebar = () => {
 
   const handleSignOut = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const handleActivateMock = () => {
@@ -53,7 +53,7 @@ const Sidebar = () => {
       <div className="px-6 py-6">
         <div className="relative group overflow-hidden rounded-2xl border border-white/10 aspect-square">
           <img 
-            src="/assets/operator.png" 
+            src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" 
             alt="Operator Gear" 
             className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 scale-110 group-hover:scale-100"
           />
@@ -102,7 +102,14 @@ const Sidebar = () => {
           <span className="text-sm font-bold text-critical tracking-widest group-hover:scale-105 transition-transform">ACTIVATE MOCK</span>
           <AlertTriangle className="w-4 h-4 text-critical" />
         </div>
-
+        
+        <button 
+          onClick={handleSignOut}
+          className="w-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white py-2 rounded-lg flex items-center justify-center transition-all text-xs font-bold uppercase tracking-widest"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </button>
       </div>
     </aside>
   );
