@@ -4,46 +4,43 @@
 ========================================================= */
 
 :root {
+
   /* COLORS */
-  --bg-primary: #020617;
+  --bg-primary: #030712;
   --bg-secondary: #050816;
   --bg-card: rgba(10, 18, 35, 0.72);
 
   --text-primary: #ffffff;
   --text-secondary: #9aa4bf;
 
-  --blue: #3b82f6;
-  --cyan: #06b6d4;
-  --purple: #8b5cf6;
-  --red: #ef4444;
-  --green: #22c55e;
+  --blue: #00bfff;
+  --cyan: #00f5ff;
+  --purple: #7b61ff;
+  --red: #ff4d6d;
+  --green: #00ff9c;
 
   /* GLOW */
-  --blue-glow: 0 0 30px rgba(59, 130, 246, 0.35);
-  --cyan-glow: 0 0 40px rgba(6, 182, 212, 0.25);
-  --purple-glow: 0 0 40px rgba(139, 92, 246, 0.25);
-  --red-glow: 0 0 35px rgba(239, 68, 68, 0.25);
+  --blue-glow: 0 0 30px rgba(0, 191, 255, 0.35);
+  --cyan-glow: 0 0 40px rgba(0, 245, 255, 0.25);
+  --purple-glow: 0 0 40px rgba(123, 97, 255, 0.25);
+  --red-glow: 0 0 35px rgba(255, 77, 109, 0.25);
 
   /* BORDERS */
   --glass-border: rgba(255,255,255,0.08);
 
   /* RADIUS */
-  --radius-xl: 40px;
-  --radius-lg: 32px;
-  --radius-md: 20px;
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
 
   /* SPACING */
   --container-width: 1440px;
+
 }
 
 /* =========================================================
    GLOBAL RESET
 ========================================================= */
-
-h1, h2, h3, h4, h5, h6, .font-space {
-  font-family: 'Space Grotesk', sans-serif !important;
-  letter-spacing: -0.04em !important;
-}
 
 .landing-body {
   background:
@@ -263,12 +260,16 @@ h1, h2, h3, h4, h5, h6, .font-space {
 }
 
 .hero-title{
-  font-size:clamp(64px, 9vw, 120px);
-  line-height:0.88;
-  font-weight:900;
-  letter-spacing:-6px;
-  margin-bottom:34px;
-  text-transform: uppercase;
+
+  font-size:clamp(58px, 8vw, 112px);
+
+  line-height:.94;
+
+  font-weight:800;
+
+  letter-spacing:-5px;
+
+  margin-bottom:28px;
 }
 
 .hero-title span{
@@ -459,18 +460,18 @@ h1, h2, h3, h4, h5, h6, .font-space {
 
 .glass-card{
   position:absolute;
-  padding:20px 24px;
-  border-radius:var(--radius-md);
-  background: rgba(10, 18, 35, 0.85);
-  border:1px solid rgba(255,255,255,0.1);
-  backdrop-filter:blur(32px);
-  box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.02);
-  transition:all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  padding:16px 20px;
+  border-radius:20px;
+  background: rgba(21, 26, 42, 0.85); /* Deep dark blue matching reference */
+  border:1px solid rgba(255,255,255,.05);
+  backdrop-filter:blur(24px);
+  box-shadow: 0 15px 40px rgba(0,0,0,.5);
+  transition:.35s ease;
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: 18px;
-  min-width: 240px;
+  gap: 16px;
+  min-width: 220px;
 }
 
 .glass-card:hover{
