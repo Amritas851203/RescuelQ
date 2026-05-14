@@ -239,11 +239,11 @@ const AuthPage = () => {
       </div>
 
       {/* MAIN AUTH TERMINAL (CENTERED) */}
-      <div className="relative z-10 w-full max-w-lg mx-4">
+      <div className="relative z-10 w-full max-w-md mx-4">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-panel relative overflow-hidden bg-slate-950/90 backdrop-blur-[40px] border border-white/20 rounded-[3rem] shadow-[0_60px_100px_-30px_rgba(0,0,0,1)] p-10 md:p-16"
+          className="glass-panel relative overflow-hidden bg-slate-950/90 backdrop-blur-[40px] border border-white/20 rounded-[2.5rem] shadow-[0_60px_100px_-30px_rgba(0,0,0,1)] p-8 md:p-12"
         >
           {/* Internal Cyber Glow */}
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 blur-[120px] rounded-full" />
@@ -254,7 +254,7 @@ const AuthPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-12"
+              className="space-y-8"
             >
               {mode !== 'login' && renderBackBtn()}
 
