@@ -26,9 +26,24 @@ const useSosStore = create((set, get) => ({
 
   addReport: (report) => set((state) => ({ reports: [report, ...state.reports] })),
   setReports: (reports) => set({ reports }),
-  updateReportStatus: (id, status) => set((state) => ({
-    reports: state.reports.map((r) => r.id === id ? { ...r, status } : r)
-  })),
+  updateReportStatus: async (id, status) => {
+    try {
+      const token = useAuthStore.getState().token;
+      if (!token) return;
+      
+      // Optimistic UI update
+      set((state) => ({
+        reports: state.reports.map((r) => r.id === id ? { ...r, status } : r)
+      }));
+
+      // Persist to backend
+      await axios.put(`${API_URL}/sos/${id}/status`, { status }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (err) {
+      console.error('Failed to update SOS status:', err);
+    }
+  },
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
 }));

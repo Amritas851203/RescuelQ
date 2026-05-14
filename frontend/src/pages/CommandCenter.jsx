@@ -16,10 +16,10 @@ const API_URL = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKE
 const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5999';
 
 const CommandCenter = () => {
-  const [sosReports, setSosReports] = useState([]);
+  const { reports: sosReports, fetchReports } = useSosStore();
   const [selectedSos, setSelectedSos] = useState(null);
   const [teams, setTeams] = useState([]);
-  const [stats, setStats] = useState({ sosCount: 0, teamsCount: 0 });
+  const [stats, setStats] = useState({ teamsCount: 0 });
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [isDispatching, setIsDispatching] = useState(false);
@@ -43,14 +43,11 @@ const CommandCenter = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sosRes, teamRes] = await Promise.all([
-          axios.get(`${API_URL}/sos`),
-          axios.get(`${API_URL}/dispatch/teams`)
-        ]);
-        setSosReports(sosRes.data);
+        await fetchReports();
+        const teamRes = await axios.get(`${API_URL}/dispatch/teams`);
         setTeams(teamRes.data);
-        setStats({ sosCount: sosRes.data.length, teamsCount: teamRes.data.length });
-        addLog(`SYNCED ${sosRes.data.length} ACTIVE INCIDENTS`, 'success');
+        setStats({ teamsCount: teamRes.data.length });
+        addLog(`SYNCED LIVE INCIDENTS`, 'success');
       } catch (err) {
         console.error('Error fetching command data:', err);
         addLog('DATABASE SYNC FAILED - OFFLINE MODE', 'alert');
@@ -60,8 +57,6 @@ const CommandCenter = () => {
 
     const socket = io(SOCKET_URL);
     socket.on('NEW_SOS_REPORT', (report) => {
-      setSosReports(prev => [report, ...prev]);
-      setStats(prev => ({ ...prev, sosCount: prev.sosCount + 1 }));
       addLog(`NEW SIGNAL DETECTED: ${report.id}`, 'alert');
     });
     socket.on('team_update', (updatedTeam) => {
@@ -125,7 +120,7 @@ const CommandCenter = () => {
       {/* Background Grid/Effect */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
       
-      <TacticalStatusBar stats={{ ...stats, activeFilter }} />
+      <TacticalStatusBar stats={{ ...stats, sosCount: sosReports.length, activeFilter }} />
 
       <main className="flex-1 flex overflow-hidden relative">
         {/* Left Toggle (Mobile) */}

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getSOSReports, createSOSReport } from '../controllers/sosController.js';
+import { getSOSReports, createSOSReport, updateSOSStatus } from '../controllers/sosController.js';
 import { handleTwilioWebhook } from '../controllers/twilioController.js';
 import DispatchController from '../controllers/DispatchController.js';
 import { signup, login, verifyOtp, forgotPassword, resetPassword } from '../controllers/authController.js';
@@ -19,6 +19,7 @@ router.post('/auth/reset-password', resetPassword);
 // SOS endpoints
 router.get('/sos', authMiddleware, getSOSReports);
 router.post('/sos', createSOSReport);
+router.put('/sos/:id/status', authMiddleware, updateSOSStatus);
 
 // Dispatch endpoints
 router.get('/teams', DispatchController.getTeams);

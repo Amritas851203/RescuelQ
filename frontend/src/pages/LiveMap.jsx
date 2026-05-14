@@ -11,7 +11,28 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- TACTICAL ICON GENERATOR ---
-const getTacticalIcon = (type, severity) => {
+const getTacticalIcon = (type, severity, status) => {
+  if (status === 'En Route') {
+    return L.divIcon({
+      className: 'tactical-marker',
+      html: `
+        <div class="relative flex items-center justify-center">
+          <div class="absolute w-12 h-12 rounded-full bg-[#0ea5e9] opacity-30 animate-ping"></div>
+          <div class="w-6 h-6 rounded-full bg-[#020617] border-2 border-[#0ea5e9] flex items-center justify-center shadow-[0_0_20px_#0ea5e9]">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13"></rect>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+              <circle cx="5.5" cy="18.5" r="2.5"></circle>
+              <circle cx="18.5" cy="18.5" r="2.5"></circle>
+            </svg>
+          </div>
+        </div>
+      `,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
+  }
+
   const color = severity === 'CRITICAL' ? '#ef4444' : severity === 'HIGH' ? '#f59e0b' : '#3b82f6';
   const pulseClass = severity === 'CRITICAL' ? 'animate-ping' : '';
   
@@ -202,7 +223,7 @@ const LiveMap = () => {
             <Marker 
               key={report.id}
               position={[report.location.lat, report.location.lng]}
-              icon={getTacticalIcon(report.type, report.severity)}
+              icon={getTacticalIcon(report.type, report.severity, report.status)}
               eventHandlers={{ click: () => setSelectedIncident(report) }}
             >
               <Popup className="tactical-popup">

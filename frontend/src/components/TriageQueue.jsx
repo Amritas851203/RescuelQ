@@ -64,9 +64,10 @@ const SEVERITY_COLORS = {
 };
 
 const calculateAIScore = (report) => {
+  const affected = report.affected_people || 0;
   const riskFactor = (report.risk_level || 5) * 4;
   const injuryFactor = (report.injury_severity || 5) * 3;
-  const populationFactor = Math.min((report.affected_people || 0) / 10, 10) * 3;
+  const populationFactor = Math.min(affected / 10, 10) * 3;
   const totalScore = riskFactor + injuryFactor + populationFactor;
   
   let priority = 'Low';
@@ -77,7 +78,7 @@ const calculateAIScore = (report) => {
   return { 
     score: Math.round(totalScore), 
     priority,
-    casualties: Math.floor(report.affected_people * 0.1),
+    casualties: Math.floor(affected * 0.1),
     weather: { temp: '28°C', wind: '12km/h', condition: 'Stormy' },
     eta: Math.floor(Math.random() * 15) + 5 + 'm',
     evacPriority: totalScore > 70 ? 'IMMEDIATE' : (totalScore > 40 ? 'ELEVATED' : 'STABLE')
@@ -86,6 +87,13 @@ const calculateAIScore = (report) => {
 
 const OperationalIntelligencePanel = ({ report, onClose }) => {
   const { score, priority, casualties, weather, eta, evacPriority } = useMemo(() => calculateAIScore(report), [report]);
+  const updateReportStatus = useSosStore((state) => state.updateReportStatus);
+
+  const handleDeploy = () => {
+    updateReportStatus(report.id, 'En Route');
+    onClose();
+  };
+
   
   return (
     <motion.div 
@@ -195,12 +203,19 @@ const OperationalIntelligencePanel = ({ report, onClose }) => {
           </div>
         </div>
 
-        <div className="p-4 bg-primary/10 border-t border-white/5 flex justify-end flex-shrink-0">
+        <div className="p-4 bg-[#0a0f1c] border-t border-white/5 flex justify-end flex-shrink-0 gap-4">
           <button 
             onClick={onClose}
-            className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/80 transition-colors"
+            className="px-6 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-sm font-bold transition-colors"
           >
-            Acknowledge Intelligence
+            Cancel
+          </button>
+          <button 
+            onClick={handleDeploy}
+            className="px-6 py-2 rounded-lg bg-primary hover:bg-primary/80 text-white text-sm font-bold transition-colors flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+          >
+            <Truck className="w-4 h-4 mr-2" />
+            Deploy Rescue Team
           </button>
         </div>
       </div>
@@ -271,7 +286,7 @@ const TriageCard = ({ report, onUpdateStatus, onClick }) => {
         </div>
         <div className="text-center border-r border-white/5">
           <p className="text-[9px] text-slate-500 uppercase font-bold">Pop.</p>
-          <p className="text-xs font-bold">{report.affected_people}</p>
+          <p className="text-xs font-bold">{report.affected_people || 0}</p>
         </div>
         <div className="text-center border-r border-white/5">
           <p className="text-[9px] text-slate-500 uppercase font-bold">ETA</p>
@@ -290,7 +305,7 @@ const TriageCard = ({ report, onUpdateStatus, onClick }) => {
           {report.status || 'Pending'}
         </div>
         <div className="flex space-x-2" onClick={e => e.stopPropagation()}>
-          {report.status === 'Pending' && (
+          {(!report.status || report.status === 'Pending') && (
             <button 
               onClick={() => onUpdateStatus(report.id, 'Team Assigned')}
               className="text-[10px] bg-primary hover:bg-primary/80 text-white px-3 py-1.5 rounded-md font-bold transition-all shadow-lg shadow-primary/20"

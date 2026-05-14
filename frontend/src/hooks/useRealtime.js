@@ -30,6 +30,13 @@ const useRealtime = () => {
       addReport(report);
     });
 
+    socket.on('SOS_STATUS_UPDATED', ({ id, status }) => {
+      console.log('Incident status updated via global network:', id, status);
+      useSosStore.getState().setReports(
+        useSosStore.getState().reports.map((r) => r.id === id ? { ...r, status } : r)
+      );
+    });
+
     socket.on('INTEL_FEED_UPDATE', (intel) => {
       console.log('Global Intelligence Feed Synchronized:', intel.length, 'nodes');
       const alerts = intel.map(item => ({

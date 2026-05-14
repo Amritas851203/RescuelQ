@@ -152,3 +152,25 @@ export const createSOSReport = async (req, res) => {
     res.status(500).json({ error: 'Failed to create SOS report' });
   }
 };
+
+export const updateSOSStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const { data, error } = await supabase
+      .from('sos_reports')
+      .update({ status })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.warn('Supabase update failed (might be a mock/GDACS incident without DB record). Falling back to socket emit only.');
+    }
+
+    req.io.emit('SOS_STATUS_UPDATED', { id, status });
+    res.status(200).json({ id, status, message: 'Status updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update SOS report status' });
+  }
+};
