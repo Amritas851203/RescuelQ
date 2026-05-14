@@ -5,7 +5,7 @@ import DispatchController from '../controllers/DispatchController.js';
 import { signup, login, verifyOtp, forgotPassword, resetPassword } from '../controllers/authController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
-import { getSocialAlerts, analyzePost, convertToIncident } from '../controllers/socialController.js';
+import { getSocialAlerts, analyzePost, convertToIncident, archiveAlert } from '../controllers/socialController.js';
 
 const router = express.Router();
 
@@ -30,6 +30,7 @@ router.post('/dispatch/auto', DispatchController.autoAssignAI);
 router.get('/social/alerts', authMiddleware, getSocialAlerts);
 router.post('/social/analyze', authMiddleware, analyzePost);
 router.post('/social/convert', authMiddleware, convertToIncident);
+router.post('/social/archive', authMiddleware, archiveAlert);
 
 // Twilio Webhook
 router.post('/webhook/twilio', handleTwilioWebhook);

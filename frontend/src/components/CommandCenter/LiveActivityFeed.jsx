@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, ChevronRight } from 'lucide-react';
 
-const LiveActivityFeed = ({ logs }) => {
+const LiveActivityFeed = ({ logs = [] }) => {
   const feedRef = useRef(null);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ const LiveActivityFeed = ({ logs }) => {
   }, [logs]);
 
   return (
-    <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden flex flex-col h-[200px]">
+    <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden flex flex-col h-[140px]">
       <div className="px-4 py-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal size={14} className="text-cyan-400" />

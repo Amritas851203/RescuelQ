@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, MessageSquare, Mic, Play, ArrowRight, ShieldAlert, 
   Map as MapIcon, CloudRain, Waves, BrainCircuit, Activity,
-  AlertTriangle, Phone, Globe, Volume2
+  AlertTriangle, Phone, Globe, Volume2, Loader2
 } from 'lucide-react';
 
 const TacticalMetric = ({ label, value, icon: Icon, color = "cyan" }) => (
@@ -12,131 +12,151 @@ const TacticalMetric = ({ label, value, icon: Icon, color = "cyan" }) => (
       <Icon size={12} className={`text-${color}-400`} />
       {label}
     </div>
-    <span className="text-sm font-bold text-white">{value}</span>
+    <span className="text-sm font-bold text-white truncate">{value}</span>
   </div>
 );
 
 const SOSDetailPanel = ({ sos, onClose, onDispatch }) => {
+  const [isDispatching, setIsDispatching] = useState(false);
+
   if (!sos) return null;
+
+  const handleDispatch = async () => {
+    setIsDispatching(true);
+    await onDispatch(sos.id);
+    setIsDispatching(false);
+  };
 
   return (
     <motion.div
-      initial={{ x: '100%' }}
-      animate={{ x: 0 }}
-      exit={{ x: '100%' }}
-      className="absolute top-0 right-0 w-[420px] h-full bg-gray-950/95 backdrop-blur-3xl border-l border-white/10 z-[3000] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col"
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.95, opacity: 0 }}
+      className="w-full h-full bg-gray-950/95 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
     >
-      <div className="p-6 border-b border-white/10 flex items-center justify-between">
+      {/* Header */}
+      <div className="p-5 border-b border-white/10 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20">
-            <ShieldAlert className="text-red-500" size={24} />
+          <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
+            <ShieldAlert className="text-red-500" size={20} />
           </div>
-          <div>
-            <h2 className="text-2xl font-black text-white tracking-tighter uppercase">{sos.id}</h2>
+          <div className="min-w-0">
+            <h2 className="text-xl font-black text-white tracking-tighter uppercase truncate">#ID-{sos.id.split('-')[1]}</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Live Emergency Session</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[9px] text-red-400 font-bold uppercase tracking-widest">Live Emergency</span>
             </div>
           </div>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all text-white/40 hover:text-white">
-          <X size={24} />
+        <button 
+          onClick={onClose} 
+          className="p-2 hover:bg-white/10 rounded-lg transition-all text-white/40 hover:text-white active:scale-95"
+        >
+          <X size={20} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-6 no-scrollbar custom-scrollbar">
         {/* AI Tactical Summary */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em]">
-            <BrainCircuit size={16} />
-            AI Intelligence Summary
+        <section className="space-y-3">
+          <div className="flex items-center gap-2 text-[9px] text-cyan-400 font-bold uppercase tracking-[0.2em]">
+            <BrainCircuit size={14} />
+            AI Intel Summary
           </div>
-          <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-2xl p-4 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-100 transition-opacity">
-              <Activity size={20} className="text-cyan-400 animate-pulse" />
+          <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+              <Activity size={16} className="text-cyan-400 animate-pulse" />
             </div>
-            <p className="text-sm text-cyan-50/90 leading-relaxed italic font-mono">
-              "{sos.aiSummary}"
+            <p className="text-xs text-cyan-50/90 leading-relaxed italic font-mono">
+              "{sos.aiSummary || 'Analyzing terrain and identifying optimal extraction points...'}"
             </p>
           </div>
         </section>
 
         {/* Tactical Metrics Grid */}
-        <section className="grid grid-cols-2 gap-3">
-          <TacticalMetric label="Estimated Depth" value={sos.waterLevel || '1.2m'} icon={Waves} color="blue" />
+        <section className="grid grid-cols-2 gap-2">
+          <TacticalMetric label="Flood Depth" value={sos.waterLevel || '1.2m'} icon={Waves} color="blue" />
           <TacticalMetric label="Route Risk" value={sos.routeRisk || 'HIGH'} icon={AlertTriangle} color="orange" />
-          <TacticalMetric label="Weather" value="Heavy Rain" icon={CloudRain} color="blue" />
+          <TacticalMetric label="Environment" value="Heavy Rain" icon={CloudRain} color="blue" />
           <TacticalMetric label="Language" value={sos.language || 'English'} icon={Globe} color="emerald" />
         </section>
 
         {/* Voice Intelligence */}
-        <section className="space-y-4">
+        <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[10px] text-white/40 font-bold uppercase tracking-widest">
-              <Mic size={14} />
-              Audio Intelligence
+            <div className="flex items-center gap-2 text-[9px] text-white/40 font-bold uppercase tracking-widest">
+              <Mic size={12} />
+              Voice Intelligence
             </div>
-            <div className="text-[10px] font-mono text-cyan-400/60 uppercase">Confidence: 94.2%</div>
+            <div className="text-[9px] font-mono text-cyan-400/60 uppercase">94.2% Conf.</div>
           </div>
           
-          <div className="bg-white/5 border border-white/5 rounded-2xl p-5 space-y-4">
-            <div className="flex items-center gap-4 h-12">
-              <button className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center shrink-0 shadow-[0_0_15px_#00f2ff]">
-                <Play size={20} className="text-black ml-1" />
+          <div className="bg-white/5 border border-white/5 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-3 h-8">
+              <button className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,242,255,0.4)] active:scale-95 transition-all">
+                <Play size={16} className="text-black ml-0.5" />
               </button>
-              <div className="flex-1 flex items-end gap-0.5 h-full pb-2">
-                {[...Array(24)].map((_, i) => (
+              <div className="flex-1 flex items-center gap-0.5 h-full">
+                {[...Array(20)].map((_, i) => (
                   <motion.div 
                     key={i}
-                    animate={{ height: [4, Math.random() * 24 + 4, 4] }}
+                    animate={{ height: [4, Math.random() * 16 + 4, 4] }}
                     transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.05 }}
                     className="flex-1 bg-cyan-500/40 rounded-full"
                   />
                 ))}
               </div>
-              <Volume2 size={16} className="text-white/20" />
+              <Volume2 size={14} className="text-white/20" />
             </div>
             
-            <div className="p-3 bg-black/40 rounded-xl border border-white/5">
-              <span className="text-[10px] text-white/30 uppercase font-bold block mb-2 font-mono">Transcript</span>
-              <p className="text-xs text-white/70 font-mono leading-relaxed italic">
-                "{sos.transcript}"
+            <div className="p-3 bg-black/40 rounded-lg border border-white/5">
+              <span className="text-[8px] text-white/30 uppercase font-bold block mb-1 font-mono">Transcript</span>
+              <p className="text-[10px] text-white/70 font-mono leading-relaxed italic">
+                "{sos.transcript || 'Processing audio stream...'}"
               </p>
             </div>
           </div>
         </section>
 
         {/* Extraction Strategy */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 text-[10px] text-emerald-400 font-bold uppercase tracking-widest">
-            <ShieldAlert size={14} />
-            Recommended Strategy
+        <section className="space-y-3">
+          <div className="flex items-center gap-2 text-[9px] text-emerald-400 font-bold uppercase tracking-widest">
+            <ShieldAlert size={12} />
+            Rec. Strategy
           </div>
-          <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4">
-            <p className="text-xs text-emerald-100/80 leading-relaxed uppercase tracking-tight font-bold">
-              {sos.recommendedStrategy}
+          <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-3">
+            <p className="text-[10px] text-emerald-100/80 leading-relaxed uppercase tracking-tight font-bold">
+              {sos.recommendedStrategy || 'Air extraction advised. Sector 14 landing zone identified.'}
             </p>
           </div>
         </section>
       </div>
 
       {/* Action Footer */}
-      <div className="p-6 border-t border-white/10 bg-black/40 space-y-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] text-white/30 uppercase font-bold tracking-widest">Nearby Teams: 3</span>
-          <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest">Optimal Path Found</span>
+      <div className="p-5 border-t border-white/10 bg-black/40 space-y-3 shrink-0">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[9px] text-white/30 uppercase font-bold tracking-widest">Nearby Teams: 3</span>
+          <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">Optimal Path Ready</span>
         </div>
         <div className="flex gap-2">
-          <button className="flex-1 h-12 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2">
-            <Phone size={16} />
+          <button className="flex-1 h-11 rounded-xl bg-white/5 border border-white/10 text-white/60 text-[10px] font-bold hover:bg-white/10 hover:text-white active:scale-95 transition-all flex items-center justify-center gap-2">
+            <Phone size={14} />
             DIRECT CALL
           </button>
           <button 
-            onClick={() => onDispatch(sos.id)}
-            className="flex-[2] h-12 rounded-xl bg-cyan-500 text-black text-xs font-black hover:bg-cyan-400 transition-all shadow-[0_0_30px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2 group"
+            onClick={handleDispatch}
+            disabled={isDispatching}
+            className="flex-[2] h-11 rounded-xl bg-cyan-500 text-black text-[10px] font-black hover:bg-cyan-400 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2 group disabled:opacity-50"
           >
-            INITIATE RESCUE
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            {isDispatching ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <>
+                INITIATE RESCUE
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
           </button>
         </div>
       </div>

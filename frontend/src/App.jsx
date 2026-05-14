@@ -11,8 +11,9 @@ import SocialScanner from './pages/SocialScanner';
 import CommandCenter from './pages/CommandCenter';
 import useRealtime from './hooks/useRealtime';
 import useAuthStore from './store/useAuthStore';
+import clsx from 'clsx';
 
-const ProtectedLayout = ({ children }) => {
+const ProtectedLayout = ({ children, noPadding = false }) => {
   const { user, token, loading } = useAuthStore();
 
   if (loading) return (
@@ -30,7 +31,10 @@ const ProtectedLayout = ({ children }) => {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scrollbar">
+        <main className={clsx(
+          "flex-1 overflow-y-auto custom-scrollbar",
+          !noPadding && "p-4 md:p-6 lg:p-8"
+        )}>
           {children}
         </main>
       </div>
@@ -54,7 +58,7 @@ function App() {
         } />
         
         <Route path="/map" element={
-          <ProtectedLayout>
+          <ProtectedLayout noPadding={true}>
             <LiveMap />
           </ProtectedLayout>
         } />
@@ -72,7 +76,7 @@ function App() {
         } />
 
         <Route path="/teams" element={
-          <ProtectedLayout>
+          <ProtectedLayout noPadding={true}>
             <CommandCenter />
           </ProtectedLayout>
         } />

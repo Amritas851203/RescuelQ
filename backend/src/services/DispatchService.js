@@ -1,80 +1,40 @@
-// Mock data for demo purposes - Intelligence Heavy
+// Mock data for demo purposes - Intelligence Heavy & Global
 let teams = [
   { 
     id: 't1', 
-    name: 'Alpha Team', 
+    name: 'Alpha Team (Asia)', 
     leader: 'Capt. Sarah Miller',
     type: 'ambulance', 
     status: 'AVAILABLE', 
-    location: [28.6139, 77.2090], 
-    fuel: 85, 
-    health: 100, 
-    oxygen: 90, 
-    battery: 95,
-    medkits: 12,
-    crewCount: 4,
-    speed: 0,
-    droneAvailable: true,
-    commSignal: 98,
-    lastSync: '2s ago',
-    members: ['Dr. Sharma (Medic)', 'EMT Ravi (Trauma)', 'Officer Blake (Security)', 'Zoe (Drone Op)'] 
+    location: [28.6139, 77.2090], // India
+    fuel: 85, health: 100, battery: 95, medkits: 12, crewCount: 4, speed: 0, droneAvailable: true, commSignal: 98, lastSync: '2s ago'
   },
   { 
     id: 't2', 
-    name: 'Bravo Team', 
+    name: 'Bravo Team (Europe)', 
     leader: 'Cmdr. James Chen',
     type: 'fire_truck', 
     status: 'AVAILABLE', 
-    location: [28.6200, 77.2200], 
-    fuel: 92, 
-    health: 100, 
-    oxygen: 100, 
-    battery: 88,
-    medkits: 8,
-    crewCount: 6,
-    speed: 0,
-    droneAvailable: false,
-    commSignal: 85,
-    lastSync: '5s ago',
-    members: ['Capt. Singh', 'Officer Amit', 'L. Rogers', 'S. Park', 'D. Wilson', 'M. Knight'] 
+    location: [48.8566, 2.3522], // Paris
+    fuel: 92, health: 100, battery: 88, medkits: 8, crewCount: 6, speed: 0, droneAvailable: false, commSignal: 85, lastSync: '5s ago'
   },
   { 
     id: 't3', 
-    name: 'Charlie Team', 
+    name: 'Charlie Team (Americas)', 
     leader: 'Lt. Marcus Thorne',
     type: 'rescue_boat', 
     status: 'AVAILABLE', 
-    location: [28.6100, 77.2300], 
-    fuel: 78, 
-    health: 95, 
-    oxygen: 85, 
-    battery: 72,
-    medkits: 15,
-    crewCount: 5,
-    speed: 0,
-    droneAvailable: true,
-    commSignal: 92,
-    lastSync: '1s ago',
-    members: ['Cmdr. Gupta', 'Diver Sonu', 'R. Miller', 'J. Doe', 'K. Varma'] 
+    location: [40.7128, -74.0060], // NY
+    fuel: 78, health: 95, battery: 72, medkits: 15, crewCount: 5, speed: 0, droneAvailable: true, commSignal: 92, lastSync: '1s ago'
   },
   { 
     id: 't4', 
-    name: 'Delta Team', 
+    name: 'Delta Team (Global Air)', 
     leader: 'Pilot Elena Rossi',
     type: 'helicopter', 
     status: 'AVAILABLE', 
-    location: [28.6300, 77.2000], 
-    fuel: 65, 
-    health: 100, 
-    oxygen: 100, 
-    battery: 100,
-    medkits: 20,
-    crewCount: 3,
-    speed: 0,
-    droneAvailable: true,
-    commSignal: 100,
-    lastSync: 'Now',
-    members: ['Pilot Vikrant', 'Medic Ananya', 'Tech S. Lee'] 
+    location: [0, 0], // Equator (Floating)
+    fuel: 100, health: 100, battery: 100, medkits: 20, crewCount: 3, speed: 0, droneAvailable: true, commSignal: 100, lastSync: 'Now'
   },
 ];
 
@@ -89,15 +49,12 @@ class DispatchService {
     return missions;
   }
 
-  async assignMission(teamId, sosId) {
+  async assignMission(teamId, sosId, sosLocation = [28.6500, 77.2500]) {
     const teamIndex = teams.findIndex(t => t.id === teamId);
     if (teamIndex === -1) throw new Error('Team not found');
     
-    // In a real app, you'd fetch SOS details from DB
-    const sosLocation = [28.6500, 77.2500];
-    
     teams[teamIndex].status = 'DISPATCHED';
-    teams[teamIndex].speed = 45; // Simulated speed km/h
+    teams[teamIndex].speed = 45; 
     
     const mission = {
       id: `m-${Date.now()}`,
@@ -109,7 +66,7 @@ class DispatchService {
       destination: sosLocation,
       currentLocation: [...teams[teamIndex].location],
       route: this.generateMockRoute(teams[teamIndex].location, sosLocation),
-      eta: '8 mins',
+      eta: `${Math.floor(this.calculateDistance(teams[teamIndex].location, sosLocation) * 10)} mins`,
       progress: 0
     };
     
@@ -117,11 +74,9 @@ class DispatchService {
     return mission;
   }
 
-  async autoAssignNearestTeam(sosId) {
+  async autoAssignNearestTeam(sosId, sosLocation = [28.6500, 77.2500]) {
     const availableTeams = teams.filter(t => t.status === 'AVAILABLE');
     if (availableTeams.length === 0) return null;
-
-    const sosLocation = [28.6500, 77.2500];
     
     let nearestTeam = availableTeams[0];
     let minDistance = this.calculateDistance(nearestTeam.location, sosLocation);
@@ -134,7 +89,7 @@ class DispatchService {
       }
     }
 
-    return await this.assignMission(nearestTeam.id, sosId);
+    return await this.assignMission(nearestTeam.id, sosId, sosLocation);
   }
 
   calculateDistance(p1, p2) {

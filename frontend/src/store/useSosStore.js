@@ -15,7 +15,7 @@ const useSosStore = create((set, get) => ({
       const token = useAuthStore.getState().token;
       if (!token) throw new Error('No authorization token found');
       
-      const response = await axios.get(`${API_URL}/api/sos`, {
+      const response = await axios.get(`${API_URL}/sos`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       set({ reports: response.data, isLoading: false });

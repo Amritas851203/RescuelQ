@@ -1,148 +1,185 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Users, MapPin, Clock, ShieldAlert, Waves, Droplets, User, MessageSquare, Heart, Baby, ShieldCheck, Zap } from 'lucide-react';
+import { AlertCircle, Users, MapPin, Clock, ShieldAlert, Waves, Heart, Baby, ShieldCheck, Zap, Search as SearchIcon, X, Target } from 'lucide-react';
 
 const SOSCard = ({ sos, isSelected, onSelect }) => {
   const getSeverityStyles = (severity) => {
-    switch (severity?.toLowerCase()) {
-      case 'critical': return 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.15)] text-red-500';
-      case 'injured': return 'border-orange-500/50 shadow-[0_0_20px_rgba(245,158,11,0.15)] text-orange-500';
-      case 'stranded': return 'border-yellow-500/50 shadow-[0_0_20px_rgba(234,179,8,0.15)] text-yellow-500';
-      default: return 'border-emerald-500/50 text-emerald-500';
-    }
+    const s = severity?.toUpperCase();
+    if (s === 'CRITICAL' || s === 'HIGH') return 'border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)] text-red-500';
+    if (s === 'INJURED' || s === 'MEDIUM') return 'border-orange-500/50 shadow-[0_0_20px_rgba(245,158,11,0.1)] text-orange-500';
+    return 'border-emerald-500/50 text-emerald-500';
   };
 
   return (
     <motion.div
       layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
       onClick={() => onSelect(sos)}
       whileHover={{ x: 4 }}
-      className={`group relative cursor-pointer mb-4 rounded-xl border bg-black/40 backdrop-blur-md p-4 transition-all hover:bg-white/5 ${isSelected ? 'ring-2 ring-cyan-500 border-transparent' : 'border-white/5'}`}
+      className={`group relative cursor-pointer mb-3 rounded-xl border bg-black/40 backdrop-blur-md p-4 transition-all hover:bg-white/[0.05] ${isSelected ? 'ring-1 ring-cyan-500 border-transparent shadow-[0_0_30px_rgba(6,182,212,0.15)]' : 'border-white/5'}`}
     >
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full animate-ping ${sos.severity === 'CRITICAL' ? 'bg-red-500' : 'bg-orange-500'}`} />
-          <span className="text-[10px] font-mono text-white/90">#ID-{sos.id.split('-')[1]}</span>
+          <div className={`w-1.5 h-1.5 rounded-full ${sos.severity?.toUpperCase() === 'CRITICAL' ? 'bg-red-500 animate-pulse' : 'bg-orange-500'}`} />
+          <span className="text-[9px] font-black text-white/40 tracking-widest uppercase">ID: {sos.id?.split('-')[1] || '0000'}</span>
         </div>
-        <div className="flex gap-1">
-          {sos.isMedical && <Heart size={12} className="text-red-400" />}
+        <div className="flex gap-1.5">
+          {sos.isMedical && <Heart size={12} className="text-red-400 fill-red-400/20" />}
           {sos.hasChildren && <Baby size={12} className="text-cyan-400" />}
-          {sos.routeRisk === 'HIGH' && <AlertCircle size={12} className="text-orange-400" />}
+          {sos.aiTrustScore > 90 && <ShieldCheck size={12} className="text-emerald-400" />}
         </div>
       </div>
 
       <div className="flex justify-between items-end mb-4">
-        <div>
-          <h3 className="text-sm font-black text-white uppercase truncate w-40">{sos.callerName || 'Unknown Caller'}</h3>
-          <p className="text-[10px] text-white/40 font-mono mt-0.5">{sos.address}</p>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-black text-white uppercase truncate tracking-tight">{sos.callerName || 'Unknown Caller'}</h3>
+          <p className="text-[10px] text-white/30 font-medium mt-0.5 truncate italic">{sos.address}</p>
         </div>
-        <div className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-white/5 ${getSeverityStyles(sos.severity)}`}>
-          {sos.severity}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="flex flex-col">
-          <span className="text-[8px] text-white/30 uppercase font-bold">Victims</span>
-          <div className="flex items-center gap-1">
-            <Users size={12} className="text-white/60" />
-            <span className="text-xs font-bold text-white">{sos.victimsCount}</span>
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[8px] text-white/30 uppercase font-bold">Flood Depth</span>
-          <div className="flex items-center gap-1">
-            <Waves size={12} className="text-blue-400" />
-            <span className="text-xs font-bold text-white">{sos.waterLevel || 'N/A'}</span>
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[8px] text-white/30 uppercase font-bold">AI Trust</span>
-          <div className="flex items-center gap-1">
-            <ShieldCheck size={12} className="text-emerald-400" />
-            <span className="text-xs font-bold text-white">{sos.aiTrustScore}%</span>
-          </div>
+        <div className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-white/5 border ${getSeverityStyles(sos.severity)}`}>
+          {sos.severity || 'LOW'}
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-white/5">
+      <div className="grid grid-cols-3 gap-2 py-3 border-y border-white/5 mb-3">
+        <div className="flex flex-col">
+          <span className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-1">Victims</span>
+          <div className="flex items-center gap-1">
+            <Users size={10} className="text-white/40" />
+            <span className="text-[11px] font-black text-white">{sos.victimsCount || 0}</span>
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-1">Depth</span>
+          <div className="flex items-center gap-1">
+            <Waves size={10} className="text-blue-400" />
+            <span className="text-[11px] font-black text-white">{sos.waterLevel || 'N/A'}</span>
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[8px] text-white/20 uppercase font-black tracking-widest mb-1">Trust</span>
+          <div className="flex items-center gap-1">
+            <Target size={10} className="text-emerald-400" />
+            <span className="text-[11px] font-black text-white">{sos.aiTrustScore || 0}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Clock size={12} className="text-white/30" />
-          <span className="text-[10px] text-white/30">{sos.timeSinceRequest || '2m ago'}</span>
+          <Clock size={10} className="text-white/20" />
+          <span className="text-[9px] text-white/40 font-bold uppercase">{sos.timeSinceRequest || '2m ago'}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <Zap size={10} className="text-cyan-400 animate-pulse" />
-          <span className="text-[9px] text-cyan-400/70 font-mono uppercase">Optimizing Route...</span>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[8px] text-cyan-400 font-black uppercase tracking-widest">Analyze Intelligence</span>
+          <Zap size={10} className="text-cyan-400" />
         </div>
       </div>
     </motion.div>
   );
 };
 
-const SOSQueue = ({ sosReports, selectedSos, onSelect }) => {
+const SOSQueue = ({ sosReports = [], filteredReports = [], activeFilter, onFilterChange, selectedSos, onSelect }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const counts = useMemo(() => ({
+    ALL: sosReports.length,
+    CRITICAL: sosReports.filter(r => r.severity?.toUpperCase() === 'CRITICAL' || r.severity?.toUpperCase() === 'HIGH').length,
+    VERIFIED: sosReports.filter(r => (r.aiTrustScore || 0) >= 90).length,
+    MEDICAL: sosReports.filter(r => r.isMedical || r.aiSummary?.toLowerCase().includes('medical')).length,
+    NEAR: sosReports.length // Placeholder
+  }), [sosReports]);
+
+  const filters = [
+    { id: 'ALL INCIDENTS', label: 'All', count: counts.ALL },
+    { id: 'CRITICAL', label: 'Critical', count: counts.CRITICAL },
+    { id: 'VERIFIED', label: 'Verified', count: counts.VERIFIED },
+    { id: 'MEDICAL', label: 'Medical', count: counts.MEDICAL },
+    { id: 'NEAR ME', label: 'Near Me', count: counts.NEAR }
+  ];
+
   return (
-    <div className="h-full flex flex-col bg-gray-950/80 border-r border-white/5 backdrop-blur-2xl">
-      <div className="p-6 border-b border-white/5 bg-gradient-to-b from-white/5 to-transparent">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="text-red-500" size={20} />
-            <h2 className="text-lg font-black text-white tracking-tighter uppercase">SOS Intelligence</h2>
+    <div className="h-full flex flex-col bg-gray-950/80 border-r border-white/5 backdrop-blur-2xl overflow-hidden relative">
+      <div className="p-5 border-b border-white/5 bg-gradient-to-b from-white/5 to-transparent shrink-0">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
+              <ShieldAlert className="text-red-500" size={18} />
+            </div>
+            <div>
+               <h2 className="text-sm font-black text-white tracking-tighter uppercase italic">SOS Queue</h2>
+               <p className="text-[8px] text-white/30 font-black tracking-[0.2em] uppercase">Intelligence Feed</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-            </span>
-            <span className="text-[10px] font-mono text-red-400 font-bold uppercase">{sosReports.length} Active</span>
+          <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+            <span className="text-[10px] font-mono text-cyan-400 font-bold">{filteredReports.length}</span>
           </div>
         </div>
 
-        <div className="relative">
-          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-white/20">
-            <MapPin size={14} />
-          </div>
+        <div className="relative group mb-5">
+          <SearchIcon size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-cyan-400 transition-colors" />
           <input 
             type="text" 
-            placeholder="Search SOS ID, location, or team..."
-            className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-xs text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="FILTER COORDINATES..."
+            className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-2.5 pl-10 pr-10 text-[10px] text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all font-mono"
           />
+          {searchTerm && <X size={14} onClick={() => setSearchTerm('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white cursor-pointer" />}
         </div>
 
-        <div className="flex gap-2 mt-4 overflow-x-auto pb-1 no-scrollbar">
-          {['All Incidents', 'Critical', 'Verified', 'Medical', 'Near Me'].map((filter, i) => (
+        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+          {filters.map((f) => (
             <button 
-              key={filter}
-              className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest whitespace-nowrap transition-all ${i === 0 ? 'bg-cyan-500 text-black' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white'}`}
+              key={f.id}
+              onClick={() => onFilterChange(f.id)}
+              className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all flex items-center gap-2 border ${activeFilter === f.id ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]' : 'bg-white/5 border-white/5 text-white/30 hover:bg-white/10 hover:text-white/60'}`}
             >
-              {filter}
+              {f.label}
+              <span className={`text-[8px] px-1.5 py-0.5 rounded-md ${activeFilter === f.id ? 'bg-cyan-400 text-black' : 'bg-white/5 text-white/20'}`}>
+                {f.count}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 no-scrollbar custom-scrollbar">
-        <AnimatePresence mode="popLayout">
-          {sosReports.map((sos) => (
-            <SOSCard 
-              key={sos.id} 
-              sos={sos} 
-              isSelected={selectedSos?.id === sos.id}
-              onSelect={onSelect} 
-            />
-          ))}
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {filteredReports.length > 0 ? (
+            filteredReports.map((sos) => (
+              <SOSCard 
+                key={sos.id} 
+                sos={sos} 
+                isSelected={selectedSos?.id === sos.id}
+                onSelect={onSelect} 
+              />
+            ))
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="h-full flex flex-col items-center justify-center opacity-20 text-center p-8 grayscale"
+            >
+              <SearchIcon size={40} className="mb-4" />
+              <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Active Intelligence</p>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
-      <div className="p-4 border-t border-white/5 bg-black/20">
-        <div className="flex items-center justify-between text-[10px] text-white/30 uppercase font-bold tracking-widest mb-2">
-          <span>AI Prediction</span>
-          <span className="text-emerald-400">Stable</span>
+      <div className="p-4 border-t border-white/5 bg-black/40 backdrop-blur-md relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent shadow-[0_0_10px_#3b82f6]" />
+        <div className="flex items-center justify-between text-[8px] text-white/30 font-black uppercase tracking-widest mb-2.5">
+          <span>AI Triage Accuracy</span>
+          <span className="text-cyan-400 font-mono tracking-normal text-[10px]">99.2%</span>
         </div>
         <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
           <motion.div 
             initial={{ width: 0 }}
-            animate={{ width: '85%' }}
-            className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+            animate={{ width: '99.2%' }}
+            className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
           />
         </div>
       </div>

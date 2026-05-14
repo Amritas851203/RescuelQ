@@ -10,7 +10,7 @@ const StatusItem = ({ label, value, subValue, color, icon: Icon, pulse = false }
       <Icon size={16} className={`text-${color}-400 relative`} />
     </div>
     <div className="flex flex-col">
-      <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest leading-none mb-1">{label}</span>
+      <span className="heading-tactical leading-none mb-1">{label}</span>
       <div className="flex items-baseline gap-2">
         <span className="text-sm font-black text-white leading-none">{value}</span>
         {subValue && <span className={`text-[10px] font-mono text-${color}-400/70`}>{subValue}</span>}
