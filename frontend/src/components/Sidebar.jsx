@@ -5,7 +5,7 @@ import useSosStore from '../store/useSosStore';
 import useAuthStore from '../store/useAuthStore';
 
 const navItems = [
-  { icon: Home, label: 'Dashboard', path: '/' },
+  { icon: Home, label: 'Dashboard', path: '/dashboard' },
   { icon: Map, label: 'Live Map', path: '/map' },
   { icon: Activity, label: 'Triage Queue', path: '/triage' },
   { icon: Users, label: 'Team Dispatch', path: '/teams' },
@@ -74,7 +74,7 @@ const Sidebar = () => {
       <div className="px-6 py-6 shrink-0">
         <div className="relative group overflow-hidden rounded-2xl border border-white/5 aspect-square bg-white/5 shadow-2xl">
           <img 
-            src="/assets/command-bg.png" 
+            src={user?.avatar || "/assets/command-bg.png"} 
             alt="Unit Profile" 
             className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 scale-110 group-hover:scale-100"
           />
@@ -132,8 +132,12 @@ const Sidebar = () => {
         </button>
         
         <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-            <User className="w-4 h-4 text-primary" />
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden">
+            {user?.avatar ? (
+              <img src={user.avatar} className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-4 h-4 text-primary" />
+            )}
           </div>
           <div className="min-w-0">
             <p className="text-[10px] font-bold text-white truncate">{user?.fullName || 'Operator'}</p>

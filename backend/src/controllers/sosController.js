@@ -119,6 +119,31 @@ export const getSOSReports = async (req, res) => {
   }
 };
 
+export const updateSOSReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const { data, error } = await supabase
+      .from('sos_reports')
+      .update(updates)
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      // If DB fails, simulate update on mock data for demo
+      const updatedMock = { ...mockSOS.find(m => m.id === id), ...updates };
+      req.io.emit('UPDATE_SOS_REPORT', updatedMock);
+      return res.json(updatedMock);
+    }
+
+    req.io.emit('UPDATE_SOS_REPORT', data[0]);
+    res.json(data[0]);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update SOS report' });
+  }
+};
+
 export const createSOSReport = async (req, res) => {
   try {
     const { lat, lng, name, message, severity, victimsCount, risk_level } = req.body;

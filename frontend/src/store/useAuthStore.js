@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-const API_URL = '/api/auth';
+const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem('rescueiq_user')) || null,
@@ -91,6 +91,10 @@ const useAuthStore = create((set) => ({
     localStorage.removeItem('rescueiq_token');
     localStorage.removeItem('rescueiq_user');
     set({ user: null, token: null });
+  },
+  setUser: (user) => {
+    localStorage.setItem('rescueiq_user', JSON.stringify(user));
+    set({ user });
   }
 }));
 

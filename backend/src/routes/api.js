@@ -1,5 +1,5 @@
 import express from 'express';
-import { getSOSReports, createSOSReport, updateSOSStatus } from '../controllers/sosController.js';
+import { getSOSReports, createSOSReport, updateSOSReport, updateSOSStatus } from '../controllers/sosController.js';
 import { handleTwilioWebhook } from '../controllers/twilioController.js';
 import DispatchController from '../controllers/DispatchController.js';
 import { signup, login, verifyOtp, forgotPassword, resetPassword } from '../controllers/authController.js';
@@ -19,6 +19,7 @@ router.post('/auth/reset-password', resetPassword);
 // SOS endpoints
 router.get('/sos', authMiddleware, getSOSReports);
 router.post('/sos', createSOSReport);
+router.patch('/sos/:id', authMiddleware, updateSOSReport);
 router.put('/sos/:id/status', authMiddleware, updateSOSStatus);
 
 // Dispatch endpoints
@@ -26,6 +27,8 @@ router.get('/teams', DispatchController.getTeams);
 router.get('/missions', DispatchController.getActiveMissions);
 router.post('/dispatch/assign', DispatchController.assignMission);
 router.post('/dispatch/auto', DispatchController.autoAssignAI);
+router.post('/dispatch/recall', authMiddleware, DispatchController.recallMission);
+router.post('/dispatch/hold', authMiddleware, DispatchController.holdMission);
 
 // Social Scanner endpoints
 router.get('/social/alerts', authMiddleware, getSocialAlerts);

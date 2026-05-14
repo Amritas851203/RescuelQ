@@ -36,16 +36,44 @@ class DispatchController {
   async autoAssignAI(req, res) {
     try {
       const { sosId } = req.body;
-      const result = await DispatchService.autoAssignNearestTeam(sosId);
       
-      if (result) {
-        req.io.emit('mission_assigned', result);
-        res.json(result);
+      if (sosId) {
+        const result = await DispatchService.autoAssignNearestTeam(sosId);
+        if (result) {
+          req.io.emit('mission_assigned', result);
+          return res.json(result);
+        }
+        return res.status(404).json({ message: 'No available teams found for this incident' });
       } else {
-        res.status(404).json({ message: 'No available teams found' });
+        // Global Auto-Assign
+        const results = await DispatchService.globalAutoAssign();
+        results.forEach(m => req.io.emit('mission_assigned', m));
+        res.json({ message: `Successfully auto-assigned ${results.length} missions`, missions: results });
       }
     } catch (error) {
       res.status(500).json({ message: 'AI Dispatch failed', error: error.message });
+    }
+  }
+
+  async recallMission(req, res) {
+    try {
+      const { teamId } = req.body;
+      const result = await DispatchService.recallTeam(teamId);
+      req.io.emit('team_recalled', result);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: 'Recall failed', error: error.message });
+    }
+  }
+
+  async holdMission(req, res) {
+    try {
+      const { teamId } = req.body;
+      const result = await DispatchService.holdTeam(teamId);
+      req.io.emit('team_held', result);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: 'Hold failed', error: error.message });
     }
   }
 }

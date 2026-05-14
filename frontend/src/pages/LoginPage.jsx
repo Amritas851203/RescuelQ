@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
   AlertTriangle, 
   Mail, 
@@ -45,14 +46,14 @@ const AuthPage = () => {
     try {
       if (mode === 'login') {
         await login(email, password);
-        navigate('/');
+        navigate('/dashboard');
       } else if (mode === 'signup') {
         await signup(fullName, email, password);
         setMode('verify');
         setResendTimer(60);
       } else if (mode === 'verify') {
         await verifyOtp(email, otp);
-        navigate('/');
+        navigate('/dashboard');
       } else if (mode === 'forgot') {
         await forgotPassword(email);
         setMode('reset');

@@ -7,8 +7,10 @@
   --color-critical: #ef4444;
   --color-warning: #f59e0b;
   --color-safe: #22c55e;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
 }
 
 :root {
@@ -22,18 +24,27 @@
 
 @layer base {
   body {
-    @apply bg-background text-white antialiased overflow-hidden selection:bg-cyan-500/30 font-sans;
+    @apply bg-background text-white antialiased overflow-hidden selection:bg-cyan-500/30;
+    font-family: var(--font-sans);
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
-
-  h1, h2, h3, h4, .font-display {
-    @apply font-display tracking-tight;
+  h1, h2, h3, h4, h5, h6, .font-display, .font-space {
+    font-family: var(--font-space);
+    @apply tracking-tight;
   }
 }
 
 /* Glassmorphism & Surface Styles */
 .glass-panel {
-  @apply bg-surface/80 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl;
+  @apply bg-black/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)];
+}
+
+.premium-gradient {
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/40;
 }
 
 .glass-card {
@@ -140,7 +151,6 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 .animate-shake {
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }

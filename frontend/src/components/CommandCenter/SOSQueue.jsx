@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Users, MapPin, Clock, ShieldAlert, Waves, Heart, Baby, ShieldCheck, Zap, Search as SearchIcon, X, Target } from 'lucide-react';
+import { AlertCircle, Users, MapPin, Clock, ShieldAlert, Waves, Droplets, User, MessageSquare, Heart, Baby, ShieldCheck, Zap, Search, Filter, X, Target } from 'lucide-react';
 
 const SOSCard = ({ sos, isSelected, onSelect }) => {
   const getSeverityStyles = (severity) => {
@@ -88,7 +88,7 @@ const SOSQueue = ({ sosReports = [], filteredReports = [], activeFilter, onFilte
     CRITICAL: sosReports.filter(r => r.severity?.toUpperCase() === 'CRITICAL' || r.severity?.toUpperCase() === 'HIGH').length,
     VERIFIED: sosReports.filter(r => (r.aiTrustScore || 0) >= 90).length,
     MEDICAL: sosReports.filter(r => r.isMedical || r.aiSummary?.toLowerCase().includes('medical')).length,
-    NEAR: sosReports.length // Placeholder
+    NEAR: sosReports.length
   }), [sosReports]);
 
   const filters = [
@@ -100,33 +100,37 @@ const SOSQueue = ({ sosReports = [], filteredReports = [], activeFilter, onFilte
   ];
 
   return (
-    <div className="h-full flex flex-col bg-gray-950/80 border-r border-white/5 backdrop-blur-2xl overflow-hidden relative">
-      <div className="p-5 border-b border-white/5 bg-gradient-to-b from-white/5 to-transparent shrink-0">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
-              <ShieldAlert className="text-red-500" size={18} />
+    <div className="h-full flex flex-col bg-[#020617]/80 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] shadow-2xl overflow-hidden relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.02] to-transparent pointer-events-none" />
+      
+      <div className="p-6 border-b border-white/5 relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="p-2 rounded-2xl bg-red-500/10 border border-red-500/20">
+              <ShieldAlert className="text-red-500" size={20} />
             </div>
             <div>
-               <h2 className="text-sm font-black text-white tracking-tighter uppercase italic">SOS Queue</h2>
-               <p className="text-[8px] text-white/30 font-black tracking-[0.2em] uppercase">Intelligence Feed</p>
+              <h2 className="text-lg font-black text-white tracking-tighter uppercase leading-none">SOS Intelligence</h2>
+              <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.3em] mt-1">Disaster Monitor v2.1</p>
             </div>
           </div>
           <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full">
-            <span className="text-[10px] font-mono text-cyan-400 font-bold">{filteredReports.length}</span>
+            <span className="text-[10px] font-mono text-cyan-400 font-bold">{filteredReports.length} ACTIVE</span>
           </div>
         </div>
 
-        <div className="relative group mb-5">
-          <SearchIcon size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-cyan-400 transition-colors" />
+        <div className="relative group mb-6">
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-white/20 group-focus-within:text-cyan-500 transition-colors">
+            <Search size={16} />
+          </div>
           <input 
             type="text" 
+            placeholder="SEARCH_INCIDENT_REGISTRY..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="FILTER COORDINATES..."
-            className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-2.5 pl-10 pr-10 text-[10px] text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all font-mono"
+            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-10 text-[10px] font-black text-white uppercase tracking-[0.2em] focus:outline-none focus:border-cyan-500/50 focus:bg-white/10 transition-all shadow-inner"
           />
-          {searchTerm && <X size={14} onClick={() => setSearchTerm('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white cursor-pointer" />}
+          {searchTerm && <X size={14} onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white cursor-pointer" />}
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
@@ -162,7 +166,7 @@ const SOSQueue = ({ sosReports = [], filteredReports = [], activeFilter, onFilte
               animate={{ opacity: 1 }}
               className="h-full flex flex-col items-center justify-center opacity-20 text-center p-8 grayscale"
             >
-              <SearchIcon size={40} className="mb-4" />
+              <Search size={40} className="mb-4" />
               <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Active Intelligence</p>
             </motion.div>
           )}
@@ -175,7 +179,7 @@ const SOSQueue = ({ sosReports = [], filteredReports = [], activeFilter, onFilte
           <span>AI Triage Accuracy</span>
           <span className="text-cyan-400 font-mono tracking-normal text-[10px]">99.2%</span>
         </div>
-        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: '99.2%' }}

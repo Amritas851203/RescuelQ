@@ -7,21 +7,31 @@ import TacticalMap from '../components/CommandCenter/TacticalMap';
 import SOSQueue from '../components/CommandCenter/SOSQueue';
 import TeamIntel from '../components/CommandCenter/TeamIntel';
 import SOSDetailPanel from '../components/CommandCenter/SOSDetailPanel';
+import FleetOverview from '../components/CommandCenter/FleetOverview';
 import TacticalStatusBar from '../components/CommandCenter/TacticalStatusBar';
 import LiveActivityFeed from '../components/CommandCenter/LiveActivityFeed';
-import { Menu, X, BrainCircuit, Activity, ShieldAlert, Target, Scan } from 'lucide-react';
+import { 
+  Shield, BrainCircuit, Activity, Loader2, ArrowLeft, Zap, Target, Search, 
+  Maximize2, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Terminal, 
+  AlertCircle as AlertIcon, Menu, X, ShieldAlert, Scan 
+} from 'lucide-react';
 import useSosStore from '../store/useSosStore';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api` : 'http://localhost:5999/api';
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5999';
+const API_URL = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api` : 'http://localhost:5001/api';
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
 
 const CommandCenter = () => {
   const { reports: sosReports, fetchReports } = useSosStore();
   const [selectedSos, setSelectedSos] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeLeftTab, setActiveLeftTab] = useState('sos'); // 'sos' or 'fleet'
+  const [isTacticalAILive, setIsTacticalAILive] = useState(false);
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
+  const [isRightCollapsed, setIsRightCollapsed] = useState(false);
+  const [isFeedCollapsed, setIsFeedCollapsed] = useState(false);
+  const [isAutonomousMode, setIsAutonomousMode] = useState(false);
   const [teams, setTeams] = useState([]);
   const [stats, setStats] = useState({ teamsCount: 0 });
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
-  const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [isDispatching, setIsDispatching] = useState(false);
   const [activeFilter, setActiveFilter] = useState('ALL INCIDENTS');
   const [logs, setLogs] = useState([
@@ -29,6 +39,8 @@ const CommandCenter = () => {
     { id: 2, time: new Date().toLocaleTimeString(), message: 'NEURAL LINK ESTABLISHED', type: 'success' },
     { id: 3, time: new Date().toLocaleTimeString(), message: 'SCANNING FOR DISTRESS SIGNALS...', type: 'neutral' }
   ]);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [missions, setMissions] = useState([]);
 
   const addLog = useCallback((message, type = 'neutral') => {
     setLogs(prev => [...prev.slice(-19), {
@@ -44,9 +56,13 @@ const CommandCenter = () => {
     const fetchData = async () => {
       try {
         await fetchReports();
-        const teamRes = await axios.get(`${API_URL}/dispatch/teams`);
-        setTeams(teamRes.data);
-        setStats({ teamsCount: teamRes.data.length });
+        const [teamsRes, missionsRes] = await Promise.all([
+          axios.get(`${API_URL}/teams`),
+          axios.get(`${API_URL}/missions`)
+        ]);
+        setTeams(teamsRes.data);
+        setMissions(missionsRes.data);
+        setStats({ teamsCount: teamsRes.data.length });
         addLog(`SYNCED LIVE INCIDENTS`, 'success');
       } catch (err) {
         console.error('Error fetching command data:', err);
@@ -56,11 +72,23 @@ const CommandCenter = () => {
     fetchData();
 
     const socket = io(SOCKET_URL);
+    socket.emit('join_room', 'command_center');
+
     socket.on('NEW_SOS_REPORT', (report) => {
       addLog(`NEW SIGNAL DETECTED: ${report.id}`, 'alert');
+      fetchReports();
     });
-    socket.on('team_update', (updatedTeam) => {
-      setTeams(prev => prev.map(t => t.id === updatedTeam.id ? updatedTeam : t));
+
+    socket.on('vehicle_update', (data) => {
+      // data: { missionId, teamId, location, status }
+      setTeams(prev => prev.map(t => t.id === data.teamId ? { ...t, location: data.location, status: data.status } : t));
+      setMissions(prev => prev.map(m => m.id === data.missionId ? { ...m, status: data.status } : m));
+    });
+
+    socket.on('mission_assigned', (mission) => {
+      setMissions(prev => [...prev, mission]);
+      setTeams(prev => prev.map(t => t.id === mission.teamId ? { ...t, status: 'DISPATCHED' } : t));
+      addLog(`AI MISSION AUTHORIZED: UNIT ${mission.teamId} DEPLOYED`, 'success');
     });
 
     return () => socket.disconnect();
@@ -81,20 +109,94 @@ const CommandCenter = () => {
     }
   };
 
-  const handleAutoAssign = async () => {
-    setIsDispatching(true);
-    addLog('NEURAL NETWORK OPTIMIZING MISSION...', 'neutral');
+  const handleAutoDispatch = async () => {
     try {
-      const res = await axios.post(`${API_URL}/dispatch/auto-assign`);
-      if (res.data.assigned) {
-        addLog(`AUTO-ASSIGNED ${res.data.teamName} TO ${res.data.sosId}`, 'success');
+      setIsTacticalAILive(true);
+      setIsDispatching(true);
+      if (selectedSos) {
+        addLog('AI Neural Net: Optimizing extraction route and unit selection for target...', 'info');
+        await axios.post(`${API_URL}/dispatch/auto`, { sosId: selectedSos.id });
+        setSelectedSos(null);
+      } else {
+        if (!isAutonomousMode) addLog('AI GLOBAL_SCAN: Analyzing all unassigned incidents and unit proximity...', 'info');
+        const response = await axios.post(`${API_URL}/dispatch/auto`, {});
+        if (!isAutonomousMode) addLog(`AI SUCCESS: ${response.data.message}`, 'success');
       }
-    } catch (err) {
-      console.error('Auto-assign failed:', err);
-      addLog('AUTO-ASSIGNMENT OPTIMIZATION FAILED', 'alert');
+    } catch (error) {
+      if (!isAutonomousMode) addLog(`AI OPTIMIZATION FAILED: ${error.response?.data?.message || error.message}`, 'alert');
     } finally {
       setIsDispatching(false);
     }
+  };
+
+  const handleAutoAssign = handleAutoDispatch;
+
+  // Autonomous Mode Effect
+  useEffect(() => {
+    let interval;
+    if (isAutonomousMode) {
+      setIsTacticalAILive(true);
+      addLog('CRITICAL: AI AUTONOMOUS MODE ACTIVATED // DEPLOYMENT AUTHORIZED', 'alert');
+      // Auto-dispatch every 15 seconds
+      interval = setInterval(() => {
+        handleAutoDispatch();
+      }, 15000);
+    } else {
+      if (interval) addLog('INFO: AI AUTONOMOUS MODE DEACTIVATED // MANUAL CONTROL RESTORED', 'info');
+    }
+    return () => clearInterval(interval);
+  }, [isAutonomousMode]);
+
+  const toggleAutonomous = async () => {
+    if (isAutonomousMode) {
+      // Aborting: Recall all dispatched teams
+      addLog('COMMAND: ABORTING ALL AI OPERATIONS // RECALLING FLEET', 'alert');
+      try {
+        const activeTeams = teams.filter(t => t.status === 'DISPATCHED' || t.status === 'EN_ROUTE');
+        await Promise.all(activeTeams.map(t => axios.post(`${API_URL}/dispatch/recall`, { teamId: t.id })));
+        setMissions([]);
+        setIsTacticalAILive(false);
+        addLog('FLEET RECALLED: AI STAND-BY', 'info');
+      } catch (err) {
+        addLog('ABORT ERROR: SOME UNITS MAY REMAIN ACTIVE', 'alert');
+      }
+    } else {
+      setIsTacticalAILive(true);
+    }
+    setIsAutonomousMode(prev => !prev);
+  };
+
+  const handleRecall = async (teamId) => {
+    try {
+      addLog(`RECALL_INITIATED: Commanding Unit ${teamId} to return to base...`, 'info');
+      await axios.post(`${API_URL}/dispatch/recall`, { teamId });
+      addLog(`UNIT_SYNC: Unit ${teamId} is returning. Sector cleared.`, 'success');
+    } catch (error) {
+      addLog(`RECALL_FAILED: ${error.response?.data?.message || error.message}`, 'alert');
+    }
+  };
+
+  const handleHold = async (teamId) => {
+    try {
+      addLog(`HOLD_COMMAND: Signaling Unit ${teamId} to maintain current position...`, 'info');
+      await axios.post(`${API_URL}/dispatch/hold`, { teamId });
+      addLog(`UNIT_STATUS: Unit ${teamId} is on STAND-BY. Telemetry locked.`, 'warning');
+    } catch (error) {
+      addLog(`HOLD_FAILED: ${error.response?.data?.message || error.message}`, 'alert');
+    }
+  };
+
+  const handleScan = () => {
+    setIsTacticalAILive(prev => !prev);
+    addLog(isTacticalAILive ? 'SCAN_ABORTED: Ceasing tactical sweep.' : 'INITIATING SCAN: Synchronizing multi-spectral sensors...', 'neutral');
+  };
+
+  const handleExpand = () => {
+    const shouldCollapse = !isLeftCollapsed;
+    setIsLeftCollapsed(shouldCollapse);
+    setIsRightCollapsed(shouldCollapse);
+    setIsFeedCollapsed(shouldCollapse);
+    addLog(shouldCollapse ? 'HUD_MINIMIZED: Wide-angle tactical view active.' : 'HUD_RESTORED: Multi-panel telemetry active.', 'neutral');
   };
 
   // Filtered Data for components
@@ -122,106 +224,181 @@ const CommandCenter = () => {
       
       <TacticalStatusBar stats={{ ...stats, sosCount: sosReports.length, activeFilter }} />
 
-      <main className="flex-1 flex overflow-hidden relative">
-        {/* Left Toggle (Mobile) */}
-        <button 
-          onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
-          className="absolute top-4 left-4 z-[1001] lg:hidden glass-panel p-2 text-white border-white/10"
-        >
-          {leftSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-
-        {/* SOS Queue Sidebar */}
-        <aside className={`
-          fixed lg:relative top-0 left-0 h-full w-[340px] z-[1000] lg:z-20
-          transition-transform duration-500 ease-in-out
-          ${leftSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0'}
-        `}>
-          <SOSQueue 
-            sosReports={sosReports} 
-            filteredReports={filteredReports}
+      {/* Main Operational Interface */}
+      <main className="flex-1 relative overflow-hidden">
+        {/* BACKGROUND: Tactical Map (Takes full screen) */}
+        <div className="absolute inset-0 z-0">
+          <TacticalMap 
+            teams={teams}
+            missions={missions}
+            sosReports={filteredReports}
+            selectedTeam={selectedTeam}
+            onTeamSelect={setSelectedTeam}
+            isAIActive={isTacticalAILive}
+            onSelectSos={setSelectedSos}
             activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            selectedSos={selectedSos}
-            onSelect={setSelectedSos} 
+            onScan={handleScan}
+            onExpand={handleExpand}
+            isHUDHidden={isLeftCollapsed}
           />
-        </aside>
+        </div>
 
-        {/* Tactical Map Center */}
-        <section className="flex-1 h-full relative min-w-0 bg-[#050811] overflow-hidden">
-          <div className="absolute inset-0 z-0">
-            <TacticalMap 
-              sosReports={filteredReports} 
-              teams={teams}
-              activeFilter={activeFilter}
-              onSelectSos={setSelectedSos}
-            />
-          </div>
-
-          {/* Floating UI Elements over Map */}
-          <div className="absolute top-6 right-6 z-10 hidden xl:flex flex-col gap-4">
-             <LiveActivityFeed logs={logs} />
-          </div>
-
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-4">
+        {/* HUD OVERLAY: Left Panel (SOS Intelligence) */}
+        <motion.aside 
+          initial={false}
+          animate={{ 
+            x: isLeftCollapsed ? -380 : 0,
+            opacity: 1
+          }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="absolute top-6 bottom-6 left-6 w-[400px] z-30 flex flex-col pointer-events-none"
+        >
+          <div className="pointer-events-auto h-full flex flex-col relative">
+            {/* Collapse Button - Left */}
             <button 
-              onClick={handleAutoAssign}
-              disabled={isDispatching}
-              className="px-8 py-3 glass-panel border-cyan-500/30 text-cyan-400 text-xs font-black uppercase tracking-[0.2em] hover:bg-cyan-500/10 active:scale-95 transition-all flex items-center gap-3 group"
+              onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+              className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-gray-950 border border-white/10 rounded-r-lg flex items-center justify-center text-white/40 hover:text-cyan-400 hover:border-cyan-500/50 transition-all z-50 shadow-xl backdrop-blur-xl"
             >
-              {isDispatching ? (
-                <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <BrainCircuit size={18} className="group-hover:rotate-12 transition-transform" />
+              {isLeftCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            </button>
+
+            <div className={isLeftCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full transition-all'}>
+              <div className="flex gap-2 mb-6">
+                <button 
+                  onClick={() => setActiveLeftTab('sos')}
+                  className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeLeftTab === 'sos' ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.3)]' : 'bg-white/5 text-white/30'}`}
+                >
+                  SOS Intel
+                </button>
+                <button 
+                  onClick={() => setActiveLeftTab('fleet')}
+                  className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeLeftTab === 'fleet' ? 'bg-cyan-500 text-black shadow-[0_0_20px_rgba(6,182,212,0.3)]' : 'bg-white/5 text-white/30'}`}
+                >
+                  Fleet Ops
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-hidden">
+                <AnimatePresence mode="wait">
+                  {activeLeftTab === 'sos' ? (
+                    <motion.div 
+                      key="sos"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="h-full"
+                    >
+                      <SOSQueue 
+                        sosReports={sosReports} 
+                        filteredReports={filteredReports}
+                        activeFilter={activeFilter}
+                        onFilterChange={setActiveFilter}
+                        selectedSos={selectedSos}
+                        onSelect={setSelectedSos} 
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      key="fleet"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="h-full"
+                    >
+                      <FleetOverview teams={teams} missions={missions} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Minimized Tab - Left */}
+            <AnimatePresence>
+              {isLeftCollapsed && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  onClick={() => setIsLeftCollapsed(false)}
+                  className="absolute left-0 top-0 bottom-0 w-12 bg-gray-950/80 border border-white/10 rounded-2xl flex flex-col items-center py-6 gap-8 cursor-pointer hover:bg-gray-900 transition-colors pointer-events-auto shadow-2xl backdrop-blur-xl"
+                >
+                  <div className="p-2 bg-red-500/20 rounded-lg text-red-500">
+                    <AlertIcon size={16} />
+                  </div>
+                  <div className="h-px w-6 bg-white/10" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 [writing-mode:vertical-lr] rotate-180">SOS INTEL</span>
+                  <div className="mt-auto p-2 text-cyan-400 animate-pulse">
+                    <ChevronRight size={16} />
+                  </div>
+                </motion.div>
               )}
-              Neural Auto-Assign
-            </button>
-            <button className="px-6 py-3 glass-panel border-white/10 text-white/40 text-xs font-black uppercase tracking-[0.2em] hover:text-white transition-all flex items-center gap-2">
-              <Scan size={16} /> Area Scan
-            </button>
+            </AnimatePresence>
           </div>
+        </motion.aside>
 
-          {/* Alert Overlay for Critical */}
-          <AnimatePresence>
-            {activeFilter === 'CRITICAL' && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 pointer-events-none z-50 ring-[20px] ring-inset ring-red-500/10 animate-pulse"
-              />
-            )}
-          </AnimatePresence>
-        </section>
-
-        {/* Team Intelligence Sidebar */}
-        <aside className={`
-          fixed lg:relative top-0 right-0 h-full w-[340px] z-[1000] lg:z-20
-          transition-transform duration-500 ease-in-out
-          ${rightSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0 lg:w-0'}
-        `}>
-          <TeamIntel 
-            teams={teams} 
-            activeFilter={activeFilter}
-            onDispatch={(teamId) => selectedSos && handleDispatch(selectedSos.id, teamId)}
-            isDispatching={isDispatching}
-          />
-        </aside>
-
-        {/* Right Toggle (Mobile) */}
-        <button 
-          onClick={() => setRightSidebarOpen(!rightSidebarOpen)}
-          className="absolute top-4 right-4 z-[1001] lg:hidden glass-panel p-2 text-white border-white/10"
+        {/* HUD OVERLAY: Right Panel (Team Intelligence) */}
+        <motion.aside 
+          initial={false}
+          animate={{ 
+            x: isRightCollapsed ? 380 : 0,
+            opacity: 1
+          }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="absolute top-6 bottom-6 right-6 w-[400px] z-30 flex flex-col pointer-events-none"
         >
-          {rightSidebarOpen ? <X size={20} /> : <Activity size={20} />}
-        </button>
+          <div className="pointer-events-auto h-full flex flex-col relative">
+            {/* Collapse Button - Right */}
+            <button 
+              onClick={() => setIsRightCollapsed(!isRightCollapsed)}
+              className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-gray-950 border border-white/10 rounded-l-lg flex items-center justify-center text-white/40 hover:text-cyan-400 hover:border-cyan-500/50 transition-all z-50 shadow-xl backdrop-blur-xl"
+            >
+              {isRightCollapsed ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+            </button>
 
-        {/* Expandable Detail Panel Overlay */}
+            <div className={isRightCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full transition-all'}>
+              <TeamIntel 
+                teams={teams}
+                selectedTeam={selectedTeam}
+                onDispatch={(teamId) => selectedSos ? handleDispatch(selectedSos.id, teamId) : addLog('ERR: SELECT_TARGET_SOS_FIRST', 'alert')}
+                onAutoDispatch={handleAutoDispatch}
+                isAutonomous={isAutonomousMode}
+                onToggleAutonomous={toggleAutonomous}
+                onRecall={handleRecall}
+                onHold={handleHold}
+                isDispatching={isDispatching}
+                activeFilter={activeFilter}
+              />
+            </div>
+
+            {/* Minimized Tab - Right */}
+            <AnimatePresence>
+              {isRightCollapsed && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  onClick={() => setIsRightCollapsed(false)}
+                  className="absolute right-0 top-0 bottom-0 w-12 bg-gray-950/80 border border-white/10 rounded-2xl flex flex-col items-center py-6 gap-8 cursor-pointer hover:bg-gray-900 transition-colors pointer-events-auto shadow-2xl backdrop-blur-xl"
+                >
+                  <div className="p-2 bg-purple-500/20 rounded-lg text-purple-500">
+                    <BrainCircuit size={16} />
+                  </div>
+                  <div className="h-px w-6 bg-white/10" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 [writing-mode:vertical-lr]">AI TACTICAL</span>
+                  <div className="mt-auto p-2 text-cyan-400 animate-pulse">
+                    <ChevronLeft size={16} />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.aside>
+
+        {/* SOS Detail Overlay (Centered) */}
         <AnimatePresence>
           {selectedSos && (
-            <div className="absolute inset-0 z-[1100] flex items-center justify-center p-4 lg:p-8 pointer-events-none">
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto" onClick={() => setSelectedSos(null)} />
-              <div className="relative w-full max-w-[440px] h-full max-h-[850px] pointer-events-auto">
+            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none">
+              <div className="pointer-events-auto">
                 <SOSDetailPanel 
                   sos={selectedSos} 
                   onClose={() => setSelectedSos(null)}
