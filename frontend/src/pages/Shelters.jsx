@@ -953,110 +953,126 @@ const Shelters = () => {
                    </div>
                 </div>
 
-                {/* PLATFORM-WIDE TACTICAL INTELLIGENCE CORE */}
-                <div className="bg-white/[0.02] border border-white/5 rounded-[4rem] p-12 lg:p-20 relative overflow-hidden group shadow-[0_50px_100px_rgba(0,0,0,0.6)]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/[0.05] via-transparent to-emerald-500/[0.05]" />
+                {/* PLATFORM-WIDE TACTICAL INTELLIGENCE CORE - MATCHING SCREENSHOT */}
+                <div className="bg-[#0a0f1c]/90 border border-white/10 rounded-[4rem] p-12 lg:p-16 relative overflow-hidden group shadow-[0_50px_100px_rgba(0,0,0,0.7)] backdrop-blur-3xl">
+                  {/* Subtle Grid Overlay */}
+                  <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:32px_32px]" />
                   
-                  {/* Background Neural Network Simulation */}
-                  <div className="absolute inset-0 pointer-events-none opacity-20">
-                    {[...Array(5)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{ 
-                          scale: [1, 1.2, 1],
-                          opacity: [0.1, 0.3, 0.1],
-                        }}
-                        transition={{ duration: 10, repeat: Infinity, delay: i * 2 }}
-                        className="absolute inset-0 border border-blue-500/10 rounded-full"
-                        style={{ margin: `${i * 15}%` }}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="relative z-10 grid grid-cols-1 xl:grid-cols-2 gap-16 items-center">
-                    <div className="space-y-10">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <div className="px-3 py-1 rounded-full bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest">Global Ops</div>
-                          <div className="text-[9px] font-mono text-white/30 tracking-[0.3em]">RELAY_ID: EDGE_CORE_01</div>
-                        </div>
-                        <h3 className="text-4xl lg:text-6xl font-black text-white tracking-tighter uppercase leading-none">
-                          Tactical <span className="text-blue-500">Intelligence</span> Matrix
-                        </h3>
-                        <p className="text-sm font-bold text-white/40 max-w-md leading-relaxed">
-                          Synchronizing regional node data with orbital satellite imagery for real-time humanitarian logistics and threat assessment.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-6">
-                        {[
-                          { label: 'Network Latency', val: '14ms', icon: Signal, color: 'emerald' },
-                          { label: 'Data Throughput', val: '2.4 GB/s', icon: Zap, color: 'blue' },
-                          { label: 'Active Relays', val: '128', icon: Network, color: 'cyan' },
-                          { label: 'Security Level', val: 'Tier 5', icon: ShieldCheck, color: 'indigo' },
-                        ].map((stat, i) => (
-                          <div key={i} className="bg-white/5 border border-white/5 p-6 rounded-[2rem] flex flex-col gap-3 group/stat hover:bg-white/10 transition-all">
-                            <stat.icon size={20} className={`text-${stat.color}-400 group-hover/stat:scale-110 transition-transform`} />
-                            <div>
-                              <div className="text-xl font-black text-white tracking-tight">{stat.val}</div>
-                              <div className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{stat.label}</div>
-                            </div>
+                  <div className="relative z-10 grid grid-cols-12 gap-12">
+                    
+                    {/* LEFT COLUMN: TACTICAL WIDGETS */}
+                    <div className="col-span-12 lg:col-span-4 space-y-8">
+                       {/* Sector Readiness */}
+                       <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 space-y-6">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Sector_Readiness_Analysis</span>
+                            <BarChart3 size={14} className="text-blue-500" />
                           </div>
-                        ))}
-                      </div>
+                          <div className="flex items-end gap-3 h-16">
+                             {[40, 70, 45, 90, 65].map((h, i) => (
+                               <div key={i} className="flex-1 bg-blue-500/10 border-t border-blue-500/30 rounded-t-sm h-full flex flex-col justify-end">
+                                  <motion.div initial={{ height: 0 }} animate={{ height: `${h}%` }} className="w-full bg-blue-500/40" />
+                               </div>
+                             ))}
+                          </div>
+                          <div className="flex justify-between items-center text-[7px] font-mono text-white/10">
+                             <span>OPTIMIZED_LOAD: ACTIVE</span>
+                             <span>VER_0x8215B</span>
+                          </div>
+                       </div>
+
+                       {/* Mission Critical Pulse */}
+                       <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 space-y-8">
+                          <div className="flex items-center gap-3">
+                             <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Mission_Critical_Pulse</span>
+                          </div>
+                          <div className="h-16 flex items-center justify-center overflow-hidden">
+                             <svg viewBox="0 0 400 100" className="w-full h-full opacity-40">
+                               <motion.path
+                                 d="M0 50 Q 50 10, 100 50 T 200 50 T 300 50 T 400 50"
+                                 fill="none" stroke="#3b82f6" strokeWidth="3"
+                                 initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                               />
+                             </svg>
+                          </div>
+                          <div className="flex justify-between items-end border-t border-white/5 pt-6">
+                             <div className="space-y-1">
+                                <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Neural Link</div>
+                                <div className="text-xs font-black text-emerald-400 uppercase tracking-tighter italic">Verified <span className="inline-block w-1 h-1 bg-emerald-500 rounded-full ml-1" /></div>
+                             </div>
+                             <div className="space-y-1 text-right">
+                                <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Sync Strength</div>
+                                <div className="text-xs font-black text-blue-400 italic">99.98%</div>
+                             </div>
+                          </div>
+                       </div>
                     </div>
 
-                    <div className="relative aspect-square">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                         <div className="w-full h-full relative">
-                            {/* Central Core Glow */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 blur-[80px] animate-pulse" />
-                            
-                            {/* Orbital Rings */}
-                            {[...Array(3)].map((_, i) => (
-                              <motion.div 
-                                key={i}
-                                animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
-                                transition={{ duration: 20 + i * 10, repeat: Infinity, ease: "linear" }}
-                                className="absolute inset-0 border border-dashed border-white/10 rounded-full"
-                                style={{ margin: `${i * 10}%` }}
-                              >
-                                <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-${i === 0 ? 'blue' : i === 1 ? 'emerald' : 'rose'}-500 shadow-[0_0_15px_currentColor]`} />
-                              </motion.div>
-                            ))}
+                    {/* MIDDLE/RIGHT: STAT GRID & NEURAL CORE */}
+                    <div className="col-span-12 lg:col-span-8 flex flex-col justify-between">
+                       <div className="flex justify-between items-start">
+                          <div className="grid grid-cols-2 gap-8 w-full max-w-lg">
+                             {[
+                               { label: 'Network Latency', val: '14ms', icon: Signal, color: 'emerald' },
+                               { label: 'Data Throughput', val: '2.4 GB/s', icon: Zap, color: 'blue' },
+                               { label: 'Active Relays', val: '128', icon: Network, color: 'cyan' },
+                               { label: 'Security Level', val: 'Tier 5', icon: ShieldCheck, color: 'indigo' },
+                             ].map((stat, i) => (
+                               <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[2.5rem] flex flex-col gap-4 group/stat hover:bg-white/10 transition-all aspect-square justify-center">
+                                 <stat.icon size={24} className={`text-${stat.color}-400 group-hover/stat:scale-110 transition-transform`} />
+                                 <div>
+                                   <div className="text-3xl font-black text-white tracking-tight">{stat.val}</div>
+                                   <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-1">{stat.label}</div>
+                                 </div>
+                               </div>
+                             ))}
+                          </div>
 
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <BrainCircuit size={100} className="text-white/10 animate-pulse" />
-                            </div>
-                         </div>
-                      </div>
-                      
-                      {/* Decorative HUD Lines */}
-                      <div className="absolute -top-4 -left-4 w-12 h-12 border-t-2 border-l-2 border-white/20 rounded-tl-2xl" />
-                      <div className="absolute -top-4 -right-4 w-12 h-12 border-t-2 border-r-2 border-white/20 rounded-tr-2xl" />
-                      <div className="absolute -bottom-4 -left-4 w-12 h-12 border-b-2 border-l-2 border-white/20 rounded-bl-2xl" />
-                      <div className="absolute -bottom-4 -right-4 w-12 h-12 border-b-2 border-r-2 border-white/20 rounded-br-2xl" />
+                          {/* Floating Neural Brain */}
+                          <div className="hidden xl:block relative w-64 h-64">
+                             {[...Array(3)].map((_, i) => (
+                               <motion.div 
+                                 key={i} animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
+                                 transition={{ duration: 20 + i * 10, repeat: Infinity, ease: "linear" }}
+                                 className="absolute inset-0 border border-dashed border-white/10 rounded-full"
+                                 style={{ margin: `${i * 15}%` }}
+                               />
+                             ))}
+                             <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="relative">
+                                   <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full" />
+                                   <BrainCircuit size={100} className="text-white/10 relative z-10" />
+                                   <div className="absolute top-4 right-4 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]" />
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+
+                       {/* BOTTOM INTEGRITY BARS */}
+                       <div className="mt-16 pt-12 border-t border-white/5">
+                          <div className="grid grid-cols-2 gap-16 mb-8">
+                             <div className="space-y-3">
+                                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Global Load Balance</div>
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                   <motion.div animate={{ width: '74%' }} className="h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
+                                </div>
+                             </div>
+                             <div className="space-y-3">
+                                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">System Integrity</div>
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                   <motion.div animate={{ width: '99.4%' }} className="h-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+                                </div>
+                             </div>
+                          </div>
+                          <div className="text-center">
+                             <span className="text-[10px] font-mono text-white/10 uppercase tracking-[0.6em] animate-pulse">
+                                Uplink_Confirmed // All_Systems_Nominal
+                             </span>
+                          </div>
+                       </div>
                     </div>
-                  </div>
-
-                  <div className="mt-16 pt-10 border-t border-white/5 flex flex-wrap gap-8 items-center justify-between">
-                     <div className="flex gap-12">
-                        <div>
-                           <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">Global Load Balance</div>
-                           <div className="h-1 w-32 bg-white/5 rounded-full overflow-hidden">
-                              <motion.div animate={{ width: '74%' }} className="h-full bg-blue-500" />
-                           </div>
-                        </div>
-                        <div>
-                           <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mb-1">System Integrity</div>
-                           <div className="h-1 w-32 bg-white/5 rounded-full overflow-hidden">
-                              <motion.div animate={{ width: '99.4%' }} className="h-full bg-emerald-500" />
-                           </div>
-                        </div>
-                     </div>
-                     <div className="text-[9px] font-mono text-white/10 uppercase tracking-[0.5em] animate-pulse">
-                        Uplink_Confirmed // All_Systems_Nominal
-                     </div>
                   </div>
                 </div>
               </>
