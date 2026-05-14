@@ -13,6 +13,12 @@ import { MapContainer, TileLayer, Marker, LayersControl, LayerGroup, useMap } fr
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// Asset Imports
+import imgFlood from '../assets/flood.png';
+import imgEarthquake from '../assets/earthquake.png';
+import imgSocialIntelHub from '../assets/social_intel_hub.png';
+import imgTactical3DGraph from '../assets/tactical_3d_graph.png';
+
 // --- MOCK DATA FOR NEW UI ---
 const sparklineData = Array.from({ length: 15 }).map(() => ({ v: Math.random() * 100 }));
 const generateSpark = () => Array.from({ length: 15 }).map(() => ({ v: Math.random() * 100 }));
@@ -41,9 +47,9 @@ const trendingKeywords = [
 ];
 
 const recentPosts = [
-  { handle: '@DelhiUpdates', text: 'Flood situation near Yamuna Bazar, water level rising fast. People trapped!', time: '2m ago', image: '/src/assets/flood.png' },
-  { handle: '@Help_India', text: 'Need immediate help near Palam, trees fallen on vehicles.', time: '5m ago', image: '/src/assets/earthquake.png' },
-  { handle: '@NewsLive', text: 'Heavy rainfall continues in Delhi, IMD issues red alert.', time: '12m ago', image: '/src/assets/flood.png' }
+  { handle: '@DelhiUpdates', text: 'Flood situation near Yamuna Bazar, water level rising fast. People trapped!', time: '2m ago', image: imgFlood },
+  { handle: '@Help_India', text: 'Need immediate help near Palam, trees fallen on vehicles.', time: '5m ago', image: imgEarthquake },
+  { handle: '@NewsLive', text: 'Heavy rainfall continues in Delhi, IMD issues red alert.', time: '12m ago', image: imgFlood }
 ];
 
 const StatCard = ({ label, value, trend, isDown, colorClass, sparkColor }) => (
@@ -276,7 +282,7 @@ const SocialScanner = () => {
               </div>
               <div className="relative group overflow-hidden rounded-xl border border-white/10 aspect-video">
                 <img 
-                  src="/src/assets/earthquake.png" 
+                  src={imgEarthquake} 
                   alt="Public Sentiment" 
                   className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
                 />
@@ -314,7 +320,7 @@ const SocialScanner = () => {
               </div>
               <div className="relative group overflow-hidden rounded-xl border border-white/10 aspect-video">
                 <img 
-                  src="/src/assets/flood.png" 
+                  src={imgFlood} 
                   alt="Field Intelligence" 
                   className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
                 />
@@ -439,7 +445,7 @@ const SocialScanner = () => {
             
             <div className="flex-1 relative rounded-xl overflow-hidden border border-white/5 bg-black/20">
                <img 
-                 src="/src/assets/tactical_3d_graph.png" 
+                 src={imgTactical3DGraph} 
                  alt="Tactical 3D Graph" 
                  className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-700"
                />
@@ -510,7 +516,7 @@ const SocialScanner = () => {
                 </div>
                 <div className="relative group overflow-hidden rounded-xl border border-white/10 bg-black/40">
                   <img 
-                    src="/src/assets/social_intel_hub.png" 
+                    src={imgSocialIntelHub} 
                     alt="Emergency Intelligence Hub" 
                     className="w-full h-32 object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                   />

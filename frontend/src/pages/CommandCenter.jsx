@@ -262,7 +262,7 @@ const CommandCenter = () => {
               {isLeftCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
 
-            <div className={isLeftCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full transition-all'}>
+            <div className={isLeftCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full flex flex-col transition-all'}>
               <div className="flex gap-2 mb-6">
                 <button 
                   onClick={() => setActiveLeftTab('sos')}
@@ -355,7 +355,7 @@ const CommandCenter = () => {
               {isRightCollapsed ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
             </button>
 
-            <div className={isRightCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full transition-all'}>
+            <div className={isRightCollapsed ? 'opacity-0 invisible pointer-events-none transition-all' : 'opacity-100 visible h-full flex flex-col transition-all'}>
               <TeamIntel 
                 teams={teams}
                 selectedTeam={selectedTeam}
@@ -398,7 +398,7 @@ const CommandCenter = () => {
         <AnimatePresence>
           {selectedSos && (
             <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none">
-              <div className="pointer-events-auto">
+              <div className="pointer-events-auto w-full max-w-2xl h-[80vh]">
                 <SOSDetailPanel 
                   sos={selectedSos} 
                   onClose={() => setSelectedSos(null)}
