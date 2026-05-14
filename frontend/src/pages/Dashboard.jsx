@@ -322,6 +322,45 @@ const Dashboard = () => {
          </div>
       </div>
 
+      {/* ROW 4: OPERATIONAL INTELLIGENCE */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-shrink-0">
+        <div className="glass-panel overflow-hidden group">
+          <div className="h-24 w-full relative">
+            <img src="/src/assets/volcano.png" alt="Volcano" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
+            <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-critical/20 border border-critical/40 text-critical text-[8px] font-black uppercase">Active Eruption</div>
+          </div>
+          <div className="p-3">
+            <h4 className="text-[10px] font-black text-white uppercase mb-1">Volcanic Activity Detected</h4>
+            <p className="text-[9px] text-slate-400 font-medium leading-relaxed">Thermal anomalies detected via satellite. Evacuation protocols initiated in Sector 14.</p>
+          </div>
+        </div>
+
+        <div className="glass-panel overflow-hidden group">
+          <div className="h-24 w-full relative">
+            <img src="/src/assets/flood.png" alt="Flood" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
+            <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-warning/20 border border-warning/40 text-warning text-[8px] font-black uppercase">Severe Flooding</div>
+          </div>
+          <div className="p-3">
+            <h4 className="text-[10px] font-black text-white uppercase mb-1">Urban Flood Monitoring</h4>
+            <p className="text-[9px] text-slate-400 font-medium leading-relaxed">Water levels rising in low-lying zones. Rescue units dispatched for shallow water extraction.</p>
+          </div>
+        </div>
+
+        <div className="glass-panel overflow-hidden group">
+          <div className="h-24 w-full relative">
+            <img src="/src/assets/earthquake.png" alt="Earthquake" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent" />
+            <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary/20 border border-primary/40 text-primary text-[8px] font-black uppercase">Seismic Alert</div>
+          </div>
+          <div className="p-3">
+            <h4 className="text-[10px] font-black text-white uppercase mb-1">Structural Damage Report</h4>
+            <p className="text-[9px] text-slate-400 font-medium leading-relaxed">Minor structural collapses reported after 6.2 magnitude shock. AI assessing building integrity.</p>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

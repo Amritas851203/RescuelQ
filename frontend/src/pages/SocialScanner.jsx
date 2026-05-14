@@ -41,9 +41,9 @@ const trendingKeywords = [
 ];
 
 const recentPosts = [
-  { handle: '@DelhiUpdates', text: 'Flood situation near Yamuna Bazar, water level rising fast. People trapped!', time: '2m ago' },
-  { handle: '@Help_India', text: 'Need immediate help near Palam, trees fallen on vehicles.', time: '5m ago' },
-  { handle: '@NewsLive', text: 'Heavy rainfall continues in Delhi, IMD issues red alert.', time: '12m ago' }
+  { handle: '@DelhiUpdates', text: 'Flood situation near Yamuna Bazar, water level rising fast. People trapped!', time: '2m ago', image: '/src/assets/flood.png' },
+  { handle: '@Help_India', text: 'Need immediate help near Palam, trees fallen on vehicles.', time: '5m ago', image: '/src/assets/earthquake.png' },
+  { handle: '@NewsLive', text: 'Heavy rainfall continues in Delhi, IMD issues red alert.', time: '12m ago', image: '/src/assets/flood.png' }
 ];
 
 const StatCard = ({ label, value, trend, isDown, colorClass, sparkColor }) => (
@@ -244,7 +244,7 @@ const SocialScanner = () => {
         
         {/* LEFT COLUMN: Sentiment & Keywords */}
         <div className="lg:col-span-3 space-y-4 flex flex-col">
-          <div className="glass-panel p-4 flex-1">
+          <div className="glass-panel p-4">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Sentiment Analysis</h3>
             <div className="h-[140px] flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -268,9 +268,25 @@ const SocialScanner = () => {
               </div>
             </div>
             <p className="text-[9px] font-bold text-critical mt-2 text-center">High negative sentiment detected</p>
+            
+            <div className="mt-8 pt-4 border-t border-white/5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Public Sentiment Feed</h4>
+                <div className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded text-[7px] font-black text-red-500 animate-pulse">PANIC DETECTED</div>
+              </div>
+              <div className="relative group overflow-hidden rounded-xl border border-white/10 aspect-video">
+                <img 
+                  src="/src/assets/earthquake.png" 
+                  alt="Public Sentiment" 
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <p className="absolute bottom-2 left-3 text-[9px] font-black text-white uppercase tracking-widest">Sector-7 Social Impact</p>
+              </div>
+            </div>
           </div>
 
-          <div className="glass-panel p-4 flex-1">
+          <div className="glass-panel p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Trending Keywords</h3>
               <span className="text-[9px] text-primary cursor-pointer hover:underline">View All</span>
@@ -290,14 +306,64 @@ const SocialScanner = () => {
                 </div>
               ))}
             </div>
+
+            <div className="mt-8 pt-4 border-t border-white/5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Field Intelligence</h4>
+                <Activity size={10} className="text-primary animate-pulse" />
+              </div>
+              <div className="relative group overflow-hidden rounded-xl border border-white/10 aspect-video">
+                <img 
+                  src="/src/assets/flood.png" 
+                  alt="Field Intelligence" 
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <p className="absolute bottom-2 left-3 text-[9px] font-black text-white uppercase tracking-widest">Live: Rescue Operations</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-panel p-4 flex-1 flex flex-col min-h-[180px]">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Intelligence Pulse</h3>
+              <div className="flex items-center gap-1 text-[8px] font-black text-safe uppercase">
+                <div className="w-1.5 h-1.5 rounded-full bg-safe animate-pulse" /> Live
+              </div>
+            </div>
+            <div className="flex-1 min-h-[80px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={generateSpark()}>
+                  <defs>
+                    <linearGradient id="colorPulse" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <Area type="stepAfter" dataKey="v" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPulse)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+               {[
+                 { l: 'SEC-A', v: '84%', c: 'text-safe' },
+                 { l: 'SEC-B', v: '92%', c: 'text-primary' },
+                 { l: 'SEC-C', v: '76%', c: 'text-warning' }
+               ].map(s => (
+                 <div key={s.l} className="p-2 bg-white/5 rounded-lg border border-white/5 flex flex-col items-center">
+                    <span className="text-[7px] font-black text-slate-500 uppercase">{s.l}</span>
+                    <span className={`text-[10px] font-black ${s.c}`}>{s.v}</span>
+                 </div>
+               ))}
+            </div>
           </div>
         </div>
 
         {/* CENTER COLUMN: Map & AI Summary */}
         <div className="lg:col-span-6 space-y-4 flex flex-col">
-          <div className="glass-panel p-4 flex-1 flex flex-col relative overflow-hidden min-h-[300px]">
+          <div className="glass-panel p-4 flex flex-col relative overflow-hidden h-[450px]">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 z-10">Incident Hotspots</h3>
-            <div className="absolute top-10 inset-0 m-4 rounded-xl overflow-hidden border border-white/5 z-0">
+            <div className="absolute top-12 inset-0 m-3 rounded-xl overflow-hidden border border-white/5 z-0">
                <MapContainer 
                  center={[20, 0]} 
                  zoom={2} 
@@ -358,6 +424,48 @@ const SocialScanner = () => {
                <p className="text-[8px] font-black uppercase text-safe mt-2 text-center">Objective<br/>Confidence</p>
             </div>
           </div>
+
+          <div className="glass-panel p-4 flex-1 flex flex-col min-h-[300px] relative overflow-hidden group">
+            <div className="flex justify-between items-center mb-4 relative z-10">
+               <div>
+                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Neural Threat Projection</h3>
+                 <p className="text-[8px] text-primary font-bold uppercase tracking-widest">3D Data Stream Active</p>
+               </div>
+               <div className="flex gap-2">
+                 <div className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[7px] font-black text-primary">REAL-TIME</div>
+                 <TrendingUp size={12} className="text-primary" />
+               </div>
+            </div>
+            
+            <div className="flex-1 relative rounded-xl overflow-hidden border border-white/5 bg-black/20">
+               <img 
+                 src="/src/assets/tactical_3d_graph.png" 
+                 alt="Tactical 3D Graph" 
+                 className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-700"
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+               
+               <div className="absolute top-4 right-4 flex flex-col gap-1 pointer-events-none">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className="w-12 h-1 bg-primary/20 rounded-full overflow-hidden">
+                       <div className="h-full bg-primary animate-pulse" style={{ width: `${Math.random()*100}%`, animationDelay: `${i*0.2}s` }} />
+                    </div>
+                  ))}
+               </div>
+               
+               <div className="absolute bottom-4 left-4 p-3 bg-[#0f172a]/80 backdrop-blur-md rounded-lg border border-white/10 flex items-center gap-4">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-500 uppercase">Trend Intensity</span>
+                    <span className="text-[12px] font-black text-white italic">HIGH VELOCITY</span>
+                  </div>
+                  <div className="w-px h-6 bg-white/10" />
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-500 uppercase">Detection Accuracy</span>
+                    <span className="text-[12px] font-black text-safe italic">98.4%</span>
+                  </div>
+               </div>
+            </div>
+          </div>
         </div>
 
         {/* RIGHT COLUMN: Sources & Posts */}
@@ -390,6 +498,34 @@ const SocialScanner = () => {
                   </div>
                 ))}
               </div>
+              
+              <div className="mt-6 w-full pt-4 border-t border-white/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Global Intelligence Hub</h4>
+                  <div className="flex gap-1">
+                    <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                    <div className="w-1 h-1 rounded-full bg-primary animate-pulse delay-75" />
+                    <div className="w-1 h-1 rounded-full bg-primary animate-pulse delay-150" />
+                  </div>
+                </div>
+                <div className="relative group overflow-hidden rounded-xl border border-white/10 bg-black/40">
+                  <img 
+                    src="/src/assets/social_intel_hub.png" 
+                    alt="Emergency Intelligence Hub" 
+                    className="w-full h-32 object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end">
+                    <div className="flex flex-col">
+                      <span className="text-[7px] font-black text-white/50 uppercase">Operational Status</span>
+                      <span className="text-[9px] font-black text-primary uppercase">Hub Synchronized</span>
+                    </div>
+                    <div className="p-1.5 bg-primary/20 rounded-lg backdrop-blur-md">
+                       <Shield size={12} className="text-primary" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -409,7 +545,12 @@ const SocialScanner = () => {
                       <span className="text-[10px] font-black text-primary">{post.handle}</span>
                       <span className="text-[8px] font-bold text-slate-500">{post.time}</span>
                     </div>
-                    <p className="text-[9px] text-slate-300 leading-relaxed font-medium">{post.text}</p>
+                    <p className="text-[9px] text-slate-300 leading-relaxed font-medium mb-2">{post.text}</p>
+                    {post.image && (
+                      <div className="h-20 w-full rounded-lg overflow-hidden border border-white/5">
+                        <img src={post.image} alt="post intelligence" className="w-full h-full object-cover opacity-80" />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
