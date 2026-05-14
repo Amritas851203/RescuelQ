@@ -3,10 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, Zap, Battery, Droplets, Activity, Wind, 
   Users, Send, RotateCcw, BrainCircuit, Signal,
-  Crosshair, Timer, Fuel, ShieldCheck, AlertCircle, Loader2
+  Crosshair, Timer, Fuel, ShieldCheck, AlertCircle, Loader2, XCircle
 } from 'lucide-react';
 
-<<<<<<< HEAD
 const TacticalGauge = ({ value, label, color, icon: Icon }) => (
   <div className="flex flex-col items-center gap-2">
     <div className="relative w-16 h-16 flex items-center justify-center">
@@ -40,18 +39,8 @@ const TacticalGauge = ({ value, label, color, icon: Icon }) => (
   </div>
 );
 
-const TeamIntel = ({ selectedTeam, onDispatch, onAutoDispatch, isAutonomous, onToggleAutonomous, onRecall, onHold }) => {
+const TeamIntel = ({ teams = [], selectedTeam, onDispatch, onAutoDispatch, isAutonomous, onToggleAutonomous, onRecall, onHold, isDispatching, activeFilter }) => {
   const [isAIProcessing, setIsAIProcessing] = React.useState(false);
-  const [isActionLoading, setIsActionLoading] = React.useState(null); // 'dispatch', 'recall', 'hold'
-
-  const handleAction = async (action, fn) => {
-    setIsActionLoading(action);
-    try {
-      await fn();
-    } finally {
-      setIsActionLoading(null);
-    }
-  };
 
   const handleAIDispatch = async () => {
     setIsAIProcessing(true);
@@ -61,6 +50,68 @@ const TeamIntel = ({ selectedTeam, onDispatch, onAutoDispatch, isAutonomous, onT
       setIsAIProcessing(false);
     }
   };
+
+  const AutonomousControl = () => (
+    <div className="flex flex-col gap-3 w-full">
+      <button 
+        onClick={handleAIDispatch}
+        disabled={isAIProcessing || isAutonomous}
+        className={`w-full flex items-center justify-center gap-3 py-4 rounded-2xl border transition-all group ${
+          isAIProcessing 
+          ? 'bg-purple-500/20 border-purple-500/40 text-purple-400 cursor-wait' 
+          : isAutonomous
+          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 opacity-50 cursor-not-allowed'
+          : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.1)]'
+        }`}
+      >
+        {isAIProcessing ? (
+          <>
+            <Loader2 size={18} className="animate-spin" />
+            ANALYZING SITUATION...
+          </>
+        ) : (
+          <>
+            <BrainCircuit size={18} className="group-hover:rotate-12 transition-transform" />
+            {isAutonomous ? 'AUTONOMOUS ACTIVE' : 'AI AUTO-ASSIGN MISSIONS'}
+          </>
+        )}
+      </button>
+
+      {isAutonomous && (
+        <button 
+          onClick={onToggleAutonomous}
+          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-rose-500 text-white shadow-[0_10px_30px_rgba(244,63,94,0.4)] transition-all font-black text-xs tracking-widest uppercase hover:bg-rose-400 active:scale-95"
+        >
+          <RotateCcw size={18} className="animate-spin-slow" />
+          TERMINATE AI OPERATIONS
+        </button>
+      )}
+      
+      {!isAutonomous && (
+        <button 
+          onClick={onToggleAutonomous}
+          className="w-full flex items-center justify-center gap-3 py-3 rounded-2xl border bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:text-white transition-all font-black text-[10px] tracking-widest uppercase"
+        >
+          <Zap size={14} />
+          ENABLE AUTONOMOUS MODE
+        </button>
+      )}
+
+      {/* Operational Alert Box */}
+      <div className="mt-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 relative overflow-hidden group">
+        <div className="flex items-center gap-3 mb-2">
+          <AlertCircle size={16} className="text-amber-500" />
+          <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Operational Alert</span>
+        </div>
+        <p className="text-[10px] text-white/40 leading-relaxed font-mono">
+          Sector 14 high-risk detected. Recommended deployment: 2 units within 15 mins.
+        </p>
+        <div className="absolute top-0 right-0 p-2 opacity-5">
+           <Shield size={40} />
+        </div>
+      </div>
+    </div>
+  );
 
   if (!selectedTeam) {
     return (
@@ -78,65 +129,8 @@ const TeamIntel = ({ selectedTeam, onDispatch, onAutoDispatch, isAutonomous, onT
           Select an active rescue unit to initialize intelligence sync and mission telemetry.
         </p>
         
-          <div className="flex flex-col gap-3 w-full">
-            <button 
-              onClick={handleAIDispatch}
-              disabled={isAIProcessing || isAutonomous}
-              className={`w-full flex items-center justify-center gap-3 py-4 rounded-2xl border transition-all group ${
-                isAIProcessing 
-                ? 'bg-purple-500/20 border-purple-500/40 text-purple-400 cursor-wait' 
-                : isAutonomous
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 opacity-50 cursor-not-allowed'
-                : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.1)]'
-              }`}
-            >
-              {isAIProcessing ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  ANALYZING SITUATION...
-                </>
-              ) : (
-                <>
-                  <BrainCircuit size={18} className="group-hover:rotate-12 transition-transform" />
-                  {isAutonomous ? 'AUTONOMOUS ACTIVE' : 'AI AUTO-ASSIGN MISSIONS'}
-                </>
-              )}
-            </button>
-
-            <button 
-              onClick={onToggleAutonomous}
-              className={`w-full flex items-center justify-center gap-3 py-3 rounded-2xl border transition-all font-black text-[10px] tracking-widest uppercase ${
-                isAutonomous 
-                ? 'bg-rose-500/20 border-rose-500/40 text-rose-500 hover:bg-rose-500/30 shadow-[0_0_20px_rgba(239,68,68,0.3)]' 
-                : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:text-white'
-              }`}
-            >
-              <Zap size={14} className={isAutonomous ? 'animate-pulse' : ''} />
-              {isAutonomous ? 'ABORT AI OPERATIONS' : 'ENABLE AUTONOMOUS MODE'}
-            </button>
-            
-            <button 
-              onClick={() => {
-                onToggleAutonomous();
-                // Add a "Force Reset" logic if needed
-              }}
-              className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-rose-500 text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-rose-600 transition-all shadow-[0_10px_30px_rgba(244,63,94,0.3)] mt-2"
-            >
-              <RotateCcw size={18} />
-              TERMINATE AI OPERATIONS
-            </button>
-          </div>
-          
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-left">
-            <div className="flex items-center gap-2 text-[10px] text-orange-400 font-bold uppercase mb-2">
-              <AlertCircle size={14} />
-              Operational Alert
-            </div>
-            <p className="text-[10px] text-white/40 font-mono leading-relaxed">
-              Sector 14 high-risk detected. Recommended deployment: 2 units within 15 mins.
-            </p>
-          </div>
-        </div>
+        <AutonomousControl />
+      </div>
     );
   }
 
@@ -152,7 +146,7 @@ const TeamIntel = ({ selectedTeam, onDispatch, onAutoDispatch, isAutonomous, onT
           <div className="max-w-[70%]">
             <div className="flex items-center gap-3 mb-3">
               <span className="px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-black text-cyan-400 uppercase tracking-[0.2em] shadow-inner">
-                {selectedTeam.type.replace('_', ' ')}
+                {selectedTeam.type?.replace('_', ' ') || 'RESCUE UNIT'}
               </span>
               <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest bg-white/5 px-2 py-1 rounded">ID_{selectedTeam.id}</span>
             </div>
@@ -170,198 +164,19 @@ const TeamIntel = ({ selectedTeam, onDispatch, onAutoDispatch, isAutonomous, onT
           <div className="p-5 rounded-3xl bg-white/5 border border-white/10 flex flex-col items-center backdrop-blur-md shadow-2xl">
             <Activity className="text-cyan-400 mb-2 animate-pulse" size={24} />
             <span className="text-[9px] text-white/30 font-bold uppercase tracking-widest">Telemetry</span>
-            <span className="text-[11px] font-mono text-white font-black">{selectedTeam.lastSync}</span>
+            <span className="text-[11px] font-mono text-white font-black">{selectedTeam.lastSync || '0ms'}</span>
           </div>
         </div>
 
         {/* Tactical Gauges */}
         <div className="grid grid-cols-3 gap-4">
-          <TacticalGauge value={selectedTeam.fuel} label="Fuel" color="orange" icon={Fuel} />
-          <TacticalGauge value={selectedTeam.battery} label="Battery" color="cyan" icon={Battery} />
-          <TacticalGauge value={selectedTeam.oxygen} label="Oxygen" color="blue" icon={Wind} />
-        </div>
-=======
-const TeamCard = ({ team, onDispatch, isDispatching }) => {
-  const getStatusColor = (status) => {
-    switch (status.toUpperCase()) {
-      case 'AVAILABLE': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-      case 'DEPLOYED': return 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20';
-      case 'MAINTENANCE': return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
-      default: return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
-    }
-  };
-
-  return (
-    <motion.div 
-      layout
-      className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all group mb-3"
-    >
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/40 transition-colors">
-            <Users className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h4 className="text-xs font-black text-white uppercase tracking-tight">{team.name}</h4>
-            <span className={`text-[8px] font-black px-2 py-0.5 rounded-full border mt-1 inline-block uppercase tracking-widest ${getStatusColor(team.status)}`}>
-              {team.status}
-            </span>
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="flex items-center justify-end gap-1 mb-0.5">
-            <Signal size={10} className="text-emerald-500" />
-            <span className="text-[10px] font-mono text-emerald-400">98%</span>
-          </div>
-          <p className="text-[8px] text-white/20 uppercase font-bold">Uplink</p>
+          <TacticalGauge value={selectedTeam.fuel || 0} label="Fuel" color="orange" icon={Fuel} />
+          <TacticalGauge value={selectedTeam.battery || 0} label="Battery" color="cyan" icon={Battery} />
+          <TacticalGauge value={selectedTeam.oxygen || 0} label="Oxygen" color="blue" icon={Wind} />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        <div className="px-3 py-2 rounded-lg bg-white/5 border border-white/5">
-          <div className="flex items-center gap-2 mb-1">
-            <Battery size={10} className="text-emerald-400" />
-            <span className="text-[9px] text-white/40 uppercase font-black">Power</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="h-1 flex-1 bg-white/10 rounded-full mr-2">
-              <div className="h-full bg-emerald-500 w-[85%] rounded-full" />
-            </div>
-            <span className="text-[9px] font-mono text-white">85%</span>
-          </div>
-        </div>
-        <div className="px-3 py-2 rounded-lg bg-white/5 border border-white/5">
-          <div className="flex items-center gap-2 mb-1">
-            <Timer size={10} className="text-cyan-400" />
-            <span className="text-[9px] text-white/40 uppercase font-black">ETA</span>
-          </div>
-          <span className="text-[10px] font-mono text-white">12m 45s</span>
-        </div>
-      </div>
-
-      <button 
-        onClick={() => onDispatch(team.id)}
-        disabled={team.status !== 'AVAILABLE' || isDispatching}
-        className={`w-full py-2.5 rounded-lg flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-          team.status === 'AVAILABLE' 
-            ? 'bg-primary/20 text-primary border border-primary/30 hover:bg-primary hover:text-white' 
-            : 'bg-white/5 text-white/10 border border-white/5 cursor-not-allowed'
-        }`}
-      >
-        {isDispatching ? <Loader2 size={14} className="animate-spin" /> : <Crosshair size={14} />}
-        {team.status === 'AVAILABLE' ? 'Initiate Dispatch' : 'Awaiting Orders'}
-      </button>
-    </motion.div>
-  );
-};
-
-const TeamIntel = ({ teams = [], activeFilter, onDispatch, isDispatching }) => {
-  const filteredTeams = useMemo(() => {
-    // Show medical teams if filtering by medical
-    if (activeFilter === 'MEDICAL') {
-      return teams.filter(t => t.name?.toLowerCase().includes('medic') || t.status === 'AVAILABLE');
-    }
-    return teams;
-  }, [teams, activeFilter]);
-
-  const tacticalAdvice = useMemo(() => {
-    switch (activeFilter) {
-      case 'CRITICAL': return {
-        title: 'Priority 1 Engagement',
-        advice: 'Deploy heavy extraction units. High risk of structure collapse in red zones.',
-        icon: AlertCircle,
-        color: 'text-red-400',
-        bg: 'bg-red-400/10 border-red-400/20'
-      };
-      case 'MEDICAL': return {
-        title: 'Trauma Protocol Active',
-        advice: 'Coordinate with AIIMS and Max facilities. Priority for non-ambulatory transport.',
-        icon: Activity,
-        color: 'text-emerald-400',
-        bg: 'bg-emerald-400/10 border-emerald-400/20'
-      };
-      case 'VERIFIED': return {
-        title: 'Confirmed Objectives',
-        advice: 'Confidence interval > 90%. Full tactical commitment recommended.',
-        icon: ShieldCheck,
-        color: 'text-cyan-400',
-        bg: 'bg-cyan-400/10 border-cyan-400/20'
-      };
-      default: return {
-        title: 'Strategic Overview',
-        advice: 'Synchronizing multi-unit telemetry. Monitor high-risk flood vectors.',
-        icon: BrainCircuit,
-        color: 'text-primary',
-        bg: 'bg-primary/10 border-primary/20'
-      };
-    }
-  }, [activeFilter]);
-
-  return (
-    <div className="h-full flex flex-col bg-gray-950/80 border-l border-white/5 backdrop-blur-2xl overflow-hidden relative">
-      <div className="p-5 border-b border-white/5 bg-gradient-to-b from-white/5 to-transparent shrink-0">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-            <Zap className="text-primary" size={18} />
-          </div>
-          <div>
-             <h2 className="text-sm font-black text-white tracking-tighter uppercase italic">Team Intel</h2>
-             <p className="text-[8px] text-white/30 font-black tracking-[0.2em] uppercase">Tactical Assets</p>
-          </div>
-        </div>
-
-        <div className={`p-4 rounded-xl border ${tacticalAdvice.bg} mb-4 relative overflow-hidden group`}>
-          <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-            <tacticalAdvice.icon size={48} />
-          </div>
-          <div className="flex items-center gap-2 mb-2 relative z-10">
-            <tacticalAdvice.icon className={tacticalAdvice.color} size={14} />
-            <h3 className={`text-[10px] font-black uppercase tracking-widest ${tacticalAdvice.color}`}>
-              {tacticalAdvice.title}
-            </h3>
-          </div>
-          <p className="text-[11px] text-white/60 font-medium leading-relaxed relative z-10">
-            {tacticalAdvice.advice}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-        <div className="flex items-center justify-between mb-4 px-1">
-          <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Active Units ({filteredTeams.length})</span>
-          <RotateCcw size={12} className="text-white/20 hover:text-white cursor-pointer transition-colors" />
-        </div>
-        
-        <AnimatePresence mode="popLayout">
-          {filteredTeams.map((team) => (
-            <TeamCard 
-              key={team.id} 
-              team={team} 
-              onDispatch={onDispatch}
-              isDispatching={isDispatching}
-            />
-          ))}
-        </AnimatePresence>
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
-      </div>
-
-      <div className="p-5 bg-black/40 border-t border-white/5 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-          <div className="flex-1">
-            <p className="text-[9px] font-black text-white uppercase tracking-widest">Neural Link Syncing</p>
-            <div className="h-1 w-full bg-white/5 rounded-full mt-1.5 overflow-hidden">
-               <motion.div 
-                 initial={{ width: '40%' }}
-                 animate={{ width: '85%' }}
-                 transition={{ duration: 10, repeat: Infinity, repeatType: 'reverse' }}
-                 className="h-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-               />
-            </div>
-          </div>
-<<<<<<< HEAD
-        </section>
-
+      <div className="flex-1 p-8 space-y-10">
         {/* AI Tactical Recommendation */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
@@ -378,10 +193,17 @@ const TeamIntel = ({ teams = [], activeFilter, onDispatch, isDispatching }) => {
               <ShieldCheck size={32} className="text-purple-400" />
             </div>
             <p className="text-xs text-purple-100/80 leading-relaxed font-mono italic">
-              "AI recommends Team {selectedTeam.name} for extraction in Sector 14 due to its specialized {selectedTeam.type} equipment and 98% route stability."
+              "AI recommends Team {selectedTeam.name} for extraction based on its specialized unit equipment and 98% route stability."
             </p>
           </div>
         </section>
+
+        {/* AI Control in Team View */}
+        {isAutonomous && (
+          <section className="space-y-4">
+            <AutonomousControl />
+          </section>
+        )}
 
         {/* Team Members List */}
         <section className="space-y-4">
@@ -390,7 +212,7 @@ const TeamIntel = ({ teams = [], activeFilter, onDispatch, isDispatching }) => {
             Unit Roster
           </div>
           <div className="space-y-2 max-h-56 overflow-y-auto no-scrollbar pr-1">
-            {selectedTeam.members.map((member, i) => (
+            {(selectedTeam.members || ['Operator Alpha', 'Field Medic Beta']).map((member, i) => (
               <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 group hover:bg-white/10 transition-all cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[11px] font-black text-white/20 group-hover:bg-cyan-500 group-hover:text-black transition-all">
@@ -408,11 +230,11 @@ const TeamIntel = ({ teams = [], activeFilter, onDispatch, isDispatching }) => {
       {/* Control Footer */}
       <div className="p-8 border-t border-white/10 bg-black/60 backdrop-blur-2xl space-y-4">
         <button 
-          onClick={() => handleAction('dispatch', onDispatch)}
-          disabled={isActionLoading === 'dispatch' || selectedTeam.status === 'DISPATCHED'}
+          onClick={() => onDispatch(selectedTeam.id)}
+          disabled={isDispatching || selectedTeam.status === 'DISPATCHED'}
           className="w-full flex items-center justify-center gap-4 py-5 rounded-[1.5rem] bg-cyan-500 text-black font-black text-sm hover:bg-cyan-400 disabled:bg-white/5 disabled:text-white/20 transition-all shadow-[0_10px_40px_rgba(6,182,212,0.3)] group relative overflow-hidden"
         >
-          {isActionLoading === 'dispatch' ? (
+          {isDispatching ? (
             <Loader2 className="animate-spin" size={20} />
           ) : (
             <>
@@ -423,23 +245,21 @@ const TeamIntel = ({ teams = [], activeFilter, onDispatch, isDispatching }) => {
         </button>
         <div className="grid grid-cols-2 gap-4">
           <button 
-            onClick={() => handleAction('recall', () => onRecall(selectedTeam.id))}
-            disabled={isActionLoading === 'recall' || selectedTeam.status === 'AVAILABLE'}
+            onClick={() => onRecall(selectedTeam.id)}
+            disabled={selectedTeam.status === 'AVAILABLE'}
             className="flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-black text-[10px] hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 disabled:opacity-30 transition-all uppercase tracking-[0.2em]"
           >
-            {isActionLoading === 'recall' ? <Loader2 className="animate-spin" size={14} /> : <RotateCcw size={16} />}
+            <RotateCcw size={16} />
             Recall Unit
           </button>
           <button 
-            onClick={() => handleAction('hold', () => onHold(selectedTeam.id))}
-            disabled={isActionLoading === 'hold' || selectedTeam.status === 'AVAILABLE'}
+            onClick={() => onHold(selectedTeam.id)}
+            disabled={selectedTeam.status === 'AVAILABLE'}
             className="flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-black text-[10px] hover:bg-amber-500/10 hover:text-amber-400 hover:border-amber-500/30 disabled:opacity-30 transition-all uppercase tracking-[0.2em]"
           >
-            {isActionLoading === 'hold' ? <Loader2 className="animate-spin" size={14} /> : <Timer size={16} />}
+            <Timer size={16} />
             Stand-By
           </button>
-=======
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
         </div>
       </div>
     </div>

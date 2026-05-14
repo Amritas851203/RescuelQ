@@ -77,12 +77,7 @@ class DispatchService {
   async autoAssignNearestTeam(sosId, sosLocation = [28.6500, 77.2500]) {
     const availableTeams = teams.filter(t => t.status === 'AVAILABLE');
     if (availableTeams.length === 0) return null;
-<<<<<<< HEAD
-
-    // In a real app, you'd fetch this from the SOS DB
-    const sosLocation = [28.6500, 77.2500];
-=======
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
+    
     
     const nearestTeam = this.findBestTeamForSOS({ location: sosLocation }, availableTeams);
     if (!nearestTeam) return null;

@@ -21,15 +21,10 @@ const Sidebar = () => {
   const { logout, user } = useAuthStore();
 
   const handleSignOut = () => {
-<<<<<<< HEAD
-    logout();
-    navigate('/');
-=======
     if (window.confirm('Terminate current session?')) {
       logout();
       navigate('/login');
     }
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
   };
 
   const handleActivateMock = () => {
@@ -68,15 +63,9 @@ const Sidebar = () => {
       <div className="px-6 py-6 shrink-0">
         <div className="relative group overflow-hidden rounded-2xl border border-white/5 aspect-square bg-white/5 shadow-2xl">
           <img 
-<<<<<<< HEAD
-            src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2070&auto=format&fit=crop" 
-            alt="Operator Gear" 
-            className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 scale-110 group-hover:scale-100"
-=======
-            src="/assets/command-bg.png" 
+            src={user?.avatar || "/assets/command-bg.png"} 
             alt="Unit Profile" 
             className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 scale-110 group-hover:scale-100"
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
           />
           <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-transparent opacity-80"></div>
           <div className="absolute bottom-4 left-4">
@@ -132,8 +121,12 @@ const Sidebar = () => {
         </button>
         
         <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-            <User className="w-4 h-4 text-primary" />
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 overflow-hidden">
+            {user?.avatar ? (
+              <img src={user.avatar} className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-4 h-4 text-primary" />
+            )}
           </div>
           <div className="min-w-0">
             <p className="text-[10px] font-bold text-white truncate">{user?.fullName || 'Operator'}</p>
@@ -145,17 +138,6 @@ const Sidebar = () => {
             </button>
           </div>
         </div>
-<<<<<<< HEAD
-        
-        <button 
-          onClick={handleSignOut}
-          className="w-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white py-2 rounded-lg flex items-center justify-center transition-all text-xs font-bold uppercase tracking-widest"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </button>
-=======
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
       </div>
     </aside>
   );

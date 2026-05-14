@@ -1,9 +1,5 @@
 import express from 'express';
-<<<<<<< HEAD
-import { getSOSReports, createSOSReport, updateSOSReport } from '../controllers/sosController.js';
-=======
-import { getSOSReports, createSOSReport, updateSOSStatus } from '../controllers/sosController.js';
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
+import { getSOSReports, createSOSReport, updateSOSReport, updateSOSStatus } from '../controllers/sosController.js';
 import { handleTwilioWebhook } from '../controllers/twilioController.js';
 import DispatchController from '../controllers/DispatchController.js';
 import { signup, login, verifyOtp, forgotPassword, resetPassword } from '../controllers/authController.js';
@@ -23,11 +19,8 @@ router.post('/auth/reset-password', resetPassword);
 // SOS endpoints
 router.get('/sos', authMiddleware, getSOSReports);
 router.post('/sos', createSOSReport);
-<<<<<<< HEAD
 router.patch('/sos/:id', authMiddleware, updateSOSReport);
-=======
 router.put('/sos/:id/status', authMiddleware, updateSOSStatus);
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
 
 // Dispatch endpoints
 router.get('/teams', DispatchController.getTeams);

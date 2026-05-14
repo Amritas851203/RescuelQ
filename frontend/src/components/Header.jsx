@@ -61,8 +61,12 @@ const Header = () => {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-white/[0.03] transition-all group"
           >
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/40 transition-all">
-              <User size={16} className="text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/40 transition-all overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} className="w-full h-full object-cover" />
+              ) : (
+                <User size={16} className="text-primary" />
+              )}
             </div>
             <div className="text-left hidden sm:block">
               <p className="text-[11px] font-bold text-white leading-none">{user?.fullName?.split(' ')[0] || 'Operator'}</p>
@@ -74,8 +78,12 @@ const Header = () => {
           {isProfileOpen && (
             <div className="absolute top-14 right-0 w-64 glass-panel p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold text-sm">
-                  {user?.fullName?.charAt(0) || 'O'}
+                <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-bold text-sm overflow-hidden">
+                  {user?.avatar ? (
+                    <img src={user.avatar} className="w-full h-full object-cover" />
+                  ) : (
+                    user?.fullName?.charAt(0) || 'O'
+                  )}
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-xs font-bold text-white truncate">{user?.fullName || 'Operator'}</h3>

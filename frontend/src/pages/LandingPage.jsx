@@ -446,34 +446,69 @@ const LandingPage = () => {
         <div className="cinematic-grid">
            
            {/* LEFT VISUAL CONTAINER */}
-           <div className="cinematic-visual">
-             {/* Base map asset */}
-             <img src={tacticalMapImg} alt="Tactical Map" className="tactical-map-asset" />
-             
-             {/* Ambient Lighting & Overlays */}
-             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03]" />
-             
-             {/* HUD Overlays - Status Pills */}
-             <div className="absolute top-6 left-6 flex flex-col gap-3 z-10">
-                <div className="status-pill">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                   <span className="status-pill-text">Satellite Uplink Active</span>
+           <div className="cinematic-visual group">
+             {/* Holographic Tactical Map Base */}
+             <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,191,255,0.1)] bg-[#030712]">
+                <img src={tacticalMapImg} alt="Tactical Map" className="tactical-map-asset group-hover:scale-105 transition-transform duration-[2000ms] ease-out" />
+                
+                {/* Live Scanning UI Layer */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {/* Dynamic Scanning Line */}
+                  <motion.div 
+                    animate={{ top: ['-10%', '110%'] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                    className="absolute left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#00f2ff] z-20"
+                  />
+                  
+                  {/* Tactical Grid Overlay */}
+                  <div className="absolute inset-0 opacity-[0.05]" 
+                       style={{ backgroundImage: 'linear-gradient(#00f2ff 1px, transparent 1px), linear-gradient(90deg, #00f2ff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                  
+                  {/* Glowing Radar Platform effect */}
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-cyan-500/10 blur-[60px] rounded-full" />
                 </div>
-                <div className="status-pill">
-                   <Scan size={14} className="text-blue-400" />
-                   <span className="status-pill-text">Regional Scan Complete</span>
+
+                {/* HUD Overlays - Status Pills */}
+                <div className="absolute top-8 left-8 flex flex-col gap-3 z-10">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    className="status-pill backdrop-blur-md bg-white/5 border border-white/10 px-4 py-2 rounded-full flex items-center gap-3"
+                  >
+                    <div className="relative flex h-2 w-2">
+                      <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></div>
+                      <div className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                    </div>
+                    <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Satellite Uplink 14-Active</span>
+                  </motion.div>
+
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="status-pill backdrop-blur-md bg-white/5 border border-white/10 px-4 py-2 rounded-full flex items-center gap-3"
+                  >
+                    <Scan size={14} className="text-cyan-400 animate-pulse" />
+                    <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Terrain Mapping: 100%</span>
+                  </motion.div>
                 </div>
+
+                {/* Tactical Data Overlays */}
+                <div className="absolute bottom-8 right-8 z-10 flex flex-col items-end gap-2">
+                   <div className="font-mono text-[10px] text-cyan-400/60 font-bold tracking-widest uppercase">Target_Lock: Alpha-Sector</div>
+                   <div className="font-mono text-xs font-black text-white bg-black/40 px-3 py-1 rounded-lg border border-white/5">28.6139° N, 77.2090° E</div>
+                </div>
+
+                {/* Cinematic Radar Sweep overlay */}
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                  className="absolute -inset-1/2 rounded-full z-[1] pointer-events-none"
+                  style={{
+                    background: 'conic-gradient(from 0deg, transparent 0deg, rgba(0, 242, 255, 0.05) 60deg, transparent 60deg)'
+                  }}
+                />
              </div>
-             
-             {/* Radar Sweep Animation overlay */}
-             <motion.div 
-               animate={{ rotate: 360 }}
-               transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-               className="absolute w-[150%] h-[150%] rounded-full z-[1] pointer-events-none"
-               style={{
-                 background: 'conic-gradient(from 0deg, transparent 0deg, rgba(0, 191, 255, 0.1) 60deg, transparent 60deg)'
-               }}
-             />
            </div>
 
            {/* RIGHT CONTENT AREA */}

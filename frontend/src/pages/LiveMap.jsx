@@ -98,29 +98,8 @@ const LiveMap = () => {
   }), [filteredReports]);
 
   return (
-<<<<<<< HEAD
-    <div className="h-full relative glass-panel overflow-hidden border-0">
-      <MapContainer center={center} zoom={12} className="h-full w-full z-0">
-        <TileLayer 
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" 
-          attribution='&copy; Esri'
-        />
-        <TileLayer 
-          url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png" 
-          opacity={0.6}
-        />
-        
-        {reports.map((report) => (
-          <div key={report.id}>
-            <Marker position={[report.location.lat, report.location.lng]}>
-              <Popup>
-                <div className="text-slate-900 p-1">
-                  <h4 className="font-bold border-b border-slate-200 mb-1">{report.severity} Alert</h4>
-                  <p className="text-xs mb-1">{report.summary}</p>
-                  <p className="text-[10px] text-slate-500">From: {report.caller_phone}</p>
-=======
     <div className="h-full w-full relative bg-[#020617] flex overflow-hidden font-sans">
-      {/* --- LEFT INTELLIGENCE SIDEBAR (Restored Dark UI) --- */}
+      {/* --- LEFT INTELLIGENCE SIDEBAR --- */}
       <aside className="w-80 h-full bg-slate-950/80 backdrop-blur-2xl border-r border-white/5 z-50 flex flex-col overflow-hidden shrink-0">
         <div className="p-6 border-b border-white/5">
           <div className="flex items-center gap-3 mb-6">
@@ -171,7 +150,6 @@ const LiveMap = () => {
                 </span>
                 <span className="text-[9px] font-mono text-slate-500">{new Date(report.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
               </div>
-              {/* FIXED: Text Clipping - break-words and padding */}
               <h4 className="text-xs font-bold text-white mb-1 uppercase break-words leading-tight">
                 {report.address}
               </h4>
@@ -197,18 +175,21 @@ const LiveMap = () => {
         </div>
       </aside>
 
-      {/* --- MAIN REALISTIC MAP (RESTORED MAP THEME) --- */}
+      {/* --- MAIN REALISTIC MAP --- */}
       <section className="flex-1 h-full relative">
         <MapContainer 
-          center={[20, 0]} 
-          zoom={3} 
+          center={[28.6139, 77.2090]} 
+          zoom={12} 
           className="h-full w-full z-0"
           zoomControl={false}
         >
-          {/* REALISTIC MAP THEME: Green land, Blue water, White roads */}
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-            attribution='&copy; CARTO'
+          <TileLayer 
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" 
+            attribution='&copy; Esri'
+          />
+          <TileLayer 
+            url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png" 
+            opacity={0.6}
           />
 
           <LayersControl position="topright">
@@ -218,7 +199,7 @@ const LiveMap = () => {
                   <Circle 
                     key={`heat-${r.id}`}
                     center={[r.location.lat, r.location.lng]}
-                    radius={150000}
+                    radius={1500}
                     pathOptions={{
                       fillColor: r.severity === 'CRITICAL' ? '#ef4444' : '#f59e0b',
                       fillOpacity: 0.1,
@@ -228,13 +209,6 @@ const LiveMap = () => {
                   />
                 ))}
               </LayerGroup>
-            </LayersControl.Overlay>
-            
-            <LayersControl.Overlay checked name="Atmospheric Radar">
-              <TileLayer
-                url={`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${import.meta.env.VITE_WEATHER_API_KEY || 'e56e21ee34437fa8973c55863aaca3c8'}`}
-                opacity={0.3}
-              />
             </LayersControl.Overlay>
           </LayersControl>
 
@@ -250,7 +224,6 @@ const LiveMap = () => {
               <Popup className="tactical-popup">
                 <div className="p-3 bg-slate-900 text-white min-w-[200px]">
                    <span className="text-[9px] font-black text-primary uppercase tracking-widest block mb-1">Tactical Analysis</span>
-                   {/* FIXED: Clipping in popup */}
                    <h4 className="font-bold text-sm mb-2 break-words leading-tight">{report.address}</h4>
                    <button 
                      onClick={() => setSelectedIncident(report)}
@@ -258,7 +231,6 @@ const LiveMap = () => {
                    >
                      Inspect Data
                    </button>
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
                 </div>
               </Popup>
             </Marker>
@@ -267,7 +239,7 @@ const LiveMap = () => {
           <ZoomControl position="bottomright" />
         </MapContainer>
 
-        {/* --- MAP HUD OVERLAYS (Restored to Top-Left with Compact Sizing) --- */}
+        {/* --- MAP HUD OVERLAYS --- */}
         <div className="absolute top-6 left-6 z-[1000] pointer-events-none flex flex-col gap-3">
           <div className="bg-slate-950/80 backdrop-blur-md p-3 flex items-center gap-4 border border-white/10 rounded-xl pointer-events-auto shadow-2xl">
              <div className="flex flex-col">
@@ -301,7 +273,7 @@ const LiveMap = () => {
           </div>
         </div>
 
-        {/* --- DETAIL INTELLIGENCE OVERLAY (Restored Dark UI) --- */}
+        {/* --- DETAIL INTELLIGENCE OVERLAY --- */}
         <AnimatePresence>
           {selectedIncident && (
             <motion.div 
@@ -323,7 +295,6 @@ const LiveMap = () => {
                   <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Incident Profile Alpha-1</span>
                 </div>
 
-                {/* FIXED: Title Clipping - break-words and leading-tight */}
                 <h2 className="text-3xl font-black text-white leading-tight mb-2 uppercase italic tracking-tighter break-words">
                   {selectedIncident.type || 'Emergency'} Detected
                 </h2>
@@ -360,7 +331,6 @@ const LiveMap = () => {
                    </div>
                    <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/5 relative overflow-hidden group">
                       <div className="absolute top-0 left-0 w-[2px] h-full bg-primary" />
-                      {/* FIXED: Summary Clipping - break-words */}
                       <p className="text-sm text-slate-300 leading-relaxed italic break-words">
                         "{selectedIncident.aiSummary || 'Decrypting event telemetry... monitoring secondary seismic waves and structural integrity.'}"
                       </p>

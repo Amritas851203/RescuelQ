@@ -80,6 +80,10 @@ const useAuthStore = create((set) => ({
     localStorage.removeItem('rescueiq_token');
     localStorage.removeItem('rescueiq_user');
     set({ user: null, token: null });
+  },
+  setUser: (user) => {
+    localStorage.setItem('rescueiq_user', JSON.stringify(user));
+    set({ user });
   }
 }));
 

@@ -40,9 +40,6 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'RescueIQ Backend is running' });
 });
 
-<<<<<<< HEAD
-const PORT = process.env.PORT || 5001;
-=======
 // CRITICAL: Prevent server from crashing on unhandled errors
 process.on('unhandledRejection', (reason) => {
   console.error('--- UNHANDLED REJECTION ---');
@@ -54,8 +51,7 @@ process.on('uncaughtException', (err) => {
   console.error(err);
 });
 
-const PORT = process.env.PORT || 5999;
->>>>>>> 495dada121cfe2e5d47076c562e08ec1d2f9af6a
+const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 RescueIQ Backend operational on port ${PORT}`);
