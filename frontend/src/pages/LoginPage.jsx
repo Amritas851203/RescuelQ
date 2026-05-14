@@ -89,7 +89,7 @@ const AuthPage = () => {
   );
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center bg-[#020617] overflow-hidden font-sans">
+    <div className="relative min-h-screen w-full flex items-center justify-center lg:justify-end lg:pr-32 bg-[#020617] overflow-hidden font-sans">
       
       {/* FULL SCREEN BACKGROUND - BOOSTER VISIBILITY */}
       <div className="absolute inset-0 z-0">
