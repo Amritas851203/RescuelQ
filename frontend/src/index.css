@@ -24,7 +24,7 @@
 
 @layer base {
   body {
-    @apply bg-background text-white antialiased selection:bg-cyan-500/30;
+    @apply bg-background text-white antialiased overflow-hidden selection:bg-cyan-500/30;
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
@@ -161,93 +161,6 @@
   30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
   40%, 60% { transform: translate3d(4px, 0, 0); }
 }
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-float-delayed {
-  animation: float 6s ease-in-out infinite;
-  animation-delay: 3s;
-}
-
-/* --- 3D & HUD ENHANCEMENTS --- */
-.perspective-1000 {
-  perspective: 1000px;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-.hud-border-bracket {
-  position: relative;
-}
-
-.hud-border-bracket::before,
-.hud-border-bracket::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: rgba(59, 130, 246, 0.4);
-  pointer-events: none;
-}
-
-.hud-border-bracket-tl::before { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
-.hud-border-bracket-tr::before { top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; }
-.hud-border-bracket-bl::before { bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; }
-.hud-border-bracket-br::before { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; }
-
-@keyframes scan-line {
-  0% { transform: translateY(-100%); opacity: 0; }
-  50% { opacity: 0.5; }
-  100% { transform: translateY(100%); opacity: 0; }
-}
-
-.animate-scan-line {
-  animation: scan-line 4s linear infinite;
-}
-
-.tactical-grid {
-  background-image: 
-    linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-  background-size: 50px 50px;
-}
-
-.glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
-}
-
-.text-glow-blue {
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-}
-
-.tactical-scan-effect {
-  background: linear-gradient(to bottom, transparent 50%, rgba(59, 130, 246, 0.05) 50%);
-  background-size: 100% 4px;
-  animation: scan-move 10s linear infinite;
-}
-
-@keyframes scan-move {
-  from { background-position: 0 0; }
-  to { background-position: 0 100%; }
-}
-
-.animate-spin-slow {
-  animation: spin 60s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 /* Autofill Overrides */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 

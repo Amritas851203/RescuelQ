@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AlertTriangle, 
   Mail, 
@@ -19,9 +19,11 @@ import {
 import useAuthStore from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 
-const AuthPage = ({ initialMode = 'login' }) => {
-  // Modes: login, signup, verify, forgot, reset
-  const [mode, setMode] = useState(initialMode); 
+// Import Assets
+import loginBg from '../assets/login_map.png';
+
+const AuthPage = () => {
+  const [mode, setMode] = useState('login'); 
   const [showPassword, setShowPassword] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   
@@ -35,12 +37,6 @@ const AuthPage = ({ initialMode = 'login' }) => {
   const { login, signup, verifyOtp, forgotPassword, resetPassword, loading, error, clearError } = useAuthStore();
   const navigate = useNavigate();
 
-  // Reset error when mode changes
-  useEffect(() => {
-    clearError?.();
-  }, [mode]);
-
-  // Handle Resend Timer
   useEffect(() => {
     let interval;
     if (resendTimer > 0) {
@@ -51,6 +47,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearError();
     try {
       if (mode === 'login') {
         await login(email, password);
@@ -89,312 +86,267 @@ const AuthPage = ({ initialMode = 'login' }) => {
 
   const renderBackBtn = () => (
     <button 
-      onClick={() => setMode('login')}
-      className="absolute top-4 left-4 text-slate-500 hover:text-white flex items-center text-xs transition-colors"
+      onClick={() => { clearError(); setMode('login'); }}
+      className="absolute top-6 left-6 text-slate-500 hover:text-white flex items-center text-[10px] font-black uppercase tracking-widest transition-all group"
     >
-      <ChevronLeft className="w-4 h-4 mr-1" /> Back
+      <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" /> 
+      Return to Base
     </button>
   );
 
   return (
-    <div className="min-h-screen bg-background flex selection:bg-primary/30 overflow-hidden">
-      {/* Left Side: Cinematic Visuals */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-background/80 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-background/20 via-transparent to-background/60"></div>
-        
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-8 bg-slate-950 overflow-hidden font-sans">
+      {/* BACKGROUND: Tactical Intelligence Map */}
+      <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" 
-          alt="Rescue Command Center" 
-          className="absolute inset-0 w-full h-full object-cover opacity-60 scale-105 animate-pulse-slow"
+          src={loginBg} 
+          alt="Tactical Grid" 
+          className="w-full h-full object-cover opacity-40 mix-blend-overlay scale-110"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-transparent to-slate-950" />
         
-        <div className="relative z-20 p-16 flex flex-col justify-between w-full">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-critical/20 rounded-2xl border border-critical/30 backdrop-blur-xl">
-              <AlertTriangle className="w-8 h-8 text-critical" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tighter text-white italic">
-                RESCUE<span className="text-critical">IQ</span>
-              </h1>
-              <p className="text-[10px] text-slate-400 font-bold tracking-[0.3em] uppercase">Tactical Command System</p>
-            </div>
-          </div>
-
-          <div className="max-w-md space-y-6">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-primary/10 border border-primary/30 rounded-full backdrop-blur-md">
-              <Shield className="w-3 h-3 text-primary" />
-              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Protocol 12-B Active</span>
-            </div>
-            <h2 className="text-5xl font-black text-white leading-tight">
-              Real-time response. <br />
-              <span className="text-primary">Life-saving precision.</span>
-            </h2>
-            <p className="text-lg text-slate-400 font-medium">
-              Join the global network of first responders utilizing AI-driven triage and tactical coordination.
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-8">
-            <div className="flex flex-col">
-              <span className="text-2xl font-black text-white">4.2k+</span>
-              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Active Units</span>
-            </div>
-            <div className="w-px h-10 bg-white/10"></div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-black text-white">12ms</span>
-              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Latency Delay</span>
-            </div>
-            <div className="w-px h-10 bg-white/10"></div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-black text-safe">OPTIMAL</span>
-              <span className="text-[10px] text-slate-500 uppercase font-bold tracking-widest">System Health</span>
-            </div>
-          </div>
-        </div>
+        {/* Animated Scanning Line */}
+        <motion.div 
+          animate={{ top: ['-10%', '110%'] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+          className="absolute left-0 right-0 h-[1px] bg-primary/20 shadow-[0_0_15px_rgba(37,99,235,0.3)] z-1"
+        />
       </div>
 
-      {/* Right Side: Auth Forms */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative">
-        <div className="absolute inset-0 bg-primary/5 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none"></div>
-        
-        <div className="max-w-md w-full space-y-8 animate-in fade-in slide-in-from-right-8 duration-700">
-          {/* Redesigned Hub Button */}
-          <div className="flex justify-start">
-            <motion.button 
-              whileHover={{ x: -5 }}
-              onClick={() => navigate('/')}
-              className="group flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-primary/50 hover:bg-primary/5 transition-all duration-500 backdrop-blur-xl shadow-xl"
+      <div className="relative z-10 w-full max-w-lg">
+        {/* TOP BRANDING */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center mb-10"
+        >
+          <div className="p-4 bg-critical/10 rounded-[2rem] border border-critical/20 backdrop-blur-2xl mb-6 shadow-[0_0_40px_rgba(239,68,68,0.1)]">
+            <AlertTriangle className="w-10 h-10 text-critical" />
+          </div>
+          <h1 className="text-4xl font-black tracking-tighter text-white italic uppercase">
+            RESCUE<span className="text-critical">IQ</span>
+          </h1>
+          <div className="flex items-center gap-3 mt-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-safe animate-pulse" />
+            <p className="text-[10px] text-slate-400 font-bold tracking-[0.4em] uppercase">Tactical Intelligence Layer v4.0</p>
+          </div>
+        </motion.div>
+
+        {/* MAIN AUTH CONTAINER */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-panel relative overflow-hidden bg-slate-900/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl p-8 md:p-12 group"
+        >
+          {/* Subtle Glow Effect */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-[80px] rounded-full group-hover:bg-primary/30 transition-all" />
+          
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={mode}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-8"
             >
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                <ChevronLeft size={16} />
-              </div>
-              <div className="text-left">
-                <span className="block text-[9px] font-black uppercase tracking-[0.25em] text-white/30 group-hover:text-primary transition-colors">Abort Access</span>
-                <span className="block text-[11px] font-bold text-white/60 group-hover:text-white transition-colors">Tactical Hub</span>
-              </div>
-            </motion.button>
-          </div>
-          <div className="lg:hidden text-center mb-12">
-             <div className="flex justify-center mb-4">
-                <AlertTriangle className="w-12 h-12 text-critical" />
-             </div>
-             <h2 className="text-4xl font-black tracking-tighter text-white italic uppercase">
-                RESCUE<span className="text-critical">IQ</span>
-             </h2>
-          </div>
+              {mode !== 'login' && renderBackBtn()}
 
-          <div className="glass-panel p-10 space-y-8 border-t-2 border-primary/40 relative overflow-hidden shadow-2xl backdrop-blur-2xl">
-            {mode !== 'login' && mode !== 'signup' && renderBackBtn()}
-            
-            <div className="space-y-2 relative z-10">
-              <h3 className="text-3xl font-black tracking-tight text-white">
-                {mode === 'login' && 'System Authorization'}
-                {mode === 'signup' && 'Operator Enlistment'}
-                {mode === 'verify' && 'Identity Verification'}
-                {mode === 'forgot' && 'Access Recovery'}
-                {mode === 'reset' && 'Security Reset'}
-              </h3>
-              <p className="text-sm text-slate-500 font-medium">
-                {mode === 'login' && 'Enter your credentials to access the command center.'}
-                {mode === 'signup' && 'Create your official responder profile.'}
-                {mode === 'verify' && `A 6-digit code was transmitted to ${email}`}
-                {mode === 'forgot' && 'Provide your registered email to receive a recovery code.'}
-                {mode === 'reset' && 'Create a new high-security access cipher.'}
-              </p>
-            </div>
-
-            {error && (
-              <div className="p-4 bg-critical/10 border border-critical/30 rounded-xl text-critical text-sm font-medium flex items-center animate-shake relative z-10 ring-1 ring-critical/20">
-                <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
-                {error}
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-black text-white tracking-tight uppercase">
+                  {mode === 'login' && 'System Authorization'}
+                  {mode === 'signup' && 'Operator Enlistment'}
+                  {mode === 'verify' && 'Signal Verification'}
+                  {mode === 'forgot' && 'Identity Recovery'}
+                  {mode === 'reset' && 'Security Uplink'}
+                </h2>
+                <p className="text-xs text-slate-400 font-medium">
+                  {mode === 'login' && 'Provide secure credentials for command access.'}
+                  {mode === 'signup' && 'Establish your tactical profile in the network.'}
+                  {mode === 'verify' && `Neural code transmitted to ${email}`}
+                  {mode === 'forgot' && 'Enter your ID for access restoration.'}
+                  {mode === 'reset' && 'Configure your new high-security cipher.'}
+                </p>
               </div>
-            )}
 
-            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-              <div className="space-y-4">
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-critical/10 border border-critical/20 rounded-2xl flex items-center gap-3"
+                >
+                  <AlertCircle className="w-5 h-5 text-critical shrink-0" />
+                  <p className="text-[11px] font-bold text-critical uppercase tracking-wider">{error}</p>
+                </motion.div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5">
                 {mode === 'signup' && (
-                  <div className="group">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-1 block group-focus-within:text-primary transition-colors">Full Name</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-primary transition-colors" />
-                      <input
-                        type="text"
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                    <div className="relative group">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <input 
+                        type="text" 
                         required
-                        placeholder="Operator Name"
+                        placeholder="OPERATOR NAME"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full bg-surface/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all text-white placeholder:text-slate-600 font-medium"
+                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none"
                       />
                     </div>
                   </div>
                 )}
 
-                {(mode === 'login' || mode === 'signup' || mode === 'forgot') && (
-                  <div className="group">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-1 block group-focus-within:text-primary transition-colors">Operational Email</label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-primary transition-colors" />
-                      <input
-                        type="email"
+                {(mode === 'login' || mode === 'signup' || mode === 'forgot' || mode === 'verify' || mode === 'reset') && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                    <div className="relative group">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <input 
+                        type="email" 
                         required
-                        placeholder="name@rescue.iq"
+                        disabled={mode === 'verify' || mode === 'reset'}
+                        placeholder="SECURE_MAIL@OPS.COM"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-surface/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all text-white placeholder:text-slate-600 font-medium"
+                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none disabled:opacity-50"
                       />
-                    </div>
-                  </div>
-                )}
-
-                {(mode === 'login' || mode === 'signup') && (
-                  <div className="group">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-1 block group-focus-within:text-primary transition-colors">Security Cipher</label>
-                    <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-primary transition-colors" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-surface/40 border border-white/10 rounded-2xl py-4 pl-12 pr-12 outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all text-white placeholder:text-slate-600 font-medium"
-                      />
-                      <button 
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
                     </div>
                   </div>
                 )}
 
                 {(mode === 'verify' || mode === 'reset') && (
-                  <div className="group text-center">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase mb-3 block">Authorization Code</label>
-                    <div className="relative">
-                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                      <input
-                        type="text"
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Verification Code</label>
+                    <div className="relative group">
+                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <input 
+                        type="text" 
                         required
-                        maxLength={6}
-                        placeholder="000000"
+                        placeholder="6-DIGIT CODE"
                         value={otp}
                         onChange={(e) => setOtp(e.target.value)}
-                        className="w-full bg-surface/40 border border-white/10 rounded-2xl py-5 pl-12 pr-4 outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all text-white placeholder:text-slate-700 font-black text-4xl tracking-[0.5em] text-center"
+                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none text-center tracking-[0.5em] font-black"
                       />
                     </div>
-                    <div className="mt-6 flex items-center justify-center space-x-2">
+                  </div>
+                )}
+
+                {(mode === 'login' || mode === 'signup' || mode === 'reset') && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        {mode === 'reset' ? 'New Password' : 'Password'}
+                      </label>
+                      {mode === 'login' && (
+                        <button 
+                          type="button"
+                          onClick={() => setMode('forgot')}
+                          className="text-[10px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-colors"
+                        >
+                          Access Lost?
+                        </button>
+                      )}
+                    </div>
+                    <div className="relative group">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <input 
+                        type={showPassword ? "text" : "password"}
+                        required
+                        placeholder="••••••••"
+                        value={mode === 'reset' ? newPassword : password}
+                        onChange={(e) => mode === 'reset' ? setNewPassword(e.target.value) : setPassword(e.target.value)}
+                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-12 text-sm text-white placeholder:text-slate-600 transition-all outline-none"
+                      />
                       <button 
                         type="button"
-                        disabled={resendTimer > 0}
-                        onClick={handleResendOtp}
-                        className="text-xs font-bold text-primary hover:text-white disabled:text-slate-600 transition-colors flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors"
                       >
-                        {resendTimer > 0 ? (
-                          <>Resend in {resendTimer}s</>
-                        ) : (
-                          <>Request New Code <ArrowRight className="w-3 h-3 ml-1" /></>
-                        )}
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
                   </div>
                 )}
 
-                {mode === 'reset' && (
-                  <div className="group">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 mb-1 block">New Security Cipher</label>
-                    <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        placeholder="••••••••"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full bg-surface/40 border border-white/10 rounded-2xl py-4 pl-12 pr-12 outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all text-white placeholder:text-slate-600 font-medium"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-14 bg-primary hover:bg-primary/80 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group shadow-xl shadow-primary/20 active:scale-[0.98] disabled:opacity-50 mt-4"
+                >
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <span className="uppercase tracking-[0.2em] text-xs">
+                        {mode === 'login' && 'Initialize Session'}
+                        {mode === 'signup' && 'Finalize Enlistment'}
+                        {mode === 'verify' && 'Sync Identity'}
+                        {mode === 'forgot' && 'Request Uplink'}
+                        {mode === 'reset' && 'Commit Cipher'}
+                      </span>
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
 
-              {mode === 'login' && (
-                <div className="flex items-center justify-between px-1">
-                  <label className="flex items-center space-x-2 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-surface/50 text-primary focus:ring-primary/30" />
-                    <span className="text-xs text-slate-400 group-hover:text-white transition-colors">Stay Authorized</span>
-                  </label>
+              {(mode === 'verify' || mode === 'reset') && (
+                <div className="text-center">
                   <button 
-                    type="button"
-                    onClick={() => setMode('forgot')}
-                    className="text-xs font-bold text-primary hover:text-white transition-colors"
+                    onClick={handleResendOtp}
+                    disabled={resendTimer > 0}
+                    className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-all disabled:opacity-30"
                   >
-                    Forgot Cipher?
+                    {resendTimer > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <Timer size={12} />
+                        Re-transmission in {resendTimer}s
+                      </div>
+                    ) : 'Request Signal Re-transmission'}
                   </button>
                 </div>
               )}
 
-              <button
-                disabled={loading}
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/80 text-white font-black py-4.5 rounded-2xl flex items-center justify-center space-x-3 transition-all group shadow-xl shadow-primary/20 disabled:opacity-50 active:scale-[0.98]"
-              >
-                {loading ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
+              <div className="text-center pt-6 border-t border-white/5">
+                {mode === 'login' ? (
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    New Operator? {' '}
+                    <button 
+                      onClick={() => { clearError(); setMode('signup'); }}
+                      className="font-black text-white hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 uppercase tracking-wider"
+                    >
+                      Apply for Access
+                    </button>
+                  </p>
                 ) : (
-                  <>
-                    <span className="uppercase tracking-widest text-sm">
-                      {mode === 'login' && 'Begin Session'}
-                      {mode === 'signup' && 'Request Enlistment'}
-                      {mode === 'verify' && 'Complete Verification'}
-                      {mode === 'forgot' && 'Send Recovery Code'}
-                      {mode === 'reset' && 'Commit Security Change'}
-                    </span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-                  </>
+                  mode !== 'verify' && mode !== 'reset' && (
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      Already Enlisted? {' '}
+                      <button 
+                        onClick={() => { clearError(); setMode('login'); }}
+                        className="font-black text-white hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 uppercase tracking-wider"
+                      >
+                        Return to Command
+                      </button>
+                    </p>
+                  )
                 )}
-              </button>
-            </form>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
 
-            <div className="text-center pt-8 border-t border-white/5 relative z-10">
-              {mode === 'login' && (
-                <p className="text-sm text-slate-500">
-                  New Recruit?{' '}
-                  <button 
-                    onClick={() => setMode('signup')}
-                    className="font-bold text-white hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4"
-                  >
-                    Apply for Access
-                  </button>
-                </p>
-              )}
-              {mode === 'signup' && (
-                <p className="text-sm text-slate-500">
-                  Already Enlisted?{' '}
-                  <button 
-                    onClick={() => setMode('login')}
-                    className="font-bold text-white hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4"
-                  >
-                    Return to Command
-                  </button>
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="text-center space-y-4">
-            <p className="text-[10px] text-slate-600 uppercase tracking-[0.4em] font-black">
-              Authorized Personnel Only • Encryption Protocol AES-256
-            </p>
-            <div className="flex justify-center space-x-4">
-               <div className="w-1.5 h-1.5 rounded-full bg-safe animate-pulse"></div>
-               <div className="w-1.5 h-1.5 rounded-full bg-safe animate-pulse delay-75"></div>
-               <div className="w-1.5 h-1.5 rounded-full bg-safe animate-pulse delay-150"></div>
-            </div>
+        {/* FOOTER METRICS */}
+        <div className="mt-10 flex flex-col items-center space-y-4">
+          <p className="text-[9px] text-slate-600 uppercase tracking-[0.5em] font-black">
+            Authorized Access Only • Protocol AES-256 Activated
+          </p>
+          <div className="flex items-center gap-3">
+             <div className="w-1 h-1 rounded-full bg-safe animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+             <div className="w-1 h-1 rounded-full bg-safe animate-pulse delay-75 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+             <div className="w-1 h-1 rounded-full bg-safe animate-pulse delay-150 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
           </div>
         </div>
       </div>
