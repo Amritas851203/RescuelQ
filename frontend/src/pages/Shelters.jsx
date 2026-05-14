@@ -953,22 +953,22 @@ const Shelters = () => {
                    </div>
                 </div>
 
-                {/* PLATFORM-WIDE TACTICAL INTELLIGENCE CORE - MATCHING SCREENSHOT */}
-                <div className="bg-[#0a0f1c]/90 border border-white/10 rounded-[4rem] p-12 lg:p-16 relative overflow-hidden group shadow-[0_50px_100px_rgba(0,0,0,0.7)] backdrop-blur-3xl">
+                {/* PLATFORM-WIDE TACTICAL INTELLIGENCE CORE - FIXED COLLISION LAYOUT */}
+                <div className="bg-[#0a0f1c]/90 border border-white/10 rounded-[3rem] p-8 lg:p-12 relative overflow-hidden group shadow-[0_50px_100px_rgba(0,0,0,0.7)] backdrop-blur-3xl">
                   {/* Subtle Grid Overlay */}
-                  <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:32px_32px]" />
+                  <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:24px_24px]" />
                   
-                  <div className="relative z-10 grid grid-cols-12 gap-12">
+                  <div className="relative z-10 grid grid-cols-12 gap-8 lg:gap-12">
                     
-                    {/* LEFT COLUMN: TACTICAL WIDGETS */}
-                    <div className="col-span-12 lg:col-span-4 space-y-8">
+                    {/* LEFT COLUMN: TACTICAL WIDGETS (3/12 Span to give more room) */}
+                    <div className="col-span-12 lg:col-span-3 space-y-6">
                        {/* Sector Readiness */}
-                       <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 space-y-6">
+                       <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-6 space-y-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Sector_Readiness_Analysis</span>
-                            <BarChart3 size={14} className="text-blue-500" />
+                            <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Sector_Readiness</span>
+                            <BarChart3 size={12} className="text-blue-500" />
                           </div>
-                          <div className="flex items-end gap-3 h-16">
+                          <div className="flex items-end gap-2 h-12">
                              {[40, 70, 45, 90, 65].map((h, i) => (
                                <div key={i} className="flex-1 bg-blue-500/10 border-t border-blue-500/30 rounded-t-sm h-full flex flex-col justify-end">
                                   <motion.div initial={{ height: 0 }} animate={{ height: `${h}%` }} className="w-full bg-blue-500/40" />
@@ -976,62 +976,62 @@ const Shelters = () => {
                              ))}
                           </div>
                           <div className="flex justify-between items-center text-[7px] font-mono text-white/10">
-                             <span>OPTIMIZED_LOAD: ACTIVE</span>
-                             <span>VER_0x8215B</span>
+                             <span>OPTIMIZED</span>
+                             <span>VER_0x821</span>
                           </div>
                        </div>
 
                        {/* Mission Critical Pulse */}
-                       <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 space-y-8">
-                          <div className="flex items-center gap-3">
-                             <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Mission_Critical_Pulse</span>
+                       <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-6 space-y-6">
+                          <div className="flex items-center gap-2">
+                             <div className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
+                             <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Mission_Pulse</span>
                           </div>
-                          <div className="h-16 flex items-center justify-center overflow-hidden">
+                          <div className="h-12 flex items-center justify-center overflow-hidden">
                              <svg viewBox="0 0 400 100" className="w-full h-full opacity-40">
                                <motion.path
                                  d="M0 50 Q 50 10, 100 50 T 200 50 T 300 50 T 400 50"
-                                 fill="none" stroke="#3b82f6" strokeWidth="3"
+                                 fill="none" stroke="#3b82f6" strokeWidth="4"
                                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                                />
                              </svg>
                           </div>
-                          <div className="flex justify-between items-end border-t border-white/5 pt-6">
+                          <div className="flex justify-between items-end border-t border-white/5 pt-4">
                              <div className="space-y-1">
-                                <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Neural Link</div>
-                                <div className="text-xs font-black text-emerald-400 uppercase tracking-tighter italic">Verified <span className="inline-block w-1 h-1 bg-emerald-500 rounded-full ml-1" /></div>
+                                <div className="text-[7px] font-bold text-white/20 uppercase tracking-widest">Neural Link</div>
+                                <div className="text-[10px] font-black text-emerald-400 uppercase tracking-tighter italic">Verified</div>
                              </div>
                              <div className="space-y-1 text-right">
-                                <div className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Sync Strength</div>
-                                <div className="text-xs font-black text-blue-400 italic">99.98%</div>
+                                <div className="text-[7px] font-bold text-white/20 uppercase tracking-widest">Sync</div>
+                                <div className="text-[10px] font-black text-blue-400 italic">99.9%</div>
                              </div>
                           </div>
                        </div>
                     </div>
 
-                    {/* MIDDLE/RIGHT: STAT GRID & NEURAL CORE */}
-                    <div className="col-span-12 lg:col-span-8 flex flex-col justify-between">
-                       <div className="flex justify-between items-start">
-                          <div className="grid grid-cols-2 gap-8 w-full max-w-lg">
+                    {/* MIDDLE: STAT GRID (9/12 Span) */}
+                    <div className="col-span-12 lg:col-span-9 flex flex-col justify-between">
+                       <div className="flex justify-between items-start gap-8">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 w-full">
                              {[
-                               { label: 'Network Latency', val: '14ms', icon: Signal, color: 'emerald' },
-                               { label: 'Data Throughput', val: '2.4 GB/s', icon: Zap, color: 'blue' },
-                               { label: 'Active Relays', val: '128', icon: Network, color: 'cyan' },
-                               { label: 'Security Level', val: 'Tier 5', icon: ShieldCheck, color: 'indigo' },
+                               { label: 'Latency', val: '14ms', icon: Signal, color: 'emerald' },
+                               { label: 'Throughput', val: '2.4 GB/s', icon: Zap, color: 'blue' },
+                               { label: 'Relays', val: '128', icon: Network, color: 'cyan' },
+                               { label: 'Security', val: 'Tier 5', icon: ShieldCheck, color: 'indigo' },
                              ].map((stat, i) => (
-                               <div key={i} className="bg-white/5 border border-white/5 p-8 rounded-[2.5rem] flex flex-col gap-4 group/stat hover:bg-white/10 transition-all aspect-square justify-center">
-                                 <stat.icon size={24} className={`text-${stat.color}-400 group-hover/stat:scale-110 transition-transform`} />
+                               <div key={i} className="bg-white/5 border border-white/5 p-6 rounded-[2rem] flex flex-col gap-3 group/stat hover:bg-white/10 transition-all">
+                                 <stat.icon size={20} className={`text-${stat.color}-400 group-hover/stat:scale-110 transition-transform`} />
                                  <div>
-                                   <div className="text-3xl font-black text-white tracking-tight">{stat.val}</div>
-                                   <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-1">{stat.label}</div>
+                                   <div className="text-2xl font-black text-white tracking-tight">{stat.val}</div>
+                                   <div className="text-[9px] font-bold text-white/20 uppercase tracking-widest mt-1">{stat.label}</div>
                                  </div>
                                </div>
                              ))}
                           </div>
 
-                          {/* Floating Neural Brain */}
-                          <div className="hidden xl:block relative w-64 h-64">
+                          {/* Floating Neural Brain - Hidden on smaller middle screens to prevent overlap */}
+                          <div className="hidden xl:block relative w-48 h-48 shrink-0">
                              {[...Array(3)].map((_, i) => (
                                <motion.div 
                                  key={i} animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
@@ -1042,37 +1042,38 @@ const Shelters = () => {
                              ))}
                              <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="relative">
-                                   <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full" />
-                                   <BrainCircuit size={100} className="text-white/10 relative z-10" />
-                                   <div className="absolute top-4 right-4 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]" />
+                                   <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
+                                   <BrainCircuit size={80} className="text-white/10 relative z-10" />
                                 </div>
                              </div>
                           </div>
                        </div>
 
                        {/* BOTTOM INTEGRITY BARS */}
-                       <div className="mt-16 pt-12 border-t border-white/5">
-                          <div className="grid grid-cols-2 gap-16 mb-8">
-                             <div className="space-y-3">
-                                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Global Load Balance</div>
-                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                       <div className="mt-12 pt-10 border-t border-white/5">
+                          <div className="grid grid-cols-2 gap-12 mb-6">
+                             <div className="space-y-2">
+                                <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">Global Load</div>
+                                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                                    <motion.div animate={{ width: '74%' }} className="h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
                                 </div>
                              </div>
-                             <div className="space-y-3">
-                                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">System Integrity</div>
-                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                             <div className="space-y-2">
+                                <div className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">Integrity</div>
+                                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                                    <motion.div animate={{ width: '99.4%' }} className="h-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
                                 </div>
                              </div>
                           </div>
                           <div className="text-center">
-                             <span className="text-[10px] font-mono text-white/10 uppercase tracking-[0.6em] animate-pulse">
+                             <span className="text-[9px] font-mono text-white/10 uppercase tracking-[0.6em] animate-pulse">
                                 Uplink_Confirmed // All_Systems_Nominal
                              </span>
                           </div>
                        </div>
                     </div>
+                  </div>
+                </div>
                   </div>
                 </div>
               </>
