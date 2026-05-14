@@ -5,23 +5,30 @@ const GDACS_API = 'https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH
 const USGS_API = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson';
 
 /**
- * Helper to enrich disaster data with Gemini AI intelligence
+ * Helper to enrich disaster data with Gemini AI intelligence (Sequential to avoid rate limits)
  */
 const enrichWithAI = async (events) => {
-  return await Promise.all(events.map(async (event) => {
+  const enriched = [];
+  for (const event of events) {
     // Only analyze critical or high severity to save API quota/time
     if (event.severity === 'CRITICAL' || event.severity === 'HIGH') {
-      const analysis = await geminiService.analyzeDisaster(event);
-      return { 
-        ...event, 
-        aiSummary: analysis.aiSummary,
-        resources: analysis.requiredResources || event.resources,
-        risk_level: analysis.riskLevel || event.risk_level,
-        tacticalAction: analysis.tacticalAction
-      };
+      try {
+        const analysis = await geminiService.analyzeDisaster(event);
+        enriched.push({ 
+          ...event, 
+          aiSummary: analysis.aiSummary || event.aiSummary,
+          resources: analysis.requiredResources || event.resources,
+          risk_level: analysis.riskLevel || event.risk_level,
+          tacticalAction: analysis.tacticalAction
+        });
+      } catch (err) {
+        enriched.push(event);
+      }
+    } else {
+      enriched.push(event);
     }
-    return event;
-  }));
+  }
+  return enriched;
 };
 
 /**
