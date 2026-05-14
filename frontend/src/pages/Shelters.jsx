@@ -1006,36 +1006,6 @@ const Shelters = () => {
                       </div>
                     </div>
 
-                    <div className="relative aspect-square">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                         <div className="w-full h-full relative">
-                            {/* Central Core Glow */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 blur-[80px] animate-pulse" />
-                            
-                            {/* Orbital Rings */}
-                            {[...Array(3)].map((_, i) => (
-                              <motion.div 
-                                key={i}
-                                animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
-                                transition={{ duration: 20 + i * 10, repeat: Infinity, ease: "linear" }}
-                                className="absolute inset-0 border border-dashed border-white/10 rounded-full"
-                                style={{ margin: `${i * 10}%` }}
-                              >
-                                <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-${i === 0 ? 'blue' : i === 1 ? 'emerald' : 'rose'}-500 shadow-[0_0_15px_currentColor]`} />
-                              </motion.div>
-                            ))}
-
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <BrainCircuit size={100} className="text-white/10 animate-pulse" />
-                            </div>
-                         </div>
-                      </div>
-                      
-                      {/* Decorative HUD Lines */}
-                      <div className="absolute -top-4 -left-4 w-12 h-12 border-t-2 border-l-2 border-white/20 rounded-tl-2xl" />
-                      <div className="absolute -top-4 -right-4 w-12 h-12 border-t-2 border-r-2 border-white/20 rounded-tr-2xl" />
-                      <div className="absolute -bottom-4 -left-4 w-12 h-12 border-b-2 border-l-2 border-white/20 rounded-bl-2xl" />
-                      <div className="absolute -bottom-4 -right-4 w-12 h-12 border-b-2 border-r-2 border-white/20 rounded-br-2xl" />
                     </div>
                   </div>
 
