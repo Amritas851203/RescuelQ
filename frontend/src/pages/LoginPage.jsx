@@ -14,13 +14,16 @@ import {
   Eye, 
   EyeOff,
   ChevronLeft,
-  Timer
+  Timer,
+  Activity,
+  Globe,
+  Radio
 } from 'lucide-react';
 import useAuthStore from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 
 // Import Assets
-import loginBg from '../assets/login_map.png';
+import tacticalBg from '../assets/tactical_india_command.png';
 
 const AuthPage = () => {
   const [mode, setMode] = useState('login'); 
@@ -96,51 +99,96 @@ const AuthPage = () => {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 md:p-8 bg-slate-950 overflow-hidden font-sans">
-      {/* BACKGROUND: Tactical Intelligence Map */}
+      
+      {/* FULL SCREEN BACKGROUND: Aditya's Tactical Visuals */}
       <div className="absolute inset-0 z-0">
         <img 
-          src={loginBg} 
-          alt="Tactical Grid" 
-          className="w-full h-full object-cover opacity-40 mix-blend-overlay scale-110"
+          src={tacticalBg} 
+          alt="Tactical India Command" 
+          className="w-full h-full object-cover opacity-50 mix-blend-screen scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-slate-950" />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-transparent to-slate-950" />
-        
-        {/* Animated Scanning Line */}
-        <motion.div 
-          animate={{ top: ['-10%', '110%'] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          className="absolute left-0 right-0 h-[1px] bg-primary/20 shadow-[0_0_15px_rgba(37,99,235,0.3)] z-1"
-        />
       </div>
 
-      <div className="relative z-10 w-full max-w-lg">
-        {/* TOP BRANDING */}
+      {/* HOLOGRAPHIC OVERLAYS (From Aditya's Design) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-1">
+        {/* Global Threat Level */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center mb-10"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="absolute top-10 right-10 flex flex-col items-end"
         >
-          <div className="p-4 bg-critical/10 rounded-[2rem] border border-critical/20 backdrop-blur-2xl mb-6 shadow-[0_0_40px_rgba(239,68,68,0.1)]">
-            <AlertTriangle className="w-10 h-10 text-critical" />
+          <div className="px-4 py-1 bg-red-600/20 border border-red-500/40 rounded-lg backdrop-blur-xl">
+             <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Global Threat Level: HIGH</span>
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-white italic uppercase">
-            RESCUE<span className="text-critical">IQ</span>
-          </h1>
-          <div className="flex items-center gap-3 mt-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-safe animate-pulse" />
-            <p className="text-[10px] text-slate-400 font-bold tracking-[0.4em] uppercase">Tactical Intelligence Layer v4.0</p>
+          <div className="mt-2 px-3 py-0.5 bg-emerald-500/20 border border-emerald-500/40 rounded-md">
+             <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">SYSTEMS OPERATIONAL</span>
           </div>
         </motion.div>
 
+        {/* Tactical Info Left */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="absolute top-10 left-10 space-y-4"
+        >
+          <div className="flex items-center gap-3">
+             <div className="p-2 bg-red-600/10 rounded-lg border border-red-500/20">
+               <AlertTriangle className="text-red-500" size={16} />
+             </div>
+             <div>
+               <h1 className="text-xl font-black text-white italic tracking-tighter uppercase">RESCUE<span className="text-red-500">IQ</span></h1>
+               <p className="text-[8px] text-white/20 font-bold uppercase tracking-[0.3em]">Command System Layer</p>
+             </div>
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full">
+             <Shield size={10} className="text-blue-400" />
+             <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest">PROTOCOL 12-B ACTIVE</span>
+          </div>
+        </motion.div>
+
+        {/* Risk Prediction Card (Bottom Left) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute bottom-10 left-10 p-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-2xl w-48"
+        >
+          <p className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-3">AI RISK PREDICTION</p>
+          <div className="flex items-center gap-4">
+             <div className="w-12 h-12 rounded-full border-4 border-red-500/30 border-t-red-500 animate-spin-slow" />
+             <div className="flex flex-col">
+                <span className="text-xl font-black text-white leading-none">72%</span>
+                <span className="text-[8px] font-black text-red-500 uppercase">HIGH RISK</span>
+             </div>
+          </div>
+        </motion.div>
+
+        {/* Active Nodes Count (Bottom Right) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute bottom-10 right-10 flex items-center gap-4 text-right"
+        >
+          <div className="flex flex-col">
+            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">Active Rescue Nodes</span>
+            <span className="text-2xl font-black text-white leading-none mt-1">4.2k+</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+             <Globe className="text-white/20" size={20} />
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-lg">
         {/* MAIN AUTH CONTAINER */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="glass-panel relative overflow-hidden bg-slate-900/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl p-8 md:p-12 group"
+          className="glass-panel relative overflow-hidden bg-slate-900/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl p-8 md:p-12 group"
         >
           {/* Subtle Glow Effect */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-[80px] rounded-full group-hover:bg-primary/30 transition-all" />
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full" />
           
           <AnimatePresence mode="wait">
             <motion.div 
@@ -161,11 +209,11 @@ const AuthPage = () => {
                   {mode === 'reset' && 'Security Uplink'}
                 </h2>
                 <p className="text-xs text-slate-400 font-medium">
-                  {mode === 'login' && 'Provide secure credentials for command access.'}
+                  {mode === 'login' && 'Enter your credentials to access the command center.'}
                   {mode === 'signup' && 'Establish your tactical profile in the network.'}
                   {mode === 'verify' && `Neural code transmitted to ${email}`}
-                  {mode === 'forgot' && 'Enter your ID for access restoration.'}
-                  {mode === 'reset' && 'Configure your new high-security cipher.'}
+                  {mode === 'forgot' && 'Enter your registered ID for access restoration.'}
+                  {mode === 'reset' && 'Configure your new high-security access cipher.'}
                 </p>
               </div>
 
@@ -173,10 +221,10 @@ const AuthPage = () => {
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 bg-critical/10 border border-critical/20 rounded-2xl flex items-center gap-3"
+                  className="p-4 bg-red-600/10 border border-red-500/20 rounded-2xl flex items-center gap-3"
                 >
-                  <AlertCircle className="w-5 h-5 text-critical shrink-0" />
-                  <p className="text-[11px] font-bold text-critical uppercase tracking-wider">{error}</p>
+                  <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                  <p className="text-[11px] font-bold text-red-500 uppercase tracking-wider">{error}</p>
                 </motion.div>
               )}
 
@@ -185,14 +233,14 @@ const AuthPage = () => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
                     <div className="relative group">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
                       <input 
                         type="text" 
                         required
                         placeholder="OPERATOR NAME"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none"
+                        className="w-full bg-white/5 border border-white/5 focus:border-blue-500/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none"
                       />
                     </div>
                   </div>
@@ -200,9 +248,9 @@ const AuthPage = () => {
 
                 {(mode === 'login' || mode === 'signup' || mode === 'forgot' || mode === 'verify' || mode === 'reset') && (
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Operational Email</label>
                     <div className="relative group">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
                       <input 
                         type="email" 
                         required
@@ -210,7 +258,7 @@ const AuthPage = () => {
                         placeholder="SECURE_MAIL@OPS.COM"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none disabled:opacity-50"
+                        className="w-full bg-white/5 border border-white/5 focus:border-blue-500/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none disabled:opacity-50"
                       />
                     </div>
                   </div>
@@ -220,14 +268,14 @@ const AuthPage = () => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Verification Code</label>
                     <div className="relative group">
-                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
                       <input 
                         type="text" 
                         required
                         placeholder="6-DIGIT CODE"
                         value={otp}
                         onChange={(e) => setOtp(e.target.value)}
-                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none text-center tracking-[0.5em] font-black"
+                        className="w-full bg-white/5 border border-white/5 focus:border-blue-500/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 transition-all outline-none text-center tracking-[0.5em] font-black"
                       />
                     </div>
                   </div>
@@ -237,27 +285,27 @@ const AuthPage = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center px-1">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        {mode === 'reset' ? 'New Password' : 'Password'}
+                        {mode === 'reset' ? 'New Cipher' : 'Security Cipher'}
                       </label>
                       {mode === 'login' && (
                         <button 
                           type="button"
                           onClick={() => setMode('forgot')}
-                          className="text-[10px] font-black text-primary hover:text-primary/70 uppercase tracking-widest transition-colors"
+                          className="text-[10px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors"
                         >
-                          Access Lost?
+                          Forgot Cipher?
                         </button>
                       )}
                     </div>
                     <div className="relative group">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-primary transition-colors" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
                       <input 
                         type={showPassword ? "text" : "password"}
                         required
                         placeholder="••••••••"
                         value={mode === 'reset' ? newPassword : password}
                         onChange={(e) => mode === 'reset' ? setNewPassword(e.target.value) : setPassword(e.target.value)}
-                        className="w-full bg-white/5 border border-white/5 focus:border-primary/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-12 text-sm text-white placeholder:text-slate-600 transition-all outline-none"
+                        className="w-full bg-white/5 border border-white/5 focus:border-blue-500/50 focus:bg-white/10 rounded-2xl py-4 pl-12 pr-12 text-sm text-white placeholder:text-slate-600 transition-all outline-none"
                       />
                       <button 
                         type="button"
@@ -270,20 +318,27 @@ const AuthPage = () => {
                   </div>
                 )}
 
+                {mode === 'login' && (
+                  <div className="flex items-center gap-2 px-1">
+                    <input type="checkbox" id="remember" className="w-4 h-4 rounded bg-white/5 border-white/10 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-900" />
+                    <label htmlFor="remember" className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Stay Authorized</label>
+                  </div>
+                )}
+
                 <button 
                   type="submit"
                   disabled={loading}
-                  className="w-full h-14 bg-primary hover:bg-primary/80 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group shadow-xl shadow-primary/20 active:scale-[0.98] disabled:opacity-50 mt-4"
+                  className="w-full h-14 bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all group shadow-xl shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 mt-4"
                 >
                   {loading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
                       <span className="uppercase tracking-[0.2em] text-xs">
-                        {mode === 'login' && 'Initialize Session'}
-                        {mode === 'signup' && 'Finalize Enlistment'}
+                        {mode === 'login' && 'Begin Session'}
+                        {mode === 'signup' && 'Request Enlistment'}
                         {mode === 'verify' && 'Sync Identity'}
-                        {mode === 'forgot' && 'Request Uplink'}
+                        {mode === 'forgot' && 'Request Recovery'}
                         {mode === 'reset' && 'Commit Cipher'}
                       </span>
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
@@ -292,30 +347,13 @@ const AuthPage = () => {
                 </button>
               </form>
 
-              {(mode === 'verify' || mode === 'reset') && (
-                <div className="text-center">
-                  <button 
-                    onClick={handleResendOtp}
-                    disabled={resendTimer > 0}
-                    className="text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-all disabled:opacity-30"
-                  >
-                    {resendTimer > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <Timer size={12} />
-                        Re-transmission in {resendTimer}s
-                      </div>
-                    ) : 'Request Signal Re-transmission'}
-                  </button>
-                </div>
-              )}
-
               <div className="text-center pt-6 border-t border-white/5">
                 {mode === 'login' ? (
                   <p className="text-[11px] text-slate-500 font-medium">
-                    New Operator? {' '}
+                    New Recruit? {' '}
                     <button 
-                      onClick={() => { clearError(); setMode('signup'); }}
-                      className="font-black text-white hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 uppercase tracking-wider"
+                      onClick={() => { clearError?.(); setMode('signup'); }}
+                      className="font-black text-white hover:text-blue-500 transition-colors underline decoration-blue-500/30 underline-offset-4 uppercase tracking-wider"
                     >
                       Apply for Access
                     </button>
@@ -325,8 +363,8 @@ const AuthPage = () => {
                     <p className="text-[11px] text-slate-500 font-medium">
                       Already Enlisted? {' '}
                       <button 
-                        onClick={() => { clearError(); setMode('login'); }}
-                        className="font-black text-white hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4 uppercase tracking-wider"
+                        onClick={() => { clearError?.(); setMode('login'); }}
+                        className="font-black text-white hover:text-blue-500 transition-colors underline decoration-blue-500/30 underline-offset-4 uppercase tracking-wider"
                       >
                         Return to Command
                       </button>
@@ -341,12 +379,12 @@ const AuthPage = () => {
         {/* FOOTER METRICS */}
         <div className="mt-10 flex flex-col items-center space-y-4">
           <p className="text-[9px] text-slate-600 uppercase tracking-[0.5em] font-black">
-            Authorized Access Only • Protocol AES-256 Activated
+            Authorized Personnel Only • Encryption AES-256
           </p>
           <div className="flex items-center gap-3">
-             <div className="w-1 h-1 rounded-full bg-safe animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-             <div className="w-1 h-1 rounded-full bg-safe animate-pulse delay-75 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-             <div className="w-1 h-1 rounded-full bg-safe animate-pulse delay-150 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+             <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+             <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse delay-75 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+             <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse delay-150 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
           </div>
         </div>
       </div>
