@@ -39,4 +39,8 @@ router.post('/social/archive', authMiddleware, archiveAlert);
 // Twilio Webhook
 router.post('/webhook/twilio', handleTwilioWebhook);
 
+// AI Chatbot Route
+import { getAIResponse } from '../controllers/aiController.js';
+router.post('/ai/chat', getAIResponse);
+
 export default router;

@@ -24,7 +24,7 @@
 
 @layer base {
   body {
-    @apply bg-background text-white antialiased overflow-hidden selection:bg-cyan-500/30;
+    @apply bg-background text-white antialiased overflow-x-hidden selection:bg-cyan-500/30;
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
@@ -79,8 +79,8 @@
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -88,12 +88,13 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(59, 130, 246, 0.2);
   border-radius: 10px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(59, 130, 246, 0.5);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -176,12 +177,54 @@
 }
 
 /* --- 3D & HUD ENHANCEMENTS --- */
-.perspective-1000 {
-  perspective: 1000px;
+.perspective-2000 {
+  perspective: 2000px;
 }
 
 .preserve-3d {
   transform-style: preserve-3d;
+}
+
+.glass-3d-panel {
+  background: linear-gradient(135deg, rgba(10, 15, 30, 0.95) 0%, rgba(5, 10, 20, 0.98) 100%);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    inset 0 0 20px rgba(59, 130, 246, 0.1),
+    0 0 0 1px rgba(59, 130, 246, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-3d-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  z-index: 1;
+}
+
+.holographic-border {
+  position: relative;
+}
+
+.holographic-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, transparent 40%, rgba(59, 130, 246, 0.3), transparent 60%);
+  z-index: -1;
+  border-radius: inherit;
+  animation: holo-slide 8s linear infinite;
+}
+
+@keyframes holo-slide {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .hud-border-bracket {
@@ -192,10 +235,11 @@
 .hud-border-bracket::after {
   content: '';
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: rgba(59, 130, 246, 0.4);
+  width: 15px;
+  height: 15px;
+  border-color: rgba(59, 130, 246, 0.6);
   pointer-events: none;
+  filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5));
 }
 
 .hud-border-bracket-tl::before { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
@@ -224,6 +268,12 @@
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
+.glow-blue-strong {
+  box-shadow: 
+    0 0 30px rgba(37, 99, 235, 0.4),
+    inset 0 0 10px rgba(37, 99, 235, 0.2);
+}
+
 .text-glow-blue {
   text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
@@ -246,6 +296,15 @@
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+.float-3d {
+  animation: float-3d 6s ease-in-out infinite;
+}
+
+@keyframes float-3d {
+  0%, 100% { transform: translateY(0) rotateX(2deg) rotateY(-2deg); }
+  50% { transform: translateY(-10px) rotateX(-2deg) rotateY(2deg); }
 }
 
 /* Autofill Overrides */

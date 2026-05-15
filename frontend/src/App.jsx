@@ -15,6 +15,7 @@ import LandingPage from './pages/LandingPage';
 import useRealtime from './hooks/useRealtime';
 import useAuthStore from './store/useAuthStore';
 import TacticalLoader from './components/TacticalLoader';
+import AIChatBot from './components/AIChatBot';
 import clsx from 'clsx';
 
 const ProtectedLayout = ({ children, noPadding = false }) => {
@@ -57,12 +58,18 @@ const ProtectedLayout = ({ children, noPadding = false }) => {
   );
 };
 
-function App() {
+function AppContent() {
+  const { user, token } = useAuthStore();
+  const location = useLocation();
+  
   // Initialize Socket.io connection and listeners
   useRealtime();
 
+  // Define public pages where the chatbot should never appear
+  const isPublicPage = ['/', '/login', '/signup'].includes(location.pathname);
+
   return (
-    <Router>
+    <>
       <Routes>
         {/* Public Landing Page */}
         <Route path="/" element={<LandingPage />} />
@@ -117,6 +124,15 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {user && token && !isPublicPage && <AIChatBot />}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

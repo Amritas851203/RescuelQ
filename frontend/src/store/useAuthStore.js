@@ -41,9 +41,12 @@ const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ loading: true, error: null });
     
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
     // SYSTEM OVERRIDE FOR DEVELOPMENT
-    if (email === 'amritasingh38381@gmail.com' && password === 'rescueiq') {
-      const mockUser = { id: 'admin-override', email, fullName: 'System Commander' };
+    if (cleanEmail === 'amritasingh38381@gmail.com' && cleanPassword === 'rescueiq') {
+      const mockUser = { id: 'admin-override', email: cleanEmail, fullName: 'System Commander' };
       const mockToken = 'mock-jwt-token-for-rescueiq-demo';
       localStorage.setItem('rescueiq_token', mockToken);
       localStorage.setItem('rescueiq_user', JSON.stringify(mockUser));
@@ -52,7 +55,7 @@ const useAuthStore = create((set) => ({
     }
 
     try {
-      const response = await axios.post(`${API_URL}/login`, { email, password });
+      const response = await axios.post(`${API_URL}/login`, { email: cleanEmail, password: cleanPassword });
       const { token, user } = response.data;
       localStorage.setItem('rescueiq_token', token);
       localStorage.setItem('rescueiq_user', JSON.stringify(user));
