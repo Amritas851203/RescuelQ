@@ -48,6 +48,44 @@ class GeminiService {
       };
     }
   }
+
+  /**
+   * Generates a conversational response for an emergency responder
+   */
+  async generateEmergencyResponse(transcript, incidentData) {
+    try {
+      const prompt = `
+        You are a highly professional Human Emergency Dispatcher named RescueIQ Dispatch.
+        CRITICAL: You MUST respond in the EXACT language corresponding to the language code: ${incidentData.language || 'en-US'}.
+        
+        Responder said: "${transcript}"
+        
+        Incident Intelligence (Use this to answer questions):
+        - Crisis: ${incidentData.type}
+        - Priority: ${incidentData.severity}
+        - Zone: ${incidentData.address}
+        - Casualties/Affected: ${incidentData.affected_people}
+        - Risk Level: ${incidentData.risk_level}/10
+        - Available Units: ${incidentData.resources?.join(', ')}
+        - Details: ${incidentData.aiSummary}
+        
+        Operational Protocols:
+        1. LANGUAGE: Respond ONLY in ${incidentData.language}.
+        2. ANSWERS: If the responder asks about casualties, resources, or stats, use the data provided above to give accurate answers.
+        3. TONE: Stay calm, tactical, and human-like.
+        4. CONTENT: Be concise but highly informative.
+        
+        Response string:
+      `;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text().trim();
+    } catch (error) {
+      console.error('Gemini Voice Response Error:', error.message);
+      return "Understood. Maintaining tactical alert. Report status if situation escalates.";
+    }
+  }
 }
 
 export default new GeminiService();

@@ -1,8 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Map, Users, AlertTriangle, Shield, Radio, Home, Settings, LogOut, User } from 'lucide-react';
+import { Activity, Map, Users, AlertTriangle, Shield, Radio, Home, Settings, LogOut, User, PhoneCall } from 'lucide-react';
 import clsx from 'clsx';
 import useSosStore from '../store/useSosStore';
 import useAuthStore from '../store/useAuthStore';
+import useCallStore from '../store/useCallStore';
+import axios from 'axios';
 
 const navItems = [
   { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -11,6 +13,7 @@ const navItems = [
   { icon: Users, label: 'Team Dispatch', path: '/teams' },
   { icon: Shield, label: 'Shelters', path: '/shelters' },
   { icon: Radio, label: 'Social Scanner', path: '/social' },
+  { icon: PhoneCall, label: 'Emergency Calls', path: '/emergency' },
   { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
@@ -38,23 +41,44 @@ const Sidebar = () => {
     ];
 
     const selected = types[Math.floor(Math.random() * types.length)];
+    const severity = 'CRITICAL';
 
-    const mockReport = {
-      id: `SOS-${Math.floor(Math.random() * 9000) + 1000}`,
-      type: selected.name,
-      location: { lat: 28.6139 + (Math.random() - 0.5) * 0.2, lng: 77.2090 + (Math.random() - 0.5) * 0.2 },
-      address: `Sector ${Math.floor(Math.random() * 100)}, Delhi`,
-      callerName: 'Mock Operator',
+    const payload = {
+      name: 'Tactical HQ (MOCK)',
+      message: `[MOCK ALERT] ${selected.desc}`,
+      lat: 28.6139 + (Math.random() - 0.5) * 0.2,
+      lng: 77.2090 + (Math.random() - 0.5) * 0.2,
+      severity: severity,
       victimsCount: Math.floor(Math.random() * 15) + 5,
-      severity: Math.random() > 0.4 ? 'CRITICAL' : 'HIGH',
-      aiTrustScore: 98,
-      isMedical: true,
-      timeSinceRequest: 'Now',
-      aiSummary: selected.desc,
-      transcript: 'This is a mock signal. Simulation active.',
-      recommendedStrategy: selected.strategy
+      risk_level: severity === 'CRITICAL' ? 9 : 6
     };
-    addReport(mockReport);
+
+    // Call backend API so it triggers the calling system
+    axios.post('/api/sos/report', payload)
+      .then(res => {
+        console.log('Mock SOS activated on backend:', res.data);
+      })
+      .catch(err => {
+        console.error('Failed to activate mock on backend:', err);
+      });
+
+    // Local trigger fallback to ensure UI pops up immediately for testing
+    useCallStore.getState().initiateIncomingCall({
+      id: 'MOCK-' + Date.now(),
+      callerName: 'Tactical HQ',
+      type: selected.name,
+      location: payload.address || 'Sector 14, Delhi',
+      priority: 'CRITICAL'
+    });
+
+    // Add initial AI briefing to the transcript after 2 seconds
+    setTimeout(() => {
+      useCallStore.getState().addTranscript({
+        source: 'AI Agent',
+        text: `Tactical Alert: ${selected.name} detected. Responder interaction is required for tactical briefing.`,
+        timestamp: new Date().toISOString()
+      });
+    }, 2000);
   };
 
   return (
