@@ -1,28 +1,29 @@
-import { supabase } from './src/config/supabase.js';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-async function checkUser() {
-  const email = 'amritasingh38381@gmail.com';
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+
+async function checkUser(email) {
   console.log(`Checking user: ${email}`);
-  
   const { data, error } = await supabase
     .from('users')
     .select('*')
     .eq('email', email)
-    .single();
-    
+    .maybeSingle();
+
   if (error) {
-    console.error('User search error:', error.message);
-    if (error.code === 'PGRST116') {
-      console.log('User not found.');
-    }
-  } else {
+    console.error('Supabase Error:', error);
+  } else if (data) {
     console.log('User found:', {
       id: data.id,
       email: data.email,
       is_verified: data.is_verified,
-      has_password_hash: !!data.password_hash
+      created_at: data.created_at
     });
+  } else {
+    console.log('User NOT found.');
   }
 }
 
-checkUser();
+checkUser('aditya.choubey.soe@gmail.com');

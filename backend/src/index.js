@@ -7,6 +7,10 @@ import cors from 'cors';
 import { Server } from 'socket.io';
 import setupSockets from './sockets/index.js';
 import apiRoutes from './routes/api.js';
+import connectDB from './config/db.js';
+
+// Connect to Database
+connectDB();
 
 const app = express();
 const server = http.createServer(app);

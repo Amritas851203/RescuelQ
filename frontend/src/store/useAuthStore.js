@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
+const API_URL = '/api/auth';
 
 const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem('rescueiq_user')) || null,
