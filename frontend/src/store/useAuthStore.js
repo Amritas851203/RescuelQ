@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
-const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
 
 const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem('rescueiq_user')) || null,
@@ -41,8 +41,8 @@ const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ loading: true, error: null });
     
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPassword = password.trim();
+    const cleanEmail = email?.trim().toLowerCase();
+    const cleanPassword = password?.trim();
 
     // SYSTEM OVERRIDE FOR DEVELOPMENT
     if (cleanEmail === 'amritasingh38381@gmail.com' && cleanPassword === 'rescueiq') {

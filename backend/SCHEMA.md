@@ -82,3 +82,26 @@ END $$;
 > [!TIP]
 > If you still see "already exists" errors, you can safely ignore them as it means the system is already configured correctly.
 
+## Emergency Calling System
+
+### `emergency_contacts`
+Stores information about rescue teams and emergency responders.
+- `id`: uuid (primary key)
+- `name`: text (e.g., "City Hospital")
+- `type`: text (Medical, Fire, Police, etc.)
+- `phone`: text (E.164 format)
+- `location`: text (Tactical sector)
+- `status`: text (Available, Busy, Standby)
+- `priority`: integer (1-5)
+
+### `call_logs`
+Tracks AI-triggered outbound voice calls.
+- `id`: uuid (primary key)
+- `incident_id`: uuid (foreign key to sos_reports)
+- `contact_name`: text
+- `contact_phone`: text
+- `status`: text (Initiated, Ringing, Connected, Completed, Failed)
+- `timestamp`: timestamptz
+- `call_sid`: text (Twilio SID)
+- `recording_url`: text (Optional)
+

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { supabase } from '../config/supabase.js';
 import { randomUUID } from 'crypto';
+import { triggerAutomatedResponse } from '../services/EmergencyCallService.js';
 
 // Simulation of AI analyzing a post
 const analyzeIncident = (content, type) => {
@@ -262,11 +263,23 @@ export const convertToIncident = async (req, res) => {
     }
 
     if (req.io && data && data.length > 0) {
-      req.io.emit('NEW_SOS_REPORT', {
+      const formattedIncident = {
         ...data[0],
         location: { lat: data[0].location_lat, lng: data[0].location_lng },
-        callerName: data[0].reporter_name
-      });
+        callerName: data[0].reporter_name,
+        type: alert.type || 'Incident',
+        address: alert.location || 'Unknown',
+        aiSummary: alert.content || 'Critical intelligence alert'
+      };
+
+      req.io.emit('NEW_SOS_REPORT', formattedIncident);
+
+      // Trigger AI Emergency Calling
+      const upperSeverity = (data[0].severity || '').toUpperCase();
+      if (upperSeverity === 'CRITICAL' || upperSeverity === 'EXTREME' || upperSeverity === 'HIGH') {
+        console.log(`[Social Trigger] Critical intelligence promoted. Initiating automated calls for ${formattedIncident.id}`);
+        triggerAutomatedResponse(formattedIncident, req.io);
+      }
     }
 
     console.log('CONVERSION SUCCESS');

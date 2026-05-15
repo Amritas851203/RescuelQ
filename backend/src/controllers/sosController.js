@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase.js';
 import { fetchGlobalDisasters } from '../services/disasterService.js';
+import { triggerAutomatedResponse } from '../services/EmergencyCallService.js';
 
 // Detailed Mock Data for Intelligence-Heavy UI
 const mockSOS = [
@@ -172,6 +173,14 @@ export const createSOSReport = async (req, res) => {
     };
 
     req.io.emit('NEW_SOS_REPORT', formattedReport);
+
+    // Trigger AI Emergency Calling if Severity is Critical
+    const upperSeverity = (severity || '').toUpperCase();
+    if (upperSeverity === 'CRITICAL' || upperSeverity === 'EXTREME') {
+      console.log(`[Trigger] Critical severity detected for incident ${formattedReport.id}. Initiating automated calls.`);
+      triggerAutomatedResponse(formattedReport, req.io);
+    }
+
     res.status(201).json(formattedReport);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create SOS report' });
