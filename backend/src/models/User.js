@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'responder', 'dispatcher', 'civilian'],
       default: 'civilian',
     },
+    is_verified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt

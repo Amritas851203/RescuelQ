@@ -652,10 +652,15 @@ const OperationalAnalytics = ({ reports }) => {
 };
 
 const TriageQueue = () => {
-  const { reports, updateReportStatus } = useSosStore();
+  const { reports, fetchReports, updateReportStatus } = useSosStore();
   const [activeTab, setActiveTab] = useState('queue');
   const [selectedReport, setSelectedReport] = useState(null);
   const [filterType, setFilterType] = useState('All');
+
+  React.useEffect(() => {
+    // We intentionally do NOT fetch on mount to ensure a clean operational slate
+    // fetchReports(); 
+  }, []);
 
   const filteredReports = useMemo(() => {
     let result = reports.map(r => ({ ...r, ...calculateAIScore(r) }));

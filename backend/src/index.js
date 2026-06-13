@@ -69,6 +69,7 @@ server.headersTimeout = 66000;
 // This simulates a connected system that automatically detects disasters and pushes them to the UI
 import { fetchEarthquakes, fetchGlobalDisasters } from './services/disasterService.js';
 import { randomUUID } from 'crypto';
+import SOSReport from './models/SOSReport.js';
 
 const pollIntelligence = async () => {
   try {
@@ -88,8 +89,8 @@ const pollIntelligence = async () => {
     for (const event of criticalEvents) {
       // We only "auto-promote" a small percentage to avoid flooding the DB
       if (Math.random() > 0.7) {
-        const report = {
-          id: randomUUID(),
+        // Save to MongoDB for persistence
+        const savedReport = await SOSReport.create({
           reporter_name: `AI_AUTO_DETECT: ${event.callerName}`,
           location_lat: event.location.lat,
           location_lng: event.location.lng,
@@ -98,10 +99,17 @@ const pollIntelligence = async () => {
           affected_people: event.affected_people,
           risk_level: event.risk_level,
           status: 'Pending',
-          created_at: new Date().toISOString()
+          type: event.type
+        });
+
+        const formattedReport = {
+          ...savedReport.toObject(),
+          id: savedReport._id,
+          location: { lat: savedReport.location_lat, lng: savedReport.location_lng },
+          callerName: savedReport.reporter_name
         };
         
-        io.emit('NEW_SOS_REPORT', report);
+        io.emit('NEW_SOS_REPORT', formattedReport);
         console.log(`📢 AUTO-PROMOTED: ${event.type} in ${event.address}`);
       }
     }
@@ -110,7 +118,9 @@ const pollIntelligence = async () => {
   }
 };
 
+/*
 // Start polling every 60 seconds (realistic for real-world APIs)
 setInterval(pollIntelligence, 60000);
 // Initial poll on startup
 setTimeout(pollIntelligence, 5000);
+*/

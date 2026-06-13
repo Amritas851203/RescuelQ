@@ -90,6 +90,7 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  clearError: () => set({ error: null }),
   logout: () => {
     localStorage.removeItem('rescueiq_token');
     localStorage.removeItem('rescueiq_user');

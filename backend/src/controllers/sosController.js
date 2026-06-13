@@ -1,8 +1,7 @@
-import { supabase } from '../config/supabase.js';
+import SOSReport from '../models/SOSReport.js';
 import { fetchGlobalDisasters } from '../services/disasterService.js';
-import { triggerAutomatedResponse } from '../services/EmergencyCallService.js';
 
-// Detailed Mock Data for Intelligence-Heavy UI
+// Detailed Mock Data for fallback/Intelligence-Heavy UI
 const mockSOS = [
   { 
     id: 'sos-9421', 
@@ -29,7 +28,8 @@ const mockSOS = [
     recommendedStrategy: 'Aerial extraction or shallow water boat. Prioritize medical evacuation.',
     resources: ['Medical Team', 'Rescue Boat', 'Life Jackets'],
     risk_level: 9,
-    affected_people: 5
+    affected_people: 5,
+    type: 'Flood'
   },
   { 
     id: 'sos-8820', 
@@ -56,67 +56,36 @@ const mockSOS = [
     recommendedStrategy: 'Ground rescue via Ambulance or Fire Truck. Manual lift required.',
     resources: ['Ambulance', 'Paramedics'],
     risk_level: 7,
-    affected_people: 2
-  },
-  { 
-    id: 'sos-7715', 
-    severity: 'STRANDED', 
-    victimsCount: 12, 
-    callerName: 'Unknown (Scanner)',
-    language: 'Mixed',
-    aiTrustScore: 75,
-    waterLevel: '2.1m',
-    gpsAccuracy: '±50m',
-    shelterDistance: '2.4km',
-    assignedTeam: 'None',
-    eta: '--',
-    timeSinceRequest: '12m ago',
-    commStatus: 'OFFLINE',
-    isMedical: false,
-    hasChildren: true,
-    hasSeniors: true,
-    routeRisk: 'CRITICAL',
-    location: { lat: 28.6100, lng: 77.2800 }, 
-    address: 'Mayur Vihar Ph-III',
-    aiSummary: 'Large group detected via social media scanner. Potential school building. High flood zone.',
-    transcript: '[NO DIRECT COMMS] Metadata indicates multiple victims at this coordinate.',
-    recommendedStrategy: 'Reconnaissance drone dispatch recommended. Multi-unit rescue boat deployment needed.',
-    resources: ['Recon Drone', 'Heavy Rescue Unit'],
-    risk_level: 8,
-    affected_people: 12
-  },
+    affected_people: 2,
+    type: 'Earthquake'
+  }
 ];
 
 export const getSOSReports = async (req, res) => {
   try {
-    // Parallel fetching for performance
-    const [dbResult, globalDisasters] = await Promise.allSettled([
-      supabase.from('sos_reports').select('*').order('created_at', { ascending: false }),
-      fetchGlobalDisasters()
-    ]);
+    // Only fetch from MongoDB Atlas
+    const dbReports = await SOSReport.find().sort({ created_at: -1 });
 
     let localReports = [];
-    if (dbResult.status === 'fulfilled' && !dbResult.value.error && dbResult.value.data.length > 0) {
-      localReports = dbResult.value.data.map(report => ({
-        ...report,
+    if (dbReports && dbReports.length > 0) {
+      localReports = dbReports.map(report => ({
+        ...report.toObject(),
+        id: report._id.toString(),
         location: { 
           lat: report.location_lat || 28.6139, 
           lng: report.location_lng || 77.2090 
         },
         severity: report.severity?.toUpperCase() || 'LOW',
-        callerName: report.reporter_name || 'Anonymous'
+        callerName: report.reporter_name || 'Anonymous',
+        type: report.type || 'Emergency'
       }));
-    } else {
-      localReports = mockSOS;
     }
 
-    const disasters = globalDisasters.status === 'fulfilled' ? globalDisasters.value : [];
-    
-    // Merge local incidents with global real-time disasters
-    res.json([...localReports, ...disasters]);
+    // If no DB reports, return empty list (or mocks if you prefer, but user wants clean queue)
+    res.json(localReports);
   } catch (error) {
     console.error('Controller Error:', error);
-    res.json(mockSOS);
+    res.json([]);
   }
 };
 
@@ -125,21 +94,23 @@ export const updateSOSReport = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    const { data, error } = await supabase
-      .from('sos_reports')
-      .update(updates)
-      .eq('id', id)
-      .select();
+    const report = await SOSReport.findByIdAndUpdate(id, updates, { new: true });
 
-    if (error) {
-      // If DB fails, simulate update on mock data for demo
+    if (!report) {
+      // If DB fails/not found, simulate update on mock data for demo
       const updatedMock = { ...mockSOS.find(m => m.id === id), ...updates };
       req.io.emit('UPDATE_SOS_REPORT', updatedMock);
       return res.json(updatedMock);
     }
 
-    req.io.emit('UPDATE_SOS_REPORT', data[0]);
-    res.json(data[0]);
+    const formattedReport = {
+      ...report.toObject(),
+      id: report._id,
+      location: { lat: report.location_lat, lng: report.location_lng }
+    };
+
+    req.io.emit('UPDATE_SOS_REPORT', formattedReport);
+    res.json(formattedReport);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update SOS report' });
   }
@@ -147,43 +118,37 @@ export const updateSOSReport = async (req, res) => {
 
 export const createSOSReport = async (req, res) => {
   try {
-    const { lat, lng, name, message, severity, victimsCount, risk_level } = req.body;
+    console.log('📥 Incoming Mock SOS Request:', req.body);
+    const { lat, lng, name, message, severity, victimsCount, risk_level, type, injury_severity } = req.body;
     
-    const { data, error } = await supabase
-      .from('sos_reports')
-      .insert([{
-        reporter_name: name,
-        location_lat: lat,
-        location_lng: lng,
-        message: message,
-        severity: severity || 'pending',
-        affected_people: victimsCount || 1,
-        risk_level: risk_level || 5
-      }])
-      .select();
+    const report = await SOSReport.create({
+      reporter_name: name,
+      location_lat: lat,
+      location_lng: lng,
+      message: message,
+      severity: severity || 'pending',
+      affected_people: victimsCount || 1,
+      risk_level: risk_level || 5,
+      type: type || 'Emergency',
+      injury_severity: injury_severity || 5
+    });
 
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
+    console.log('💾 SOS Report saved to MongoDB:', report._id);
 
     const formattedReport = {
-      ...data[0],
-      location: { lat: data[0].location_lat, lng: data[0].location_lng },
-      callerName: data[0].reporter_name
+      ...report.toObject(),
+      id: report._id.toString(),
+      location: { lat: report.location_lat, lng: report.location_lng },
+      callerName: report.reporter_name,
+      type: report.type || 'Emergency'
     };
 
+    console.log('📡 Broadcasting NEW_SOS_REPORT to all units:', formattedReport.id);
     req.io.emit('NEW_SOS_REPORT', formattedReport);
-
-    // Trigger AI Emergency Calling if Severity is Critical
-    const upperSeverity = (severity || '').toUpperCase();
-    if (upperSeverity === 'CRITICAL' || upperSeverity === 'EXTREME') {
-      console.log(`[Trigger] Critical severity detected for incident ${formattedReport.id}. Initiating automated calls.`);
-      triggerAutomatedResponse(formattedReport, req.io);
-    }
-
     res.status(201).json(formattedReport);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create SOS report' });
+    console.error('Create SOS Error:', error);
+    res.status(500).json({ error: 'Failed to create SOS report in MongoDB' });
   }
 };
 
@@ -192,15 +157,7 @@ export const updateSOSStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const { data, error } = await supabase
-      .from('sos_reports')
-      .update({ status })
-      .eq('id', id)
-      .select();
-
-    if (error) {
-      console.warn('Supabase update failed (might be a mock/GDACS incident without DB record). Falling back to socket emit only.');
-    }
+    const report = await SOSReport.findByIdAndUpdate(id, { status }, { new: true });
 
     req.io.emit('SOS_STATUS_UPDATED', { id, status });
     res.status(200).json({ id, status, message: 'Status updated successfully' });

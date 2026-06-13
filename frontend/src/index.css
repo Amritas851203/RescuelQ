@@ -24,11 +24,8 @@
 
 @layer base {
   body {
-<<<<<<< HEAD
     @apply bg-background text-white antialiased overflow-x-hidden selection:bg-cyan-500/30;
-=======
-    @apply bg-background text-white antialiased selection:bg-cyan-500/30;
->>>>>>> origin/Amrita/ReascuelQ
+
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
@@ -166,7 +163,6 @@
   30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
   40%, 60% { transform: translate3d(4px, 0, 0); }
 }
-<<<<<<< HEAD
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-20px); }
@@ -312,8 +308,6 @@
   50% { transform: translateY(-10px) rotateX(-2deg) rotateY(2deg); }
 }
 
-=======
->>>>>>> origin/Amrita/ReascuelQ
 /* Autofill Overrides */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 

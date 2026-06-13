@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import { supabase } from '../config/supabase.js';
+import User from '../models/User.js';
+import OTP from '../models/OTP.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rescueiq_super_secret_key_2026';
 const OTP_EXPIRY_MINS = 10;
@@ -55,17 +56,10 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: 'Missing required enlistment fields' });
     }
 
-    // Check if user exists
-    const { data: existingUser, error: checkError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
+    const cleanEmail = email.trim().toLowerCase();
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('SUPABASE CHECK ERROR:', checkError);
-      return res.status(500).json({ error: `Supabase Connection Error: ${checkError.message || 'Unknown network error'}` });
-    }
+    // Check if user exists in MongoDB
+    const existingUser = await User.findOne({ email: cleanEmail });
 
     if (existingUser) {
       return res.status(400).json({ error: 'Operator already enlisted with this email' });
@@ -78,33 +72,27 @@ export const signup = async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINS * 60000);
 
-    // Store User & OTP in Supabase (transaction-like)
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .insert([{ email, password_hash: hashedPassword, full_name: fullName, is_verified: true }])
-      .select()
-      .single();
+    // Store User in MongoDB (keep is_verified: true by default to match existing flow)
+    const user = await User.create({
+      name: fullName,
+      email: cleanEmail,
+      password: hashedPassword,
+      is_verified: true
+    });
 
-    if (userError) {
-      console.error('DATABASE ERROR (users):', userError);
-      throw userError;
-    }
-
-    const { error: otpError } = await supabase
-      .from('otps')
-      .upsert([{ email, code: otp, expires_at: expiresAt.toISOString() }]);
-
-    if (otpError) {
-      console.error('DATABASE ERROR (otps):', otpError);
-      throw otpError;
-    }
+    // Store OTP in MongoDB
+    await OTP.findOneAndUpdate(
+      { email: cleanEmail },
+      { code: otp, expires_at: expiresAt },
+      { upsert: true, new: true }
+    );
 
     // Send Email (Non-blocking)
-    sendOTPEmail(email, otp);
+    sendOTPEmail(cleanEmail, otp);
 
     res.status(201).json({ 
       message: 'Signup successful. Operational access code transmitted to email.', 
-      email 
+      email: cleanEmail 
     });
   } catch (error) {
     console.error('SIGNUP CRITICAL ERROR:', error);
@@ -115,34 +103,42 @@ export const signup = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { email, code } = req.body;
+    const cleanEmail = email?.trim().toLowerCase();
 
-    const { data: otpData, error: otpError } = await supabase
-      .from('otps')
-      .select('*')
-      .eq('email', email)
-      .eq('code', code)
-      .single();
+    const otpData = await OTP.findOne({ email: cleanEmail, code });
 
-    if (otpError || !otpData) {
+    if (!otpData) {
       return res.status(400).json({ error: 'Invalid or expired OTP' });
     }
 
-    if (new Date(otpData.expires_at) < new Date()) {
+    if (otpData.expires_at < new Date()) {
       return res.status(400).json({ error: 'OTP has expired' });
     }
 
     // Mark user as verified
-    await supabase.from('users').update({ is_verified: true }).eq('email', email);
+    const user = await User.findOneAndUpdate(
+      { email: cleanEmail },
+      { is_verified: true },
+      { new: true }
+    );
     
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     // Delete OTP
-    await supabase.from('otps').delete().eq('email', email);
+    await OTP.deleteOne({ email: cleanEmail });
 
     // Generate Token
-    const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
-    res.json({ message: 'Account verified', token, user: { id: user.id, email: user.email, fullName: user.full_name } });
+    res.json({ 
+      message: 'Account verified', 
+      token, 
+      user: { id: user._id, email: user.email, fullName: user.name } 
+    });
   } catch (error) {
+    console.error('VERIFY OTP ERROR:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -163,13 +159,9 @@ export const login = async (req, res) => {
       });
     }
 
-    const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', cleanEmail)
-      .single();
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
 
-    if (error || !user) {
+    if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
@@ -177,18 +169,19 @@ export const login = async (req, res) => {
       return res.status(403).json({ error: 'Account not verified. Please check your email.', unverified: true });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    const isMatch = await bcrypt.compare(cleanPassword, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({ 
       token, 
-      user: { id: user.id, email: user.email, fullName: user.full_name } 
+      user: { id: user._id, email: user.email, fullName: user.name } 
     });
   } catch (error) {
+    console.error('LOGIN ERROR:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -196,14 +189,26 @@ export const login = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+    const cleanEmail = email?.trim().toLowerCase();
+    
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINS * 60000);
 
-    await supabase.from('otps').upsert([{ email, code: otp, expires_at: expiresAt.toISOString() }]);
-    await sendOTPEmail(email, otp);
+    await OTP.findOneAndUpdate(
+      { email: cleanEmail },
+      { code: otp, expires_at: expiresAt },
+      { upsert: true, new: true }
+    );
+    await sendOTPEmail(cleanEmail, otp);
 
     res.json({ message: 'Reset code sent to your email.' });
   } catch (error) {
+    console.error('FORGOT PASSWORD ERROR:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -211,24 +216,21 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { email, code, newPassword } = req.body;
+    const cleanEmail = email?.trim().toLowerCase();
 
-    const { data: otpData } = await supabase
-      .from('otps')
-      .select('*')
-      .eq('email', email)
-      .eq('code', code)
-      .single();
+    const otpData = await OTP.findOne({ email: cleanEmail, code });
 
-    if (!otpData || new Date(otpData.expires_at) < new Date()) {
+    if (!otpData || otpData.expires_at < new Date()) {
       return res.status(400).json({ error: 'Invalid or expired code' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await supabase.from('users').update({ password_hash: hashedPassword }).eq('email', email);
-    await supabase.from('otps').delete().eq('email', email);
+    await User.findOneAndUpdate({ email: cleanEmail }, { password: hashedPassword });
+    await OTP.deleteOne({ email: cleanEmail });
 
     res.json({ message: 'Password reset successful. You can now login.' });
   } catch (error) {
+    console.error('RESET PASSWORD ERROR:', error);
     res.status(500).json({ error: error.message });
   }
 };

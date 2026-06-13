@@ -1,5 +1,5 @@
 import { processAudioToText, classifySeverityAndLocation } from '../services/aiService.js';
-import { supabase } from '../config/supabase.js';
+import SOSReport from '../models/SOSReport.js';
 
 export const handleTwilioWebhook = async (req, res) => {
   try {
@@ -19,39 +19,29 @@ export const handleTwilioWebhook = async (req, res) => {
     const aiAnalysis = await classifySeverityAndLocation(text);
     console.log(`AI Analysis:`, aiAnalysis);
 
-    // 3. Save to Supabase
-    const reportData = {
-      caller_phone: From || '+1234567890',
-      transcription: text,
-      severity: aiAnalysis.severity,
-      urgency_score: aiAnalysis.urgency_score,
-      location: aiAnalysis.location || { lat: 19.0760, lng: 72.8777 },
-      summary: aiAnalysis.summary,
-      status: 'New'
+    // 3. Save to MongoDB
+    const report = await SOSReport.create({
+      reporter_name: From || 'Twilio Call',
+      location_lat: aiAnalysis.location?.lat || 19.0760,
+      location_lng: aiAnalysis.location?.lng || 72.8777,
+      message: `[TWILIO CALL] ${text} | Summary: ${aiAnalysis.summary}`,
+      severity: aiAnalysis.severity || 'high',
+      affected_people: 1,
+      risk_level: aiAnalysis.urgency_score || 7,
+      status: 'Pending',
+      type: 'Emergency'
+    });
+
+    const formattedIncident = {
+      ...report.toObject(),
+      id: report._id.toString(),
+      location: { lat: report.location_lat, lng: report.location_lng },
+      callerName: report.reporter_name,
+      type: report.type || 'Emergency'
     };
 
-    let savedReport = reportData;
-
-    // Optional: Save to DB if configured
-    if (process.env.SUPABASE_URL) {
-      const { data, error } = await supabase
-        .from('sos_reports')
-        .insert([reportData])
-        .select();
-      
-      if (!error && data) {
-        savedReport = data[0];
-      } else {
-        console.error('Failed to save to Supabase:', error);
-      }
-    } else {
-      // Mock ID
-      savedReport.id = Math.random().toString(36).substr(2, 9);
-      savedReport.created_at = new Date().toISOString();
-    }
-
     // 4. Emit Realtime Event via Socket.IO
-    req.io.emit('NEW_SOS_REPORT', savedReport);
+    req.io.emit('NEW_SOS_REPORT', formattedIncident);
     console.log('Emitted NEW_SOS_REPORT event to clients');
 
     // Return TwiML response to end the call gracefully

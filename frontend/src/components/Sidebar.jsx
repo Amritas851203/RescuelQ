@@ -1,10 +1,61 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Map, Users, AlertTriangle, Shield, Radio, Home, Settings, LogOut, User, PhoneCall } from 'lucide-react';
+import { Activity, Map, Users, AlertTriangle, Shield, Radio, Home, Settings, LogOut, User, Wallet } from 'lucide-react';
 import clsx from 'clsx';
 import useSosStore from '../store/useSosStore';
 import useAuthStore from '../store/useAuthStore';
-import useCallStore from '../store/useCallStore';
 import axios from 'axios';
+import { useState } from 'react';
+
+const MOCK_INCIDENTS = [
+  { 
+    name: 'Flash Flood Delta-9', 
+    type: 'Flood', 
+    desc: 'Rapid water level rise in Sector 7. 40+ civilians trapped on rooftops.',
+    severity: 'CRITICAL',
+    risk: 10,
+    victims: 45
+  },
+  { 
+    name: 'Seismic Event Alpha', 
+    type: 'Earthquake', 
+    desc: '7.2 Magnitude detected. Structural collapse in industrial zone.',
+    severity: 'CRITICAL',
+    risk: 9,
+    victims: 120
+  },
+  { 
+    name: 'Industrial Firestorm', 
+    type: 'Fire', 
+    desc: 'Chemical plant explosion. High risk of toxic plume spread.',
+    severity: 'CRITICAL',
+    risk: 10,
+    victims: 32
+  },
+  { 
+    name: 'Tsunami Warning', 
+    type: 'Flood', 
+    desc: 'Oceanic surge detected. Coastal evacuation mandatory.',
+    severity: 'CRITICAL',
+    risk: 10,
+    victims: 2500
+  },
+  { 
+    name: 'Gas Leak Sigma', 
+    type: 'Gas Leak', 
+    desc: 'Main pipeline rupture. Explosive atmosphere detected.',
+    severity: 'HIGH',
+    risk: 8,
+    victims: 12
+  },
+  { 
+    name: 'Chemical Spill Epsilon', 
+    type: 'Emergency', 
+    desc: 'Hazardous material leak in logistics hub. Zone-4 lockdown active.',
+    severity: 'HIGH',
+    risk: 8,
+    victims: 24
+  }
+];
 
 const navItems = [
   { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -13,13 +64,15 @@ const navItems = [
   { icon: Users, label: 'Team Dispatch', path: '/teams' },
   { icon: Shield, label: 'Shelters', path: '/shelters' },
   { icon: Radio, label: 'Social Scanner', path: '/social' },
-  { icon: PhoneCall, label: 'Emergency Calls', path: '/emergency' },
+  { icon: Wallet, label: 'Relief Fund Ledger', path: '/relief-ledger' },
   { icon: Settings, label: 'Settings', path: '/settings' },
 ];
+
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [mockIndex, setMockIndex] = useState(0);
   const addReport = useSosStore((state) => state.addReport);
   const { logout, user } = useAuthStore();
 
@@ -31,55 +84,30 @@ const Sidebar = () => {
   };
 
   const handleActivateMock = () => {
-    const types = [
-      { name: 'Flood Response', strategy: 'Rapid water extraction.', desc: 'Severe waterlogging and entrapment in low-lying residential sectors.' },
-      { name: 'Earthquake Alert', strategy: 'Structural stabilization.', desc: 'High-magnitude tremors detected. Multiple structural collapses reported.' },
-      { name: 'Cyclone Warning', strategy: 'Coastal evacuation.', desc: 'High-speed winds and heavy surge threatening coastal infrastructure.' },
-      { name: 'Landslide Crisis', strategy: 'Terrain clearance.', desc: 'Major terrain collapse blocking critical mountain transit routes.' },
-      { name: 'Structure Fire', strategy: 'Thermal suppression.', desc: 'Large-scale structural fire with potential for chemical escalation.' },
-      { name: 'Tsunami Alert', strategy: 'Deep-sea rescue.', desc: 'Massive wave impact confirmed in Sector-4 coastal hub.' }
-    ];
-
-    const selected = types[Math.floor(Math.random() * types.length)];
-    const severity = 'CRITICAL';
-
+    const selected = MOCK_INCIDENTS[mockIndex % MOCK_INCIDENTS.length];
+    
     const payload = {
-      name: 'Tactical HQ (MOCK)',
-      message: `[MOCK ALERT] ${selected.desc}`,
-      lat: 28.6139 + (Math.random() - 0.5) * 0.2,
-      lng: 77.2090 + (Math.random() - 0.5) * 0.2,
-      severity: severity,
-      victimsCount: Math.floor(Math.random() * 15) + 5,
-      risk_level: severity === 'CRITICAL' ? 9 : 6
+      name: selected.name,
+      message: selected.desc,
+      lat: 28.6139 + (Math.random() - 0.5) * 0.1,
+      lng: 77.2090 + (Math.random() - 0.5) * 0.1,
+      severity: selected.severity,
+      type: selected.type,
+      victimsCount: selected.victims,
+      risk_level: selected.risk,
+      injury_severity: selected.severity === 'CRITICAL' ? 10 : 7
     };
 
-    // Call backend API so it triggers the calling system
-    axios.post('/api/sos/report', payload)
+    axios.post('/api/sos', payload)
       .then(res => {
-        console.log('Mock SOS activated on backend:', res.data);
+        console.log('✅ Mock Incident Spawned:', res.data);
+        setMockIndex(prev => prev + 1);
       })
       .catch(err => {
-        console.error('Failed to activate mock on backend:', err);
+        console.error('❌ Spawn Failure:', err.message);
       });
-
-    // Local trigger fallback to ensure UI pops up immediately for testing
-    useCallStore.getState().initiateIncomingCall({
-      id: 'MOCK-' + Date.now(),
-      callerName: 'Tactical HQ',
-      type: selected.name,
-      location: payload.address || 'Sector 14, Delhi',
-      priority: 'CRITICAL'
-    });
-
-    // Add initial AI briefing to the transcript after 2 seconds
-    setTimeout(() => {
-      useCallStore.getState().addTranscript({
-        source: 'AI Agent',
-        text: `Tactical Alert: ${selected.name} detected. Responder interaction is required for tactical briefing.`,
-        timestamp: new Date().toISOString()
-      });
-    }, 2000);
   };
+
 
   return (
     <aside className="w-64 bg-gray-950 border-r border-white/5 hidden md:flex flex-col z-50">

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { supabase } from '../config/supabase.js';
+import SOSReport from '../models/SOSReport.js';
 import { randomUUID } from 'crypto';
 import { triggerAutomatedResponse } from '../services/EmergencyCallService.js';
 
@@ -212,70 +212,30 @@ export const convertToIncident = async (req, res) => {
       message: intelligenceMessage,
       severity: String(alert.priority || 'pending'),
       affected_people: Number(alert.affected) || 0,
-      risk_level: Math.floor(Number(alert.riskLevel) || 5)
+      risk_level: Math.floor(Number(alert.riskLevel) || 5),
+      type: alert.type || 'Emergency'
     };
 
     console.log('PREPARING INSERT:', JSON.stringify(sosReport));
 
-    // 2. Insert into Supabase
-    const { data, error } = await supabase
-      .from('sos_reports')
-      .insert([sosReport])
-      .select();
+    // Save to MongoDB
+    const report = await SOSReport.create(sosReport);
 
-    if (error) {
-      console.error('SUPABASE PRIMARY ERROR:', error.message);
-      
-      const minimalReport = {
-        reporter_name: 'AI Scanner Fallback',
-        location_lat: sosReport.location_lat,
-        location_lng: sosReport.location_lng,
-        message: sosReport.message
-      };
-      
-      const { data: fbData, error: fbError } = await supabase
-        .from('sos_reports')
-        .insert([minimalReport])
-        .select();
+    const formattedIncident = {
+      ...report.toObject(),
+      id: report._id.toString(),
+      location: { lat: report.location_lat, lng: report.location_lng },
+      callerName: report.reporter_name,
+      type: report.type || 'Emergency',
+      address: alert.location || 'Unknown',
+      aiSummary: alert.content || 'Critical intelligence alert'
+    };
 
-      if (fbError) {
-        console.error('SUPABASE FALLBACK ERROR:', fbError.message);
-        const errorMessage = fbError.message.includes('not found') 
-          ? 'Database Error: Table "sos_reports" missing. Please run SCHEMA.md in Supabase.'
-          : fbError.message;
-        return res.status(500).json({ message: errorMessage });
-      }
-      
-      if (req.io && fbData && fbData.length > 0) {
-        req.io.emit('NEW_SOS_REPORT', {
-          ...fbData[0],
-          location: { lat: fbData[0].location_lat, lng: fbData[0].location_lng },
-          callerName: fbData[0].reporter_name
-        });
-      }
-
-      console.log('FALLBACK SUCCESS');
-      return res.status(200).json({ 
-        message: 'Promoted in Fallback Mode', 
-        incident: fbData ? fbData[0] : null,
-        status: 'success'
-      });
-    }
-
-    if (req.io && data && data.length > 0) {
-      const formattedIncident = {
-        ...data[0],
-        location: { lat: data[0].location_lat, lng: data[0].location_lng },
-        callerName: data[0].reporter_name,
-        type: alert.type || 'Incident',
-        address: alert.location || 'Unknown',
-        aiSummary: alert.content || 'Critical intelligence alert'
-      };
-
+    if (req.io) {
       req.io.emit('NEW_SOS_REPORT', formattedIncident);
 
-      // Trigger AI Emergency Calling
-      const upperSeverity = (data[0].severity || '').toUpperCase();
+      // Trigger AI Emergency Calling if severe
+      const upperSeverity = (report.severity || '').toUpperCase();
       if (upperSeverity === 'CRITICAL' || upperSeverity === 'EXTREME' || upperSeverity === 'HIGH') {
         console.log(`[Social Trigger] Critical intelligence promoted. Initiating automated calls for ${formattedIncident.id}`);
         triggerAutomatedResponse(formattedIncident, req.io);
@@ -285,7 +245,7 @@ export const convertToIncident = async (req, res) => {
     console.log('CONVERSION SUCCESS');
     res.status(200).json({ 
       message: 'Intelligence successfully promoted', 
-      incident: data ? data[0] : null,
+      incident: formattedIncident,
       status: 'success'
     });
   } catch (error) {

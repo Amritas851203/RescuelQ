@@ -1,6 +1,6 @@
 import DispatchService from '../services/DispatchService.js';
 import geminiService from '../services/geminiService.js';
-import { supabase } from '../config/supabase.js';
+import SOSReport from '../models/SOSReport.js';
 
 export default function setupSockets(io) {
   // Simulation Loop
@@ -48,13 +48,13 @@ export default function setupSockets(io) {
       try {
         let incidentData = { type: 'Incident', severity: 'Critical', address: 'Unknown', aiSummary: 'Critical intelligence dispatch.', language };
         
-        if (incidentId && process.env.SUPABASE_URL) {
-          const { data: dbData } = await supabase.from('sos_reports').select('*').eq('id', incidentId).single();
+        if (incidentId) {
+          const dbData = await SOSReport.findById(incidentId);
           if (dbData) {
             incidentData = {
               type: dbData.type || 'Incident',
               severity: dbData.severity,
-              address: dbData.message.split('|')[0] || 'Unknown Location',
+              address: dbData.message?.split('|')[0] || 'Unknown Location',
               aiSummary: dbData.message,
               affected_people: dbData.affected_people || 1200,
               risk_level: dbData.risk_level || 8,
@@ -89,13 +89,13 @@ export default function setupSockets(io) {
 
       try {
         let incidentData = { type: 'Incident', severity: 'Critical', address: 'Unknown', aiSummary: 'Critical intelligence dispatch.', language };
-        if (incidentId && process.env.SUPABASE_URL) {
-          const { data: dbData } = await supabase.from('sos_reports').select('*').eq('id', incidentId).single();
+        if (incidentId) {
+          const dbData = await SOSReport.findById(incidentId);
           if (dbData) {
             incidentData = {
               type: dbData.type || 'Incident',
               severity: dbData.severity,
-              address: dbData.message.split('|')[0] || 'Unknown Location',
+              address: dbData.message?.split('|')[0] || 'Unknown Location',
               aiSummary: dbData.message,
               language
             };

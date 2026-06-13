@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import mongoose from 'mongoose';
-import User from './models/User.js';
-import Incident from './models/Incident.js';
-import Team from './models/Team.js';
+import User from '../src/models/User.js';
+import Incident from '../src/models/Incident.js';
+import Team from '../src/models/Team.js';
 
 const seedDatabase = async () => {
   try {

@@ -1,5 +1,5 @@
 import geminiService from '../services/geminiService.js';
-import { supabase } from '../config/supabase.js';
+import SOSReport from '../models/SOSReport.js';
 
 export const handleVoiceWebhook = async (req, res) => {
   const { SpeechResult, incidentId, CallSid, Language = 'en-IN' } = req.body;
@@ -11,13 +11,13 @@ export const handleVoiceWebhook = async (req, res) => {
     // 1. Fetch incident context
     let incidentData = { type: 'Incident', severity: 'Critical', address: 'Unknown', aiSummary: 'Critical intelligence dispatch.' };
     
-    if (incidentId && process.env.SUPABASE_URL) {
-      const { data } = await supabase.from('sos_reports').select('*').eq('id', incidentId).single();
+    if (incidentId) {
+      const data = await SOSReport.findById(incidentId);
       if (data) {
         incidentData = {
           type: data.type || 'Incident',
           severity: data.severity,
-          address: data.message.split('|')[0] || 'Unknown Location',
+          address: data.message?.split('|')[0] || 'Unknown Location',
           aiSummary: data.message
         };
       }

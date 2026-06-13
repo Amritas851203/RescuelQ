@@ -24,7 +24,7 @@ const useSosStore = create((set, get) => ({
     }
   },
 
-  addReport: (report) => set((state) => ({ reports: [report, ...state.reports] })),
+  addReport: (report) => set((state) => ({ reports: [...state.reports, report] })),
   setReports: (reports) => set({ reports }),
   updateReportStatus: async (id, status) => {
     try {
