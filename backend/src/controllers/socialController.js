@@ -1,7 +1,6 @@
 import axios from 'axios';
 import SOSReport from '../models/SOSReport.js';
 import { randomUUID } from 'crypto';
-import { triggerAutomatedResponse } from '../services/EmergencyCallService.js';
 
 // Simulation of AI analyzing a post
 const analyzeIncident = (content, type) => {
@@ -233,13 +232,6 @@ export const convertToIncident = async (req, res) => {
 
     if (req.io) {
       req.io.emit('NEW_SOS_REPORT', formattedIncident);
-
-      // Trigger AI Emergency Calling if severe
-      const upperSeverity = (report.severity || '').toUpperCase();
-      if (upperSeverity === 'CRITICAL' || upperSeverity === 'EXTREME' || upperSeverity === 'HIGH') {
-        console.log(`[Social Trigger] Critical intelligence promoted. Initiating automated calls for ${formattedIncident.id}`);
-        triggerAutomatedResponse(formattedIncident, req.io);
-      }
     }
 
     console.log('CONVERSION SUCCESS');
