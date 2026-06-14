@@ -37,6 +37,17 @@ router.post('/social/convert', authMiddleware, convertToIncident);
 router.post('/social/archive', authMiddleware, archiveAlert);
 
 
+// Emergency Calling endpoints
+import { getCallLogs, getContacts, manualTriggerCall, handleCallStatusWebhook, getCallAnalytics } from '../controllers/EmergencyCallController.js';
+import { handleVoiceWebhook } from '../controllers/EmergencyVoiceController.js';
+
+router.get('/emergency/logs', authMiddleware, getCallLogs);
+router.get('/emergency/contacts', authMiddleware, getContacts);
+router.post('/emergency/call', authMiddleware, manualTriggerCall);
+router.get('/emergency/analytics', authMiddleware, getCallAnalytics);
+router.post('/emergency/call-status', handleCallStatusWebhook);
+router.post('/emergency/voice-webhook', handleVoiceWebhook);
+
 // Twilio Webhook
 router.post('/webhook/twilio', handleTwilioWebhook);
 

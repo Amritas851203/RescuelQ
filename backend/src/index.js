@@ -118,9 +118,7 @@ const pollIntelligence = async () => {
   }
 };
 
-/*
 // Start polling every 60 seconds (realistic for real-world APIs)
 setInterval(pollIntelligence, 60000);
 // Initial poll on startup
 setTimeout(pollIntelligence, 5000);
-*/
