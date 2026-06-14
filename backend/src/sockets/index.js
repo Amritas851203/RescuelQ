@@ -1,6 +1,4 @@
 import DispatchService from '../services/DispatchService.js';
-import geminiService from '../services/geminiService.js';
-import SOSReport from '../models/SOSReport.js';
 
 export default function setupSockets(io) {
   // Simulation Loop
@@ -38,83 +36,6 @@ export default function setupSockets(io) {
         io.to('command_center').emit('mission_assigned', mission);
       } catch (error) {
         socket.emit('error', { message: error.message });
-      }
-    });
-
-    socket.on('RESPONDER_SPEECH', async (data) => {
-      const { callSid, incidentId, text, language } = data;
-      console.log(`[Socket Voice] Responder (${language}): "${text}"`);
-
-      try {
-        let incidentData = { type: 'Incident', severity: 'Critical', address: 'Unknown', aiSummary: 'Critical intelligence dispatch.', language };
-        
-        if (incidentId) {
-          const dbData = await SOSReport.findById(incidentId);
-          if (dbData) {
-            incidentData = {
-              type: dbData.type || 'Incident',
-              severity: dbData.severity,
-              address: dbData.message?.split('|')[0] || 'Unknown Location',
-              aiSummary: dbData.message,
-              affected_people: dbData.affected_people || 1200,
-              risk_level: dbData.risk_level || 8,
-              resources: dbData.resources || ['Alpha Unit', 'Medic 1', 'Rescue 4'],
-              language
-            };
-          }
-        }
-
-        const aiResponse = await geminiService.generateEmergencyResponse(text, incidentData);
-        
-        io.emit('LIVE_TRANSCRIPT', {
-          call_sid: callSid,
-          incident_id: incidentId,
-          text: aiResponse,
-          source: 'AI Agent',
-          timestamp: new Date().toISOString()
-        });
-      } catch (error) {
-        console.error('Socket Voice Processing Error:', error);
-      }
-    });
-
-    socket.on('ACCEPT_CALL', async (data) => {
-      const { callSid, incidentId, language } = data;
-      console.log(`[Socket] Call ${callSid} accepted. Language: ${language}`);
-      
-      io.emit('EMERGENCY_CALL_STATUS_UPDATE', {
-        call_sid: callSid,
-        status: 'Connected'
-      });
-
-      try {
-        let incidentData = { type: 'Incident', severity: 'Critical', address: 'Unknown', aiSummary: 'Critical intelligence dispatch.', language };
-        if (incidentId) {
-          const dbData = await SOSReport.findById(incidentId);
-          if (dbData) {
-            incidentData = {
-              type: dbData.type || 'Incident',
-              severity: dbData.severity,
-              address: dbData.message?.split('|')[0] || 'Unknown Location',
-              aiSummary: dbData.message,
-              language
-            };
-          }
-        }
-
-        // Generate multilingual initial briefing
-        const multilingualPrompt = `Hello, this is RescueIQ Dispatch. A ${incidentData.severity} ${incidentData.type} has been detected at ${incidentData.address}. Please provide an initial briefing to the responder in their selected language (${language}).`;
-        const aiResponse = await geminiService.generateEmergencyResponse(multilingualPrompt, incidentData);
-
-        io.emit('LIVE_TRANSCRIPT', {
-          call_sid: callSid,
-          incident_id: incidentId,
-          text: aiResponse,
-          source: 'AI Agent',
-          timestamp: new Date().toISOString()
-        });
-      } catch (error) {
-        console.error('Error sending initial briefing:', error);
       }
     });
 

@@ -12,12 +12,10 @@ import CommandCenter from './pages/CommandCenter';
 import Shelters from './pages/Shelters';
 import Settings from './pages/Settings';
 import LandingPage from './pages/LandingPage';
-import EmergencyCalling from './pages/EmergencyCalling';
 import useRealtime from './hooks/useRealtime';
 import useAuthStore from './store/useAuthStore';
 import TacticalLoader from './components/TacticalLoader';
 import AIChatBot from './components/AIChatBot';
-import CallOverlay from './components/CallOverlay';
 
 import clsx from 'clsx';
 
@@ -45,7 +43,6 @@ const ProtectedLayout = ({ children, noPadding = false }) => {
   return (
     <>
       <TacticalLoader isDone={!isSyncing} />
-      <CallOverlay />
       <div className="flex h-screen overflow-hidden bg-background font-sans">
         <Sidebar />
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -116,12 +113,6 @@ function AppContent() {
         <Route path="/shelters" element={
           <ProtectedLayout>
             <Shelters />
-          </ProtectedLayout>
-        } />
-
-        <Route path="/emergency" element={
-          <ProtectedLayout>
-            <EmergencyCalling />
           </ProtectedLayout>
         } />
 

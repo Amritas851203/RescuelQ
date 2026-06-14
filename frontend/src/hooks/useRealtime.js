@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 import useSosStore from '../store/useSosStore';
 import useSocialStore from '../store/useSocialStore';
-import useCallStore from '../store/useCallStore';
 
 export const socket = io('/', {
   transports: ['polling', 'websocket'],
@@ -64,33 +63,6 @@ const useRealtime = () => {
       useSocialStore.getState().setAlerts(alerts);
     });
 
-    socket.on('EMERGENCY_CALL_STATUS', (callData) => {
-      console.log('Tactical call signal received:', callData);
-      if (callData.status === 'Initiating' || callData.status === 'Ringing') {
-        useCallStore.getState().initiateIncomingCall({
-          call_sid: callData.call_sid,
-          incident_id: callData.incident_id,
-          callerName: callData.contact_name || 'AI Dispatch',
-          type: 'Emergency Alert',
-          location: callData.location || 'Tactical Sector',
-          priority: 'CRITICAL'
-        });
-      } else if (callData.status === 'Completed' || callData.status === 'Failed') {
-        useCallStore.getState().endCall();
-      }
-    });
-
-    socket.on('EMERGENCY_CALL_STATUS_UPDATE', (update) => {
-      if (update.status === 'Completed' || update.status === 'Failed') {
-        useCallStore.getState().endCall();
-      }
-    });
-
-    socket.on('LIVE_TRANSCRIPT', (data) => {
-      console.log('Realtime AI Transcript:', data);
-      useCallStore.getState().addTranscript(data);
-    });
-
     return () => {
       socket.off('connect');
       socket.off('connect_error');
@@ -98,9 +70,6 @@ const useRealtime = () => {
       socket.off('NEW_SOS_REPORT');
       socket.off('SOS_STATUS_UPDATED');
       socket.off('INTEL_FEED_UPDATE');
-      socket.off('EMERGENCY_CALL_STATUS');
-      socket.off('EMERGENCY_CALL_STATUS_UPDATE');
-      socket.off('LIVE_TRANSCRIPT');
     };
   }, [addReport]);
 };
