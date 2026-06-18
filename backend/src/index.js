@@ -15,35 +15,24 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = [
-  'https://rescuei-q.vercel.app',
-  'https://rescue-q.vercel.app',
-  'https://rescu-q.vercel.app',
-  'https://rescuel-q.vercel.app', // Explicit support for the 'l' spelling variation
-  'http://localhost:5173',
-  'http://localhost:3000'
-];
-
 const corsOptions = {
-  origin: (origin, callback) => {
-    console.log(`[CORS Request Audit] Origin: ${origin}`);
-    if (!origin) return callback(null, true);
-    const originLower = origin.toLowerCase();
-    const isAllowed = allowedOrigins.includes(originLower) || 
-                      /^https:\/\/rescu[a-z0-9-]*\.vercel\.app$/.test(originLower) ||
-                      /^http:\/\/localhost(:\d+)?$/.test(originLower) ||
-                      /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(originLower);
-                      
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.warn(`[CORS Request Blocked] Origin: ${origin}`);
-      callback(null, false);
-    }
-  },
+  origin: [
+    'https://rescuel-q.vercel.app',
+    'https://rescuei-q.vercel.app',
+    'https://rescue-q.vercel.app',
+    'https://rescu-q.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:5999',
+    /\.vercel\.app$/,
+    /^http:\/\/localhost(:\d+)?$/,
+    /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
@@ -53,19 +42,16 @@ app.use(express.urlencoded({ extended: true }));
 // Setup Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      const originLower = origin.toLowerCase();
-      const isAllowed = allowedOrigins.includes(originLower) || 
-                        /^https:\/\/rescu[a-z0-9-]*\.vercel\.app$/.test(originLower) ||
-                        /^http:\/\/localhost(:\d+)?$/.test(originLower) ||
-                        /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(originLower);
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        callback(null, false);
-      }
-    },
+    origin: [
+      'https://rescuel-q.vercel.app',
+      'https://rescuei-q.vercel.app',
+      'https://rescue-q.vercel.app',
+      'https://rescu-q.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      /\.vercel\.app$/,
+      /^http:\/\/localhost(:\d+)?$/,
+    ],
     methods: ['GET', 'POST'],
     credentials: true
   }
