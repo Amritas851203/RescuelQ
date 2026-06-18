@@ -19,6 +19,7 @@ const allowedOrigins = [
   'https://rescuei-q.vercel.app',
   'https://rescue-q.vercel.app',
   'https://rescu-q.vercel.app',
+  'https://rescuel-q.vercel.app', // Explicit support for the 'l' spelling variation
   'http://localhost:5173',
   'http://localhost:3000'
 ];
