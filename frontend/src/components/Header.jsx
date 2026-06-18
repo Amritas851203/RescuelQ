@@ -1,10 +1,12 @@
-import { Search, Bell, User, Wifi, LogOut, ShieldCheck, Mail, Clock } from 'lucide-react';
+import { Search, Bell, User, Wifi, LogOut, ShieldCheck, Mail, Clock, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
+import useUiStore from '../store/useUiStore';
 
 const Header = () => {
   const { user, logout } = useAuthStore();
+  const { toggleMobileSidebar } = useUiStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
 
@@ -29,8 +31,14 @@ const Header = () => {
   };
 
   return (
-    <header className="h-16 bg-gray-950/50 border-b border-white/5 flex items-center justify-between px-8 backdrop-blur-xl sticky top-0 z-50">
-      <div className="flex items-center gap-8 flex-1">
+    <header className="h-16 bg-gray-950/50 border-b border-white/5 flex items-center justify-between px-4 sm:px-8 backdrop-blur-xl sticky top-0 z-50">
+      <div className="flex items-center gap-4 md:gap-8 flex-1">
+        <button 
+          onClick={toggleMobileSidebar}
+          className="p-2 text-slate-400 hover:text-white transition-colors md:hidden border border-white/5 bg-white/5 rounded-xl"
+        >
+          <Menu size={18} />
+        </button>
         <h1 className="text-sm font-display font-bold text-white uppercase tracking-widest hidden xl:block">
           {getPageTitle()}
         </h1>

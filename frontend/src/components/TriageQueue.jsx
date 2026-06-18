@@ -123,7 +123,7 @@ const OperationalIntelligencePanel = ({ report, onClose }) => {
       exit={{ opacity: 0, scale: 0.95 }}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
     >
-      <div className="glass-panel w-full max-w-4xl h-full max-h-[85vh] md:max-h-[90vh] overflow-hidden flex flex-col relative border-primary/20 shadow-2xl shadow-primary/10">
+      <div className="glass-panel w-full max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden flex flex-col relative border-primary/20 shadow-2xl shadow-primary/10">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors z-50 bg-black/20 backdrop-blur-md border border-white/10"
@@ -224,16 +224,16 @@ const OperationalIntelligencePanel = ({ report, onClose }) => {
           </div>
         </div>
 
-        <div className="p-4 bg-[#0a0f1c] border-t border-white/5 flex justify-end flex-shrink-0 gap-4">
+        <div className="p-4 bg-[#0a0f1c] border-t border-white/5 flex flex-col sm:flex-row justify-end flex-shrink-0 gap-3 sm:gap-4">
           <button 
             onClick={onClose}
-            className="px-6 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-sm font-bold transition-colors"
+            className="px-6 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-sm font-bold transition-colors w-full sm:w-auto"
           >
             Cancel
           </button>
           <button 
             onClick={handleDeploy}
-            className="px-6 py-2 rounded-lg bg-primary hover:bg-primary/80 text-white text-sm font-bold transition-colors flex items-center shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+            className="px-6 py-2 rounded-lg bg-primary hover:bg-primary/80 text-white text-sm font-bold transition-colors flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.5)] w-full sm:w-auto"
           >
             <Truck className="w-4 h-4 mr-2" />
             Deploy Rescue Team
@@ -286,7 +286,7 @@ const TriageCard = ({ report, onUpdateStatus, onClick }) => {
       )}
       
       <div className="px-4 pb-4 pt-2">
-        <div className="flex justify-between items-start mb-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-2">
         <div className="flex items-center space-x-3">
           <div className={`p-2 rounded-lg ${priorityColors[priority]} ${priority === 'Critical' ? 'animate-pulse' : ''}`}>
             <Icon className="w-5 h-5" />
@@ -302,18 +302,18 @@ const TriageCard = ({ report, onUpdateStatus, onClick }) => {
             </div>
           </div>
         </div>
-        <div className="text-right">
-          <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-1 ${priorityColors[priority]}`}>
+        <div className="text-left sm:text-right shrink-0">
+          <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-1 inline-block ${priorityColors[priority]}`}>
             {priority} • AI {score}%
           </div>
-          <div className="text-[10px] text-slate-500 flex items-center justify-end">
+          <div className="text-[10px] text-slate-500 flex items-center sm:justify-end mt-1 sm:mt-0">
             <Clock className="w-3 h-3 mr-1" />
             {new Date(report.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 mb-4 bg-black/20 p-2 rounded-lg">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 bg-black/20 p-2 rounded-lg">
         <div className="text-center border-r border-white/5">
           <p className="text-[9px] text-slate-500 uppercase font-bold">Casualties</p>
           <p className="text-xs font-bold text-critical">{casualties}</p>

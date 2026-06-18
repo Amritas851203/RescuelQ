@@ -1,8 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Map, Users, AlertTriangle, Shield, Radio, Home, Settings, LogOut, User } from 'lucide-react';
+import { Activity, Map, Users, AlertTriangle, Shield, Radio, Home, Settings, LogOut, User, X } from 'lucide-react';
 import clsx from 'clsx';
 import useSosStore from '../store/useSosStore';
 import useAuthStore from '../store/useAuthStore';
+import useUiStore from '../store/useUiStore';
 import axios from 'axios';
 import { useState } from 'react';
 
@@ -73,10 +74,12 @@ const Sidebar = () => {
   const [mockIndex, setMockIndex] = useState(0);
   const addReport = useSosStore((state) => state.addReport);
   const { logout, user } = useAuthStore();
+  const { isMobileSidebarOpen, setMobileSidebarOpen } = useUiStore();
 
   const handleSignOut = () => {
     if (window.confirm('Terminate current session?')) {
       logout();
+      setMobileSidebarOpen(false);
       navigate('/login');
     }
   };
@@ -106,10 +109,10 @@ const Sidebar = () => {
       });
   };
 
-  return (
-    <aside className="w-64 bg-gray-950 border-r border-white/5 hidden md:flex flex-col z-50">
-      <div className="h-16 flex items-center px-6 border-b border-white/5">
-        <Link to="/" className="flex items-center gap-3 group">
+  const renderContent = (isMobile = false) => (
+    <>
+      <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
+        <Link to="/" onClick={() => isMobile && setMobileSidebarOpen(false)} className="flex items-center gap-3 group">
           <div className="relative">
             <AlertTriangle className="w-7 h-7 text-critical transition-transform group-hover:scale-110" />
             <div className="absolute -inset-1 bg-critical/20 blur-md rounded-full animate-pulse" />
@@ -118,6 +121,14 @@ const Sidebar = () => {
             Rescue<span className="text-critical">IQ</span>
           </span>
         </Link>
+        {isMobile && (
+          <button 
+            onClick={() => setMobileSidebarOpen(false)}
+            className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
       
       <div className="px-6 py-6 shrink-0">
@@ -150,6 +161,7 @@ const Sidebar = () => {
               <li key={item.path}>
                 <Link
                   to={item.path}
+                  onClick={() => isMobile && setMobileSidebarOpen(false)}
                   className={clsx(
                     'flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group',
                     isActive
@@ -199,8 +211,33 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="w-64 bg-gray-950 border-r border-white/5 hidden md:flex flex-col z-50">
+        {renderContent(false)}
+      </aside>
+
+      {/* Mobile Drawer Overlay */}
+      {isMobileSidebarOpen && (
+        <div className="fixed inset-0 z-[100] flex md:hidden">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+          {/* Drawer Panel */}
+          <aside className="relative w-64 max-w-[80vw] bg-gray-950 border-r border-white/5 flex flex-col h-full shadow-2xl animate-in slide-in-from-left duration-200">
+            {renderContent(true)}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };
 
 export default Sidebar;
+

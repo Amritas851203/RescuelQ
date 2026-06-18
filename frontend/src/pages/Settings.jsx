@@ -14,7 +14,7 @@ const SettingsCard = ({ title, icon: Icon, children, delay = 0 }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.5 }}
-    className="bg-[#0a1020]/72 backdrop-blur-[18px] border border-white/5 rounded-[2rem] p-8 shadow-2xl group hover:border-cyan-500/20 transition-all duration-500"
+    className="bg-[#0a1020]/72 backdrop-blur-[18px] border border-white/5 rounded-[2rem] p-5 sm:p-8 shadow-2xl group hover:border-cyan-500/20 transition-all duration-500"
   >
     <div className="flex items-center gap-4 mb-8">
       <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all">
@@ -196,9 +196,9 @@ const Settings = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse" />
       </div>
 
-      <main className="max-w-[1600px] mx-auto px-8 py-16 relative z-10">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-8 py-8 sm:py-16 relative z-10">
         {/* Header */}
-        <div className="flex justify-between items-end mb-16">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-16">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
@@ -206,12 +206,12 @@ const Settings = () => {
               </div>
               <span className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.4em]">Control Panel</span>
             </div>
-            <h1 className="text-6xl font-black tracking-tighter uppercase mb-2">System Settings</h1>
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tighter uppercase mb-2">System Settings</h1>
             <p className="text-white/40 font-mono text-sm max-w-xl leading-relaxed">
               Manage operational preferences, security protocols, notifications, and AI system controls for the RescueIQ tactical environment.
             </p>
           </div>
-          <div className="flex flex-col items-end gap-3">
+          <div className="flex flex-col items-start sm:items-end gap-3 shrink-0">
             <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">All Systems Stable</span>
@@ -225,9 +225,8 @@ const Settings = () => {
           <div className="col-span-12 lg:col-span-8 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-              {/* Account Settings */}
               <SettingsCard title="Account Profile" icon={User} delay={0.1}>
-                <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/5">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 p-4 sm:p-6 rounded-3xl bg-white/5 border border-white/5">
                   <div 
                     className="relative group cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
@@ -490,7 +489,7 @@ const Settings = () => {
         title="Edit Tactical Profile"
       >
         <form onSubmit={handleProfileUpdate} className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Full Name</label>
               <div className="relative group">
@@ -530,7 +529,7 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Rank / Title</label>
               <div className="relative group">

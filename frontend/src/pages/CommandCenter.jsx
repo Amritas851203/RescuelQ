@@ -17,8 +17,8 @@ import {
 } from 'lucide-react';
 import useSosStore from '../store/useSosStore';
 
-const API_URL = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api` : 'http://localhost:5001/api';
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api` : 'http://localhost:5999/api');
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:5999';
 
 const CommandCenter = () => {
   const { reports: sosReports, fetchReports } = useSosStore();
@@ -26,9 +26,9 @@ const CommandCenter = () => {
   const [loading, setLoading] = useState(true);
   const [activeLeftTab, setActiveLeftTab] = useState('sos'); // 'sos' or 'fleet'
   const [isTacticalAILive, setIsTacticalAILive] = useState(false);
-  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
-  const [isRightCollapsed, setIsRightCollapsed] = useState(false);
-  const [isFeedCollapsed, setIsFeedCollapsed] = useState(false);
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(window.innerWidth < 1024);
+  const [isRightCollapsed, setIsRightCollapsed] = useState(window.innerWidth < 1024);
+  const [isFeedCollapsed, setIsFeedCollapsed] = useState(window.innerWidth < 1024);
   const [isAutonomousMode, setIsAutonomousMode] = useState(false);
   const [teams, setTeams] = useState([]);
   const [stats, setStats] = useState({ teamsCount: 0 });
@@ -247,11 +247,11 @@ const CommandCenter = () => {
         <motion.aside 
           initial={false}
           animate={{ 
-            x: isLeftCollapsed ? -380 : 0,
+            x: isLeftCollapsed ? 'calc(-100% - 24px)' : 0,
             opacity: 1
           }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="absolute top-6 bottom-6 left-6 w-[400px] z-30 flex flex-col pointer-events-none"
+          className="absolute top-6 bottom-6 left-6 w-[90vw] md:w-[400px] z-30 flex flex-col pointer-events-none"
         >
           <div className="pointer-events-auto h-full flex flex-col relative">
             {/* Collapse Button - Left */}
@@ -340,11 +340,11 @@ const CommandCenter = () => {
         <motion.aside 
           initial={false}
           animate={{ 
-            x: isRightCollapsed ? 380 : 0,
+            x: isRightCollapsed ? 'calc(100% + 24px)' : 0,
             opacity: 1
           }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="absolute top-6 bottom-6 right-6 w-[400px] z-30 flex flex-col pointer-events-none"
+          className="absolute top-6 bottom-6 right-6 w-[90vw] md:w-[400px] z-30 flex flex-col pointer-events-none"
         >
           <div className="pointer-events-auto h-full flex flex-col relative">
             {/* Collapse Button - Right */}

@@ -222,7 +222,7 @@ const SocialScanner = () => {
             <ChevronLeft size={16} />
           </button>
           
-          <div ref={scrollRef} className="flex gap-3 overflow-x-hidden scroll-smooth flex-1 py-1">
+          <div ref={scrollRef} className="flex gap-3 overflow-x-auto lg:overflow-x-hidden scroll-smooth flex-1 py-1 no-scrollbar">
             {alerts.slice(0, 10).map((alert, i) => (
               <div key={i} className="min-w-[300px] flex-shrink-0 bg-[#0f172a] border border-white/5 rounded-xl p-3 flex gap-3 hover:border-primary/30 transition-colors cursor-pointer group">
                 <div className="flex flex-col items-center justify-center gap-1">
@@ -410,12 +410,12 @@ const SocialScanner = () => {
             </div>
           </div>
 
-          <div className="glass-panel p-4 flex gap-6 items-center">
-            <div className="flex flex-col items-center justify-center p-4 bg-primary/5 rounded-2xl border border-primary/20">
+          <div className="glass-panel p-4 flex flex-col sm:flex-row gap-4 sm:gap-6 items-center">
+            <div className="flex flex-col items-center justify-center p-4 bg-primary/5 rounded-2xl border border-primary/20 w-full sm:w-auto">
               <Cpu className="w-10 h-10 text-primary mb-2 animate-pulse" />
               <h3 className="text-[8px] font-black uppercase text-slate-400 text-center">AI Intelligence<br/>Summary</h3>
             </div>
-            <div className="flex-1 space-y-2 border-r border-white/5 pr-4">
+            <div className="flex-1 space-y-2 border-b sm:border-b-0 sm:border-r border-white/5 pb-4 sm:pb-0 sm:pr-4 w-full">
               <ul className="text-[10px] font-bold text-slate-300 space-y-2 list-disc pl-4 marker:text-primary">
                 <li>Sudden spike in flood-related mentions in North region.</li>
                 <li>High probability of waterlogging in low-lying areas.</li>
@@ -423,7 +423,7 @@ const SocialScanner = () => {
                 <li>Monitor critical infrastructure belts closely.</li>
               </ul>
             </div>
-            <div className="flex flex-col items-center justify-center pl-2">
+            <div className="flex flex-col items-center justify-center pl-0 sm:pl-2 shrink-0">
                <div className="relative w-16 h-16 flex items-center justify-center rounded-full border-4 border-safe/30 border-t-safe">
                   <span className="text-sm font-black text-white">92%</span>
                </div>

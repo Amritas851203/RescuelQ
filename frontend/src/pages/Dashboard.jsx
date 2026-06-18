@@ -117,7 +117,7 @@ const Dashboard = () => {
     <div className="h-full bg-[#0a0f1c] flex flex-col gap-3 font-sans text-white pb-6 overflow-y-auto custom-scrollbar">
       
       {/* ROW 1: TOP STATS */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 flex-shrink-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 flex-shrink-0">
         <TopCard title="Total Incidents" value={stats.total || 247} sub="↑ 18% from last 24h" color="text-primary" icon={Layers} />
         <TopCard title="Critical Incidents" value={stats.critical || 68} sub="↑ 24% from last 24h" color="text-critical" icon={AlertTriangle} />
         <TopCard title="Active Rescue Units" value="128" sub="Live Deployed" color="text-primary" icon={Users} />
@@ -127,7 +127,7 @@ const Dashboard = () => {
       </div>
 
       {/* ROW 2: BREAKDOWN */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 flex-shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 flex-shrink-0">
         
         <div className="glass-panel p-3">
           <div className="flex justify-between items-center mb-2">
@@ -206,7 +206,7 @@ const Dashboard = () => {
       </div>
 
       {/* ROW 3: TRENDS & SYSTEM */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 flex-shrink-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 flex-shrink-0">
         
         <div className="glass-panel p-3">
           <div className="flex justify-between items-center mb-2">
@@ -295,7 +295,7 @@ const Dashboard = () => {
       </div>
 
       {/* ROW 4: GLOBAL METRICS */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 flex-shrink-0 mt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 flex-shrink-0 mt-2">
          <div className="glass-panel p-3 flex items-center gap-3">
            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary"><Users size={16}/></div>
            <div><p className="text-[8px] font-black uppercase text-slate-500">Pop. At Risk</p><h4 className="text-sm font-black">{stats.popRisk > 0 ? (stats.popRisk/1000).toFixed(1)+'K' : '1.2M'}</h4></div>

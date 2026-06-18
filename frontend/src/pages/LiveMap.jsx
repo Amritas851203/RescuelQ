@@ -73,6 +73,7 @@ const LiveMap = () => {
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [filterType, setFilterType] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isIntelOpen, setIsIntelOpen] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -100,16 +101,26 @@ const LiveMap = () => {
   return (
     <div className="h-full w-full relative bg-[#020617] flex overflow-hidden font-sans">
       {/* --- LEFT INTELLIGENCE SIDEBAR --- */}
-      <aside className="w-80 h-full bg-slate-950/80 backdrop-blur-2xl border-r border-white/5 z-50 flex flex-col overflow-hidden shrink-0">
+      <aside className={`absolute md:relative top-0 left-0 w-full max-w-xs h-full bg-slate-950/90 md:bg-slate-950/80 backdrop-blur-2xl border-r border-white/5 z-50 flex flex-col overflow-hidden shrink-0 transition-transform duration-300 ${
+        isIntelOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
         <div className="p-6 border-b border-white/5">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2.5 rounded-xl bg-primary/20 border border-primary/30">
-              <Globe className="text-primary" size={22} />
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-primary/20 border border-primary/30">
+                <Globe className="text-primary" size={22} />
+              </div>
+              <div>
+                <h2 className="text-sm font-black text-white uppercase tracking-tighter italic">Global Intel</h2>
+                <p className="text-[8px] text-primary font-bold uppercase tracking-widest">Real-Time Sync Active</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-sm font-black text-white uppercase tracking-tighter italic">Global Intel</h2>
-              <p className="text-[8px] text-primary font-bold uppercase tracking-widest">Real-Time Sync Active</p>
-            </div>
+            <button 
+              onClick={() => setIsIntelOpen(false)}
+              className="md:hidden p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            >
+              <X size={18} />
+            </button>
           </div>
 
           <div className="relative group">
@@ -240,8 +251,18 @@ const LiveMap = () => {
         </MapContainer>
 
         {/* --- MAP HUD OVERLAYS --- */}
-        <div className="absolute top-6 left-6 z-[1000] pointer-events-none flex flex-col gap-3">
-          <div className="bg-slate-950/80 backdrop-blur-md p-3 flex items-center gap-4 border border-white/10 rounded-xl pointer-events-auto shadow-2xl">
+        <div className="absolute top-4 left-4 md:top-6 md:left-6 z-[1000] pointer-events-none flex flex-col gap-2.5 max-w-[calc(100vw-2rem)]">
+          {!isIntelOpen && (
+            <button 
+              onClick={() => setIsIntelOpen(true)}
+              className="md:hidden bg-slate-950/90 backdrop-blur-md px-3.5 py-2.5 border border-white/10 rounded-xl pointer-events-auto shadow-2xl text-white flex items-center gap-2 hover:bg-slate-900 active:scale-95 transition-transform"
+            >
+              <Globe size={14} className="text-primary animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-widest">Open Intel Feed</span>
+            </button>
+          )}
+
+          <div className="bg-slate-950/85 backdrop-blur-md p-3 flex flex-wrap items-center gap-3 md:gap-4 border border-white/10 rounded-xl pointer-events-auto shadow-2xl w-fit">
              <div className="flex flex-col">
                 <span className="text-[7px] text-slate-500 font-black uppercase tracking-widest mb-0.5">Incidents</span>
                 <span className="text-sm font-black text-white">{stats.total}</span>
@@ -258,7 +279,7 @@ const LiveMap = () => {
              </div>
           </div>
 
-          <div className="bg-slate-950/80 backdrop-blur-md px-3 py-1.5 border border-white/10 rounded-xl pointer-events-auto overflow-x-auto no-scrollbar flex items-center gap-1.5 shadow-2xl w-fit">
+          <div className="bg-slate-950/85 backdrop-blur-md px-3 py-1.5 border border-white/10 rounded-xl pointer-events-auto overflow-x-auto no-scrollbar flex items-center gap-1.5 shadow-2xl w-fit max-w-[90vw]">
              {['ALL', 'EARTHQUAKE', 'FLOOD', 'CYCLONE', 'VOLCANO'].map(t => (
                <button 
                 key={t}
@@ -277,12 +298,12 @@ const LiveMap = () => {
         <AnimatePresence>
           {selectedIncident && (
             <motion.div 
-              initial={{ x: 400, opacity: 0 }}
+              initial={{ x: '100%', opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 400, opacity: 0 }}
-              className="absolute top-0 right-0 h-full w-[400px] z-[1100] bg-slate-950/95 backdrop-blur-3xl border-l border-white/10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col"
+              exit={{ x: '100%', opacity: 0 }}
+              className="absolute top-0 right-0 h-full w-full sm:w-[400px] z-[1100] bg-slate-950/95 backdrop-blur-3xl border-l border-white/10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)] flex flex-col"
             >
-              <div className="p-8 border-b border-white/5 relative">
+              <div className="p-6 sm:p-8 border-b border-white/5 relative">
                 <button 
                   onClick={() => setSelectedIncident(null)}
                   className="absolute top-6 right-6 p-2 text-slate-500 hover:text-white transition-colors"
