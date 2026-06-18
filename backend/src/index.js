@@ -15,15 +15,54 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors());
+const allowedOrigins = [
+  'https://rescuei-q.vercel.app',
+  'https://rescue-q.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const originLower = origin.toLowerCase();
+    const isAllowed = allowedOrigins.includes(originLower) || 
+                      /^http:\/\/localhost(:\d+)?$/.test(originLower) ||
+                      /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(originLower);
+                      
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Setup Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const originLower = origin.toLowerCase();
+      const isAllowed = allowedOrigins.includes(originLower) || 
+                        /^http:\/\/localhost(:\d+)?$/.test(originLower) ||
+                        /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(originLower);
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(null, new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 
