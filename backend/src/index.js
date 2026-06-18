@@ -18,22 +18,26 @@ const server = http.createServer(app);
 const allowedOrigins = [
   'https://rescuei-q.vercel.app',
   'https://rescue-q.vercel.app',
+  'https://rescu-q.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
+    console.log(`[CORS Request Audit] Origin: ${origin}`);
     if (!origin) return callback(null, true);
     const originLower = origin.toLowerCase();
     const isAllowed = allowedOrigins.includes(originLower) || 
+                      /^https:\/\/rescu[a-z0-9-]*\.vercel\.app$/.test(originLower) ||
                       /^http:\/\/localhost(:\d+)?$/.test(originLower) ||
                       /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(originLower);
                       
     if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.warn(`[CORS Request Blocked] Origin: ${origin}`);
+      callback(null, false);
     }
   },
   credentials: true,
@@ -52,12 +56,13 @@ const io = new Server(server, {
       if (!origin) return callback(null, true);
       const originLower = origin.toLowerCase();
       const isAllowed = allowedOrigins.includes(originLower) || 
+                        /^https:\/\/rescu[a-z0-9-]*\.vercel\.app$/.test(originLower) ||
                         /^http:\/\/localhost(:\d+)?$/.test(originLower) ||
                         /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(originLower);
       if (isAllowed) {
         callback(null, true);
       } else {
-        callback(null, new Error('Not allowed by CORS'));
+        callback(null, false);
       }
     },
     methods: ['GET', 'POST'],
