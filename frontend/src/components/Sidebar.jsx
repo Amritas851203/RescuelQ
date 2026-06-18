@@ -7,6 +7,10 @@ import useUiStore from '../store/useUiStore';
 import axios from 'axios';
 import { useState } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL 
+  ? (import.meta.env.VITE_API_URL.endsWith('/api') ? import.meta.env.VITE_API_URL : `${import.meta.env.VITE_API_URL}/api`) 
+  : '/api';
+
 const MOCK_INCIDENTS = [
   { 
     name: 'Flash Flood Delta-9', 
@@ -99,7 +103,7 @@ const Sidebar = () => {
       injury_severity: selected.severity === 'CRITICAL' ? 10 : 7
     };
 
-    axios.post('/api/sos', payload)
+    axios.post(`${API_URL}/sos`, payload)
       .then(res => {
         console.log('✅ Mock Incident Spawned:', res.data);
         setMockIndex(prev => prev + 1);

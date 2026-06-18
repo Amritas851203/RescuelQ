@@ -151,7 +151,11 @@ const AIChatBot = () => {
         parts: [{ text: msg.content }]
       }));
 
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/ai/chat`, {
+      const apiBaseUrl = import.meta.env.VITE_API_URL 
+        ? (import.meta.env.VITE_API_URL.endsWith('/api') ? import.meta.env.VITE_API_URL : `${import.meta.env.VITE_API_URL}/api`) 
+        : '/api';
+
+      const response = await axios.post(`${apiBaseUrl}/ai/chat`, {
         prompt: text.trim(),
         history: history
       }, {

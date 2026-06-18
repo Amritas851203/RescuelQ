@@ -4,6 +4,10 @@ import axios from 'axios';
 import { socket } from '../hooks/useRealtime';
 import clsx from 'clsx';
 
+const API_URL = import.meta.env.VITE_API_URL 
+  ? (import.meta.env.VITE_API_URL.endsWith('/api') ? import.meta.env.VITE_API_URL : `${import.meta.env.VITE_API_URL}/api`) 
+  : '/api';
+
 const EmergencyCalling = () => {
   const [calls, setCalls] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -72,9 +76,9 @@ const EmergencyCalling = () => {
   const fetchData = async () => {
     try {
       const [logsRes, contactsRes, analyticsRes] = await Promise.all([
-        axios.get('/api/emergency/logs'),
-        axios.get('/api/emergency/contacts'),
-        axios.get('/api/emergency/analytics')
+        axios.get(`${API_URL}/emergency/logs`),
+        axios.get(`${API_URL}/emergency/contacts`),
+        axios.get(`${API_URL}/emergency/analytics`)
       ]);
       setCalls(logsRes.data || []);
       setContacts(contactsRes.data || []);

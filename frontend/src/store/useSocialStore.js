@@ -2,7 +2,9 @@ import { create } from 'zustand';
 import axios from 'axios';
 import useAuthStore from './useAuthStore';
 
-const API_URL = '/api/social';
+const API_URL = import.meta.env.VITE_API_URL 
+  ? (import.meta.env.VITE_API_URL.endsWith('/api') ? `${import.meta.env.VITE_API_URL}/social` : `${import.meta.env.VITE_API_URL}/api/social`) 
+  : '/api/social';
 
 const useSocialStore = create((set, get) => ({
   alerts: [],
