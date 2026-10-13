@@ -8,7 +8,7 @@ RescueIQ is a professional disaster response and emergency management platform d
 - **AI-Powered Triage**: Automated assessment of emergency situations to prioritize rescue efforts.
 - **Live Interactive Map**: Visual representation of incidents and rescue assets using Leaflet.
 - **Instant Communication**: Integrated SMS and notification system (Twilio) for rapid response.
-- **Secure Data Management**: Robust backend powered by Supabase and Express.
+- **Secure Data Management**: Robust backend powered by Express and MongoDB.
 
 ## 🛠️ Technology Stack
 
@@ -24,7 +24,7 @@ RescueIQ is a professional disaster response and emergency management platform d
 - **Runtime**: Node.js
 - **Server**: Express
 - **Real-time**: Socket.io
-- **Database/Auth**: Supabase
+- **Database/Auth**: MongoDB
 - **AI Integration**: Anthropic Claude API
 - **Messaging**: Twilio
 

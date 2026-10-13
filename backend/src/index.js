@@ -85,7 +85,7 @@ process.on('uncaughtException', (err) => {
   console.error(err);
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5999;
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 RescueIQ Backend operational on port ${PORT}`);
@@ -100,6 +100,7 @@ server.headersTimeout = 66000;
 import { fetchEarthquakes, fetchGlobalDisasters } from './services/disasterService.js';
 import { randomUUID } from 'crypto';
 import SOSReport from './models/SOSReport.js';
+import mongoose from 'mongoose';
 
 const pollIntelligence = async () => {
   try {
@@ -118,7 +119,7 @@ const pollIntelligence = async () => {
     const criticalEvents = allEvents.filter(e => e.severity === 'CRITICAL');
     for (const event of criticalEvents) {
       // We only "auto-promote" a small percentage to avoid flooding the DB
-      if (Math.random() > 0.7) {
+      if (Math.random() > 0.7 && mongoose.connection.readyState === 1) {
         // Save to MongoDB for persistence
         const savedReport = await SOSReport.create({
           reporter_name: `AI_AUTO_DETECT: ${event.callerName}`,
